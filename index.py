@@ -4,7 +4,7 @@
 	He generate plots to show chemicals shifts for each titration of the secondary protein. You can fix a cutoff to appreciate residus involved in protein protein interaction. 
 	You can see all chemical shift of interest 2D maps (N15/1H) too.
 	
-	Developped by Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY ans Rainier-Numa GEORGES for Dr. Olivier WALKER and Dr. Maggy HOLOGNE (ISA-UMR 5280 CNRS,5 Rue de la DOUA, 69100 Villeurbanne -FRANCE). This program is developped in Python 3.5.1, date of creation : 2017-10-13, last modification : 2017-10-13.
+	Developped by Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY ans Rainier-Numa GEORGES for Dr. Olivier WALKER and Dr. Maggy HOLOGNE (ISA-UMR 5280 CNRS,5 Rue de la DOUA, 69100 Villeurbanne -FRANCE). This program is developped in Python 3.5.1, date of creation : 2017-10-13, last modification : 2017-10-16.
 	"""	
 
 #!/usr/bin/python
@@ -17,6 +17,7 @@ import os
 import sys
 
 
+#Enter experimentals files :
 
 titrationFile_0 = "data/listes/listPP/15N_UIM-SH3-37_00.list"
 titrationFile_1 = "data/listes/listPP/15N_UIM-SH3-37_01.list"
@@ -35,9 +36,11 @@ listFileTitration = [titrationFile_0, titrationFile_1]
 #listFileTitration = [titrationFile_0, titrationFile_1, titrationFile_2, titrationFile_3, titrationFile_4, titrationFile_5, titrationFile_6, titrationFile_7,titrationFile_8, titrationFile_9, titrationFile_10]
 
 
+#Test of all extensions files : 
 directoryIn = methods.informationsFile(listFileTitration)
 
 
+#Test of all files format:
 goodFormats = methods.formatVerification(listFileTitration)
 
 
@@ -47,28 +50,37 @@ writeResidusNotRetained = open(residusForgetted, "w", encoding = "utf-8")
 writeResidusNotRetained.close()
 
 
+#Parsed each files to retained all residus without all chemicals shifts in a file and in a list.
 residusNotRetained = list()
 listChemicalShift = list()
-#Search all residus without all chemicals shifts.
 missingDatas = True
 for titrationFile in listFileTitration :
-	residusNotRetained = methods.parseTitrationFile(titrationFile, listChemicalShift, residusForgetted, directoryIn, missingDatas, residusNotRetained)
+	residusNotRetained = methods.parseTitrationFile(titrationFile, listChemicalShift, residusForgetted, missingDatas, residusNotRetained)
+	print(residusNotRetained)
 
-#Search then takes all residus with xho have all chemicals shifts in listChemicalShift.
+
+#Parsed each files to retained all residus with all chemicals shifts in a list.
 listChemicalShift = list()
 missingDatas = False	
 for titrationFile in listFileTitration :
-	listChemicalShift = methods.parseTitrationFile(titrationFile, listChemicalShift, residusForgetted, directoryIn, missingDatas, residusNotRetained)
-
-
-listChemicalShift = methods.calculateRelativesShifts(listChemicalShift)
+	listChemicalShift = methods.parseTitrationFile(titrationFile, listChemicalShift, residusForgetted, missingDatas, residusNotRetained)
 print(listChemicalShift)
 
+
+#For each residus retained, each chemicals shifts are calculate in a relative form.
+listChemicalShift = methods.calculateRelativesShifts(listChemicalShift)
+
+
+#For each residus retained, delta(ChemicalShift) is calculate.
 deltaDeltaShifts = list()
 deltaDeltaShifts = methods.deltaDeltaChemicalsShifts(listChemicalShift)	
 
 
+#Cutoff selection by the user.
 oldCutoff = 0
 newCutoff = methods.cutoffSelection()
-plotSelected = methods.plotSelection()
+
+
+#Plot(s) selection by the user.
+plotSelected = methods.plotSelection(deltaDeltaShifts)
 
