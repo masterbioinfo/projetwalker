@@ -26,7 +26,6 @@ from docopt import docopt
 #Enter experimentals files :
 
 args = docopt(__doc__)
-print(args)
 
 listFileTitration = args["<file.list>"]
 
