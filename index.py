@@ -1,40 +1,34 @@
-"""	Shift2Me Project - Dating site for proteins !!!
-
-	This program can calculate chimicals shifts of 15N and 1H during a portein protein interaction in fonction of titation of the secondary protein. 
-	He generate plots to show chemicals shifts for each titration of the secondary protein. You can fix a cutoff to appreciate residus involved in protein protein interaction. 
-	You can see all chemical shift of interest 2D maps (N15/1H) too.
-	
-	Developped by Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY ans Rainier-Numa GEORGES for Dr. Olivier WALKER and Dr. Maggy HOLOGNE (ISA-UMR 5280 CNRS,5 Rue de la DOUA, 69100 Villeurbanne -FRANCE). This program is developped in Python 3.5.1, date of creation : 2017-10-13, last modification : 2017-10-16.
-	"""	
-
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- encoding: utf-8 -*-
+"""	
+Shift2Me Project - Dating site for proteins !!!
 
+This program can calculate chimicals shifts of 15N and 1H during a portein protein interaction in fonction of titation of the secondary protein. 
+He generate plots to show chemicals shifts for each titration of the secondary protein. You can fix a cutoff to appreciate residus involved in protein protein interaction. 
+You can see all chemical shift of interest 2D maps (N15/1H) too.
 
+Authors : Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY, Rainier-Numa GEORGES, Dr. Olivier WALKER, Dr. Maggy HOLOGNE (ISA-UMR 5280 CNRS,5 Rue de la DOUA, 69100 Villeurbanne -FRANCE). 
+This program is developped in Python 3.5.1, date of creation : 2017-10-13, last modification : 2017-10-16.
+
+Usage: index.py <file.list> <file.list> ...
+"""	
+
+"""
+Exemple :  ./index.py data/listes/listPP/*.list
+"""
 
 import methods
 import os
 import sys
+from docopt import docopt
 
 
 #Enter experimentals files :
 
-titrationFile_0 = "data/listes/listPP/15N_UIM-SH3-37_00.list"
-titrationFile_1 = "data/listes/listPP/15N_UIM-SH3-37_01.list"
-#titrationFile_2 = "data/listes/listPP/15N_UIM-SH3-37_02.list"
-#titrationFile_3 = "data/listes/listPP/15N_UIM-SH3-37_03.list"
-#titrationFile_4 = "data/listes/listPP/15N_UIM-SH3-37_04.list"
-#titrationFile_5 = "data/listes/listPP/15N_UIM-SH3-37_05.list"
-#titrationFile_6 = "data/listes/listPP/15N_UIM-SH3-37_06.list"
-#titrationFile_7 = "data/listes/listPP/15N_UIM-SH3-37_07.list"
-#titrationFile_8 = "data/listes/listPP/15N_UIM-SH3-37_08.list"
-#titrationFile_9 = "data/listes/listPP/15N_UIM-SH3-37_09.list"
-#titrationFile_10 = "data/listes/listPP/15N_UIM-SH3-37_10.list"
+args = docopt(__doc__)
+print(args)
 
-listFileTitration = [titrationFile_0, titrationFile_1]
-
-#listFileTitration = [titrationFile_0, titrationFile_1, titrationFile_2, titrationFile_3, titrationFile_4, titrationFile_5, titrationFile_6, titrationFile_7,titrationFile_8, titrationFile_9, titrationFile_10]
-
+listFileTitration = args["<file.list>"]
 
 #Test of all extensions files : 
 directoryIn = methods.informationsFile(listFileTitration)
