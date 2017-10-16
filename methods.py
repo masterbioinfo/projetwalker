@@ -1,9 +1,24 @@
 """Module functions, classes and methods use during Shift2Me works.
 
-Developped by Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY ans Rainier-Numa GEORGES for Dr. Olivier WALKER and Dr. Maggy HOLOGNE (ISA-UMR 5280 CNRS,5 Rue de la DOUA, 69100 Villeurbanne -FRANCE). This program is developped in Python 3.5.1, date of creation : 2017-10-13, last modification : 2017-10-13.
+Developped by Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY ans Rainier-Numa GEORGES for Dr. Olivier WALKER and Dr. Maggy HOLOGNE (ISA-UMR 5280 CNRS,5 Rue de la DOUA, 69100 Villeurbanne -FRANCE). This program is developped in Python 3.5.1, date of creation : 2017-10-13, last modification : 2017-10-16.
 """
 
+
+
+###############################################################################################
+
+
+					### Moduls ###
+
+
+###############################################################################################
+
+#Moduls used in methods.py.
+
+
 from math import *
+
+
 
 ###############################################################################################
 
@@ -13,10 +28,13 @@ from math import *
 
 ###############################################################################################
 
-"""All functions used during process are wrote here."""
+#All functions used during process are wrote here.
 
 
 def informationsFile(listFileTitration):
+	"""The fonction takes the all path of the file. Then she return the path without the file's name (pathIn), 
+	the file's name(fileNameOpen), the file's extension (extensionIn) in the dictionary named "directory". 
+	Also, she test if the file name is ".list". If it's not the case, she return an error."""
 
 	for fileInformations in listFileTitration:
 		directory = {"pathIn" : None, "fileNameOpen": None, "extensionIn": None}
@@ -43,6 +61,9 @@ def informationsFile(listFileTitration):
 	return directory
 
 def formatVerification(listFileTitration):
+	"""The fonction takes the list who contained all files's paths. She test all files. If a file ".list" is in the good format,
+	she return True. In other case, she return an error with the file's name. To do that, the file tested must be open, his first 
+	three lines are parsed and then tested on seven marks."""
 
 	for titrationFile in listFileTitration :
 		testFileArray = list()			#Takes the first three lines of each file to test if the file have a good format.
@@ -66,7 +87,24 @@ def formatVerification(listFileTitration):
 		f.close()
 				
 
-def parseTitrationFile(titrationFile, listChemicalShift, residusForgetted, directoryIn, missingDatas, residusNotRetained):
+def parseTitrationFile(titrationFile, listChemicalShift, residusForgetted, missingDatas, residusNotRetained):
+	"""This function takes in arguments: the file's path (titrationFile), the list who will contains all chemicals 
+		shifts after parsing(listChemicalShift), the path of the file who contains all residu not retained in the study,
+		the variable missingDatas, and the list of all residus not retained in the study because they don't
+		have all chemicals shifts (residusNotRetained).
+
+	In a first time, the file past in argument, is open and parsed line after line.
+	In a second time, if missingDatas = True, so we search all resdus without all chemicals shifts (one missing). If the line
+		tested reveals one chemical shift is missing, then this residus is write in the not retained residus's file and
+		in residusNotRetained list. In the other case, nothing his write and we pass to next line of the file parsed.
+	In a third time, if missingDatas = False, we want takes only residus who have all chemicals shifts in all files parsed.
+		First of all, we write the line parsed in listChemicalShiftParsed list, then we test if this last residus is write
+		in residusNotRetained list. If he's write on this list, we deleted this residu. In the other case, we keep this 
+		residus in listChemicalShiftParsed list. 
+	In a the last step, listChemicalShiftParsed list appends listChemicalShift list, this last list will be return.
+
+	In all case, if the line parsed is the first or the second of the file parsed, so we pass her. If the line isn't in a good
+	format, so an error is returned."""
 
 	try :
 		f = open(titrationFile, "r", encoding = "utf-8")
@@ -101,17 +139,17 @@ def parseTitrationFile(titrationFile, listChemicalShift, residusForgetted, direc
 					pass
 				#We search if residu with all chemicals shifts are in residusNotRetained list or not.
 				elif chemicalShift[4] != "" and chemicalShift[10] != "" :
+					chemicalShiftAssignements["residue"] = chemicalShift[0]
+					chemicalShiftAssignements["chemicalShiftN"] = chemicalShift[4]
+					chemicalShiftAssignements["chemicalShiftH"] = chemicalShift[10]
+					listChemicalShiftParsed.append(chemicalShiftAssignements)
+					#We test only the last residu write in listChemicalShift.
+					#If this is write in residusNotRetained list, we delete him.
 					for titration in residusNotRetained :
-						for residue in titration :
-							#If the residu, who don't have all chemicals shifts, is already write in residusNotRetained list, we don't write him in the list.
-							if residue == chemicalShift[0] :
-								pass
-							#The residu isn't in residusNotRetained list, so we take him to work on him.
-							else :
-								chemicalShiftAssignements["residue"] = chemicalShift[0]
-								chemicalShiftAssignements["chemicalShiftN"] = chemicalShift[4]
-								chemicalShiftAssignements["chemicalShiftH"] = chemicalShift[10]
-								listChemicalShiftParsed.append(chemicalShiftAssignements)
+						for residu in titration :
+							if residu == chemicalShift[0] :
+								del listChemicalShiftParsed[-1]
+							
 				#If other line, not planned in the file, are presents the program print a message error.
 				else :
 					raise ValueError ("A line in {0} isn't in support format (.list).".format(titrationFile))
@@ -125,7 +163,11 @@ def parseTitrationFile(titrationFile, listChemicalShift, residusForgetted, direc
 
 
 def calculateRelativesShifts(listChemicalShift):
-
+	"""This function takes in argument listChemicalShift list of all residus retained in the study.
+	She return the same list with all relatives chemicals shifts.
+	The function calculate for all residus and all N15 and H1 atoms :
+		relativeChemicalShift = chemicalShift([B protein] = i) - chemicalShift([B protein] = 0)"""
+	
 	i = 1
 	while i < len(listChemicalShift):
 		j = 0
@@ -138,6 +180,10 @@ def calculateRelativesShifts(listChemicalShift):
 
 
 def deltaDeltaChemicalsShifts(listChemicalShift):
+	"""This function takes in argument listChemicalShift list of all relatives chemicals shifts.
+	She return an other list named deltaDeltaShifts who contains delta(residusChemicalsShifts).
+	The function calculate deltas of chemicals shifts for all residus :
+		delta(residusChemicalsShifts = sqrt((relativesHChemicalShifts) ** 2 + ((relativesNChemicalShifts)/5) ** 2)"""
 
 	i = 1
 	deltaDeltaShifts = list()
@@ -160,17 +206,22 @@ def deltaDeltaChemicalsShifts(listChemicalShift):
 
 
 def cutoffSelection():
-	
+	"""This function takes no argument, she return the new cutoff value (type : float).
+	The user can write a new cutoff value. If the cutoff is in acceptable values, the function return 
+	the new cutoff value. 
+	If the value entry isn't in acceptables values, the function return an error. 
+	If the value cannot be transform in float type, the function return an error."""	
+
 	newCutoff = input("What cutoff value do you want applied ?\n")
 	
 	try :
 		newCutoff = float(newCutoff)
-		if newCutoff <= 10 and newCutoff >= 0:
+		if newCutoff <= 5 and newCutoff >= 0:
 			print("New cutoff applied = {0}.".format(newCutoff))
 			return newCutoff
 		else:
-			if newCutoff > 10 :
-				raise ValueError ("Cutoff selected is too higher! It's must be lower or equal than 10 !") 
+			if newCutoff > 5 :
+				raise ValueError ("Cutoff selected is too higher! It's must be lower or equal than 5 !") 
 			elif newCutoff < 0 :
 				raise ValueError ("Cutoff selected is too lower! It's must be higher or equal than 0 !") 
 	except TypeError:
@@ -178,7 +229,14 @@ def cutoffSelection():
 			print("Cutoff value must be integer or decimal !")
 
 
-def plotSelection():
+def plotSelection(deltaDeltaShifts):
+	"""This function takes deltaDeltaShifts list in argument, she return the selected plot (type : int).The user 
+	can choose the selected plot. 
+	If the plot is in 0 and the deltaDeltaShifts list length, the function return the selected plot. 
+	If the value entry isn't in acceptables values, the function return an error. If the value cannot 
+	be transform in integer type, the function return an error. 
+	They are an exception if the user write "all", or "All", or "ALL", in this case, the user
+	selected all plots."""
 
 	plotSelected = input('Which plot do you want to select ?\nEnter "all" to selection all plots.\n')
 	
