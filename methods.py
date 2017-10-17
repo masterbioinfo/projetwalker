@@ -19,7 +19,8 @@ Authors : Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY and Rainier-Nu
 
 
 from math import *
-
+import matplotlib.pyplot as plt
+import numpy as num
 
 
 ###############################################################################################
@@ -264,3 +265,27 @@ def plotSelection(deltaDeltaShifts):
 	except ValueError:
 		if plotSelected != "all":
 			print('Enter "all" to selection all plots.')
+
+def graph (deltaDeltaShifts):
+	values = []
+	aminoAcid = []
+	for index in range (0, len(deltaDeltaShifts[0])):
+		values.append(deltaDeltaShifts[0][index]['deltaDeltaChemicalShift'])
+		aminoAcid.append(deltaDeltaShifts[0][index]['residue'].rstrip('N-H'))
+
+
+	number = len(deltaDeltaShifts[0])
+	scale = num.arange(number)
+
+	plt.bar(scale, values, align='center', alpha=1)
+	plt.xticks([len(deltaDeltaShifts[0])/2], aminoAcid)
+	plt.ylabel('Intensity')
+	plt.xlabel('Amino Acid')
+	axes = plt.gca()
+	axes.xaxis.set_tick_params(labelsize = 5)
+	plt.title('Delta Delta')
+	plt.show()
+
+
+
+

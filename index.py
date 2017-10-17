@@ -68,7 +68,6 @@ listChemicalShift = methods.calculateRelativesShifts(listChemicalShift)
 deltaDeltaShifts = list()
 deltaDeltaShifts = methods.deltaDeltaChemicalsShifts(listChemicalShift)	
 
-
 #Cutoff selection by the user.
 oldCutoff = 0
 newCutoff = methods.cutoffSelection()
@@ -76,4 +75,7 @@ newCutoff = methods.cutoffSelection()
 
 #Plot(s) selection by the user.
 plotSelected = methods.plotSelection(deltaDeltaShifts)
+
+graphic = methods.graph (deltaDeltaShifts)
+print (graphic)
 
