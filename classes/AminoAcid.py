@@ -16,7 +16,7 @@ class AminoAcid(object):
 		"""
 		self.position = int(kwargs["position"])
 		self.chemShiftH = [float(kwargs["chemShiftH"])] if kwargs.get("chemShiftH") else []
-		self.chemShiftN = [float(kwargs.["chemShiftN"])] if kwargs.get("chemShiftN") else []
+		self.chemShiftN = [float(kwargs["chemShiftN"])] if kwargs.get("chemShiftN") else []
 		self._deltaChemShiftH = None
 		self._deltaChemShiftN = None
 		self._chemShiftIntensity = None
