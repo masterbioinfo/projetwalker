@@ -41,10 +41,10 @@ def validateFilePath(filePath):
 	Returns the titration step number if found, IOError is raised otherwise
 	"""
 	try: 
-		rePath = re.compile(r'(.+/)?(.+)(?P<step>\d+)\.list')
-		matching = rePath.match(filePath)
+		rePath = re.compile(r'(.+/)?(.+)(?P<step>\d+)\.list') # expected path format
+		matching = rePath.match(filePath) # attempt to match
 		if matching:
-			fileNumber = int(matching.group("step"))
+			fileNumber = int(matching.group("step")) # retrieve titration step number
 			return fileNumber
 		else:
 			raise IOError("Refusing to parse file %s : please check it is named like *[0-9]+.list" % path)
@@ -57,7 +57,7 @@ def sortPath(pathList):
 	Iterates over a list of file path, calling validateFilePath() and using its return value as sort key. 
 	Returns sorted file path according to titration step number. 
 	"""
-	return sorted(pathList, key=lambda path:validateFilePath(path))				
+	return sorted(pathList, key=lambda path:validateFilePath(path))			
 
 def parseTitrationFile(titrationFile, residues=dict()):
 	"""
@@ -69,17 +69,17 @@ def parseTitrationFile(titrationFile, residues=dict()):
 
 	try :
 		with open(titrationFile, "r", encoding = "utf-8") as titration:
-			reLine = re.compile(r"^(?P<pos>\d+)N-H\s+(?P<csH>\d+\.\d+)\s+(?P<csN>\d+\.\d+)$")
+			reLine = re.compile(r"^(?P<pos>\d+)N-H\s+(?P<csH>\d+\.\d+)\s+(?P<csN>\d+\.\d+)$") # expected line format
 			for lineNb, line in enumerate(titration) :
 				if line.strip() and not line.strip().startswith("Assignment"): # check for empty lines and header lines
-					lineMatch = reLine.match(line.strip())
+					lineMatch = reLine.match(line.strip()) # attempt to match to expected format
 					if lineMatch:
 						chemShift = dict(zip(
 							("position", "chemShiftH", "chemShiftN"),
-							lineMatch.groups() ))
-						if residues.get(chemShift["position"]):
+							lineMatch.groups() )) # parse line as dict 
+						if residues.get(chemShift["position"]): # update AminoAcid object in residues dict
 							residues[chemShift["position"]].addShift(**chemShift)
-						else:
+						else: # create AminoAcid object in residues dict
 							residues[chemShift["position"]] = AminoAcid(**chemShift)
 					else:
 						raise ValueError("Could not parse file %s at line %s" % (titrationFile, lineNb))
