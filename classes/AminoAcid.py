@@ -10,12 +10,23 @@ class AminoAcid(object):
 	"""
 
 	def __init__(self, **kwargs):
-		self.position = kwargs["position"]
-		self.chemShiftH = []
-		self.chemShiftN = []
+		"""
+		Initialize AminoAcid object, only required argument is position.
+		If chemShiftH and chemShiftN are provided, use them to start both chemical shift lists.
+		"""
+		self.position = int(kwargs["position"])
+		self.chemShiftH = [float(kwargs["chemShiftH"])] if kwargs.get("chemShiftH") else []
+		self.chemShiftN = [float(kwargs.["chemShiftN"])] if kwargs.get("chemShiftN") else []
 		self._deltaChemShiftH = None
 		self._deltaChemShiftN = None
 		self._chemShiftIntensity = None
+
+	def addShift(self, **kwargs):
+		"""
+		Append chemical shifts to object's lists of chemical shifts
+		"""
+		self.chemShiftH.append(float(kwargs["chemShiftH"]))
+		self.chemShiftN.append(float(kwargs["chemShiftN"]))
 
 	def validate(self, titrationSteps):
 		"""
