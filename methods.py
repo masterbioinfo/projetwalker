@@ -19,8 +19,9 @@ Authors : Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY and Rainier-Nu
 
 
 from math import *
-
-
+import re
+import sys
+from classes.AminoAcid import AminoAcid
 
 ###############################################################################################
 
@@ -33,135 +34,59 @@ from math import *
 #All functions used during process are wrote here.
 
 
-def informationsFile(listFileTitration):
-	"""The fonction takes the all path of the file. Then she return the path without the file's name (pathIn), 
-	the file's name(fileNameOpen), the file's extension (extensionIn) in the dictionary named "directory". 
-	Also, she test if the file name is ".list". If it's not the case, she return an error."""
 
-	for fileInformations in listFileTitration:
-		directory = {"pathIn" : None, "fileNameOpen": None, "extensionIn": None}
-		fileInformations = fileInformations.split(".")
-		directory["extensionIn"] = fileInformations[1]	
-		
-		#If open file have ".list" extension :
-		if directory["extensionIn"] == "list" :	
-			fileInformations = str(fileInformations[0]).split("/")
-			directory["fileNameOpen"] = fileInformations[-1]
-			i = 0
-			path = ""
-			
-			#Reformating open file's path :
-			while i < len(fileInformations) - 1 :
-				path = path + "{0}/".format(fileInformations[i])
-				i += 1 
-			directory["pathIn"] = path
-			
-		#If open file haven't ".list" extension :
-		else :
-			raise IOError("Le fichier {0} n'a pas d'extension '.list'".format(fileInformation))
-
-	return directory
-
-def formatVerification(listFileTitration):
-	"""The fonction takes the list who contained all files's paths. She test all files. If a file ".list" is in the good format,
-	she return True. In other case, she return an error with the file's name. To do that, the file tested must be open, his first 
-	three lines are parsed and then tested on seven marks."""
-
-	for titrationFile in listFileTitration :
-		testFileArray = list()			#Takes the first three lines of each file to test if the file have a good format.
-		f = open(titrationFile, "r", encoding = "utf-8")
-		testFile = f.readlines(50)		#Reads the first three lines of each files. 
-
-		for testLine in testFile :
-			testLine = (testLine.strip("\n").strip(" ")).split("\t")
-			testLine = str(testLine)
-			testLine = testLine.strip("['").strip("']")
-			testLine = testLine.split(" ")
-			testFileArray.append(testLine)
-		
-		#Test if the file have a good format under seven marks :
-		if testFileArray[0][0] == "Assignment" and testFileArray[0][9] == "w1" and testFileArray[0][18] == "w2" and testFileArray [1][0] == "" and testFileArray [2][0] != "" and testFileArray [2][4] != "" and testFileArray [2][10] != "" :
-			testFileArray = True
-		#Else, the function declare the file is not with the good format and raise an error :
+def validateFilePath(filePath):
+	"""
+	Given a file path, checks if it has .list extension and if it is numbered after the titration step. 
+	Returns the titration step number if found, IOError is raised otherwise
+	"""
+	try: 
+		rePath = re.compile(r'(.+/)?(.+)(?P<step>\d+)\.list')
+		matching = rePath.match(filePath)
+		if matching:
+			fileNumber = int(matching.group("step"))
+			return fileNumber
 		else:
-			raise IOError ('Le fichier {0} n\'est pas enregistré au foramt ".list".'.format(titrationFile))
+			raise IOError("Refusing to parse file %s : please check it is named like *[0-9]+.list" % path)
+	except IOError as err: 
+		sys.stderr.write("%s\n" % err )
+		exit(1)
 
-		f.close()
-				
+def sortPath(pathList):
+	"""
+	Iterates over a list of file path, calling validateFilePath() and using its return value as sort key. 
+	Returns sorted file path according to titration step number. 
+	"""
+	return sorted(pathList, key=lambda path:validateFilePath(path))				
 
-def parseTitrationFile(titrationFile, listChemicalShift, residusForgetted, missingDatas, residusNotRetained):
-	"""This function takes in arguments: the file's path (titrationFile), the list who will contains all chemicals 
-		shifts after parsing(listChemicalShift), the path of the file who contains all residu not retained in the study,
-		the variable missingDatas, and the list of all residus not retained in the study because they don't
-		have all chemicals shifts (residusNotRetained).
-
-	In a first time, the file past in argument, is open and parsed line after line.
-	In a second time, if missingDatas = True, so we search all resdus without all chemicals shifts (one missing). If the line
-		tested reveals one chemical shift is missing, then this residus is write in the not retained residus's file and
-		in residusNotRetained list. In the other case, nothing his write and we pass to next line of the file parsed.
-	In a third time, if missingDatas = False, we want takes only residus who have all chemicals shifts in all files parsed.
-		First of all, we write the line parsed in listChemicalShiftParsed list, then we test if this last residus is write
-		in residusNotRetained list. If he's write on this list, we deleted this residu. In the other case, we keep this 
-		residus in listChemicalShiftParsed list. 
-	In a the last step, listChemicalShiftParsed list appends listChemicalShift list, this last list will be return.
-
-	In all case, if the line parsed is the first or the second of the file parsed, so we pass her. If the line isn't in a good
-	format, so an error is returned."""
+def parseTitrationFile(titrationFile, residues=dict()):
+	"""
+	Titration file parser. 
+	Returns a new dict which keys are residues' position and values are AminoAcid objects.
+	If residues argument is provided, updates AminoAcid by adding parsed chemical shift values.
+	Throws ValueError if incorrect lines are encountered in file. 
+	"""
 
 	try :
-		f = open(titrationFile, "r", encoding = "utf-8")
-
-		listChemicalShiftParsed = list()
-		for line in f :
-		
-			chemicalShiftAssignements  = {"residue": None ,"chemicalShiftN": None ,"chemicalShiftH": None}		
-
-			chemicalShift = (line.strip("\n").strip(" ")).split("\t")
-			chemicalShift = str(chemicalShift)
-			chemicalShift = chemicalShift.strip("['").strip("']")
-			chemicalShift = chemicalShift.split(" ")
-
-			#In a first time, we search residus without all chemicals shifts.
-			if missingDatas == True :
-				#If the residu don't have all informations and doesn't write in residusNotRetained list yet, we write him in the list.
-				if chemicalShift[0] != "Assignment" and chemicalShift[0] != "" and (chemicalShift[4] == "" or len(chemicalShift) < 10) :
-						listChemicalShiftParsed.append(chemicalShift[0])
-						aaNotRetained = "{0}\t{1}\n".format(titrationFile, chemicalShift[0]) 
-						fileAaNotRetained = open(residusForgetted, "a")
-						fileAaNotRetained.write(aaNotRetained + "\n")
-						fileAaNotRetained.close()
-
-			#In a second time, we don't search residu without all chemicals shifts, we search residus with all informations.
-			elif missingDatas == False :
-				#Line in the headers don't retained.
-				if chemicalShift[0] == "Assignment" or chemicalShift[0] == "" :
-					pass
-				#Residus without all chemicals shifts are not retained.
-				elif chemicalShift[4] == "" or len(chemicalShift) < 10 :
-					pass
-				#We search if residu with all chemicals shifts are in residusNotRetained list or not.
-				elif chemicalShift[4] != "" and chemicalShift[10] != "" :
-					chemicalShiftAssignements["residue"] = chemicalShift[0]
-					chemicalShiftAssignements["chemicalShiftN"] = chemicalShift[4]
-					chemicalShiftAssignements["chemicalShiftH"] = chemicalShift[10]
-					listChemicalShiftParsed.append(chemicalShiftAssignements)
-					#We test only the last residu write in listChemicalShift.
-					#If this is write in residusNotRetained list, we delete him.
-					for titration in residusNotRetained :
-						for residu in titration :
-							if residu == chemicalShift[0] :
-								del listChemicalShiftParsed[-1]
-							
-				#If other line, not planned in the file, are presents the program print a message error.
-				else :
-					raise ValueError ("A line in {0} isn't in support format (.list).".format(titrationFile))
-
-		listChemicalShift.append(listChemicalShiftParsed)
-		f.close()
-		return listChemicalShift
-			
-	except IOError:
-		print("File doesn't exists !")
+		with open(titrationFile, "r", encoding = "utf-8") as titration:
+			reLine = re.compile(r"^(?P<pos>\d+)N-H\s+(?P<csH>\d+\.\d+)\s+(?P<csN>\d+\.\d+)$")
+			for lineNb, line in enumerate(titration) :
+				if line.strip() and not line.strip().startswith("Assignment"): # check for empty lines and header lines
+					lineMatch = reLine.match(line.strip())
+					if lineMatch:
+						chemShift = dict(zip(
+							("position", "chemShiftH", "chemShiftN"),
+							lineMatch.groups() ))
+						if residues.get(chemShift["position"]):
+							residues[chemShift["position"]].addShift(**chemShift)
+						else:
+							residues[chemShift["position"]] = AminoAcid(**chemShift)
+					else:
+						raise ValueError("Could not parse file %s at line %s" % (titrationFile, lineNb))
+		return residues
+	except (IOError, ValueError) as error:
+		sys.stderr.write("%s\n" % error)
+		exit(1)
 
 
 def calculateRelativesShifts(listChemicalShift):
