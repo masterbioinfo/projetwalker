@@ -20,7 +20,7 @@ This program is developped in Python 3.5.1, date of creation : 2017-10-13, last 
 Exemple :  ./index.py data/listes/listPP/*.list
 """
 
-import methods
+import functions
 import os
 import sys
 from docopt import docopt
@@ -34,12 +34,12 @@ args = docopt(__doc__)
 listFileTitration = args["<file.list>"]
 
 #Validate file path and sort them
-sortedPath = methods.sortPath(listFileTitration)
+sortedPath = functions.sortPath(listFileTitration)
 
 # build AminoAcid object dictionnary
 residues = dict()
 for titrationFile in listFileTitration :
-	residues = methods.parseTitrationFile(titrationFile, residues)
+	residues = functions.parseTitrationFile(titrationFile, residues)
 
 validatedResidues = [ residue for residue in residues.values() if residue.validate(len(sortedPath)) ]
 incompleteDataResidues = [residue for residue in residues.values() if not residue.validate(len(sortedPath))]
@@ -51,25 +51,25 @@ print(len(residues))
 listChemicalShift = list()
 missingDatas = False	
 for titrationFile in listFileTitration :
-	listChemicalShift = methods.parseTitrationFile(titrationFile, listChemicalShift, residusForgetted, missingDatas, residusNotRetained)
+	listChemicalShift = functions.parseTitrationFile(titrationFile, listChemicalShift, residusForgetted, missingDatas, residusNotRetained)
 print(listChemicalShift)
 
 
 #For each residus retained, each chemicals shifts are calculate in a relative form.
-listChemicalShift = methods.calculateRelativesShifts(listChemicalShift)
+listChemicalShift = functions.calculateRelativesShifts(listChemicalShift)
 
 
 #For each residus retained, delta(ChemicalShift) is calculate.
 deltaDeltaShifts = list()
-deltaDeltaShifts = methods.deltaDeltaChemicalsShifts(listChemicalShift)	
+deltaDeltaShifts = functions.deltaDeltaChemicalsShifts(listChemicalShift)	
 
 
 #Cutoff selection by the user.
 oldCutoff = 0
-newCutoff = methods.cutoffSelection()
+newCutoff = functions.cutoffSelection()
 
 
 #Plot(s) selection by the user.
-plotSelected = methods.plotSelection(deltaDeltaShifts)
+plotSelected = functions.plotSelection(deltaDeltaShifts)
 
 """
