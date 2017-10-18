@@ -76,6 +76,6 @@ newCutoff = methods.cutoffSelection()
 #Plot(s) selection by the user.
 plotSelected = methods.plotSelection(deltaDeltaShifts)
 
-graphic = methods.graph (deltaDeltaShifts)
+graphic = methods.graph (deltaDeltaShifts, newCutoff)
 print (graphic)
 
