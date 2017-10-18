@@ -21,6 +21,12 @@ class AminoAcid(object):
 		self._deltaChemShiftN = None
 		self._chemShiftIntensity = None
 
+	def __str__(self):
+		return str((self.position, self.chemShiftH, self.chemShiftN))
+
+	def __repr__(self):
+		return self.__str__()
+
 	def addShift(self, **kwargs):
 		"""
 		Append chemical shifts to object's lists of chemical shifts
