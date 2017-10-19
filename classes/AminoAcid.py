@@ -10,12 +10,32 @@ class AminoAcid(object):
 	"""
 
 	def __init__(self, **kwargs):
-		self.position = kwargs["position"]
-		self.chemShiftH = []
-		self.chemShiftN = []
+		"""
+		Initialize AminoAcid object, only required argument is position.
+		If chemShiftH and chemShiftN are provided, use them to start both chemical shift lists.
+		"""
+		self.position = int(kwargs["position"])
+		self.chemShiftH = [float(kwargs["chemShiftH"])] if kwargs.get("chemShiftH") else []
+		self.chemShiftN = [float(kwargs["chemShiftN"])] if kwargs.get("chemShiftN") else []
 		self._deltaChemShiftH = None
 		self._deltaChemShiftN = None
 		self._chemShiftIntensity = None
+
+	def __str__(self):
+		return str((self.position, self.chemShiftH, self.chemShiftN))
+
+	def __repr__(self):
+		return self.__str__()
+
+	def addShift(self, **kwargs):
+		"""
+		Append chemical shifts to object's lists of chemical shifts
+		If one of the values is missing, None or 0, it is ignored.
+		"""
+		if kwargs.get("chemShiftH") and float(kwargs["chemShiftH"]) != 0:
+			self.chemShiftH.append(float(kwargs["chemShiftH"]))
+		if kwargs.get("chemShiftN") and float(kwargs["chemShiftN"]) != 0:
+			self.chemShiftN.append(float(kwargs["chemShiftN"]))
 
 	def validate(self, titrationSteps):
 		"""
@@ -42,11 +62,11 @@ class AminoAcid(object):
 		return self._deltaChemShiftN
 
 	@property
-	def deltaFinal(self):
+	def finalIntensity(self):
 		"""
 		Get distance to the reference for each chemical shift at the final titration step. 
 		"""
-		return (self.deltaChemShiftH[-1], self.deltaChemShiftN[-1])
+		return self.chemShiftIntensity[-1]
 
 	@property 
 	def chemShiftIntensity(self):
