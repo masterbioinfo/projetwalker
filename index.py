@@ -17,33 +17,35 @@ Usage: index.py <file.list> <file.list> ...
 Exemple :  ./index.py data/listes/listPP/*.list
 """
 
+
 import methods
 import os
 import sys
 from docopt import docopt
 
 
-#Enter experimentals files :
+###Enter experimentals files :
 
 args = docopt(__doc__)
 
 listFileTitration = args["<file.list>"]
 
-#Test of all extensions files : 
+
+###Test of all extensions files : 
 directoryIn = methods.informationsFile(listFileTitration)
 
 
-#Test of all files format:
+###Test of all files format:
 goodFormats = methods.formatVerification(listFileTitration)
 
 
-#Creation of file who takes only residus not retained in the study because all chemical shift aren't presents.
-residusForgetted = "{0}residus_not_retained.txt".format(directoryIn["pathIn"])
+###Creation of file who takes only residus not retained in the study because all chemical shift aren't presents.
+residusForgetted = "{0}residus_not_retained.exlist".format(directoryIn["pathIn"])
 writeResidusNotRetained = open(residusForgetted, "w", encoding = "utf-8")	
 writeResidusNotRetained.close()
 
 
-#Parsed each files to retained all residus without all chemicals shifts in a file and in a list.
+###Parsed each files to retained all residus without all chemicals shifts in a file and in a list.
 residusNotRetained = list()
 listChemicalShift = list()
 missingDatas = True
@@ -52,7 +54,7 @@ for titrationFile in listFileTitration :
 	print(residusNotRetained)
 
 
-#Parsed each files to retained all residus with all chemicals shifts in a list.
+###Parsed each files to retained all residus with all chemicals shifts in a list.
 listChemicalShift = list()
 missingDatas = False	
 for titrationFile in listFileTitration :
@@ -60,22 +62,51 @@ for titrationFile in listFileTitration :
 print(listChemicalShift)
 
 
-#For each residus retained, each chemicals shifts are calculate in a relative form.
+###For each residus retained, each chemicals shifts are calculate in a relative form.
 listChemicalShift = methods.calculateRelativesShifts(listChemicalShift)
 
 
-#For each residus retained, delta(ChemicalShift) is calculate.
+###For each residus retained, delta(ChemicalShift) is calculate.
 deltaDeltaShifts = list()
 deltaDeltaShifts = methods.deltaDeltaChemicalsShifts(listChemicalShift)	
 
-#Cutoff selection by the user.
-oldCutoff = 0
+
+###List of dictionnaries creation who contains plots numbers and cutoffs at format : plot: n, cutoff: c.
+plotsAndCutoffs = list()
+
+i = 0
+while i < len(deltaDeltaShifts) :
+	plotCutoffs = {"plot" : i, "cutoff" : None}
+	plotsAndCutoffs.append(plotCutoffs)
+	i += 1
+print(plotsAndCutoffs)
+
+
+###Cutoff selection by the user.
 newCutoff = methods.cutoffSelection()
 
 
-#Plot(s) selection by the user.
-plotSelected = methods.plotSelection(deltaDeltaShifts)
+###Plot(s) selectionned by the user and affiliate cutoff selectionned with plot selestionned.
+plotsAndCutoffs = methods.plotSelection(plotsAndCutoffs, newCutoff)
 
-graphic = methods.graph (deltaDeltaShifts, newCutoff)
-print (graphic)
+
+###Save job in progress automatically.
+saveMessage = methods.saveJob(directoryIn, listFileTitration, plotsAndCutoffs, deltaDeltaShifts)
+print(saveMessage)
+
+
+###Load job in progress automatically. The file loaded must be write in CLI.
+#fileLoad = args["<file.list>"]
+#directoryIn = methods.informationsFile(listFileTitration)
+elementsLoads = methods.loadJob(directoryIn)
+listFileTitration = elementsLoads[0]
+plotsAndCutoffs = elementsLoads[1]
+deltaDeltaShifts = elementsLoads[2]
+loadMessage = elementsLoads[3]
+print(loadMessage)
+
+
+###Show histograms.
+#graphic = methods.histograms(deltaDeltaShifts, plotsAndCutoffs)
+#print(graphic)
 

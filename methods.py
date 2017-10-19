@@ -21,6 +21,7 @@ Authors : Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY and Rainier-Nu
 from math import *
 import matplotlib.pyplot as plt
 import numpy as num
+import pickle
 
 
 ###############################################################################################
@@ -37,7 +38,7 @@ import numpy as num
 def informationsFile(listFileTitration):
 	"""The fonction takes the all path of the file. Then she return the path without the file's name (pathIn), 
 	the file's name(fileNameOpen), the file's extension (extensionIn) in the dictionary named "directory". 
-	Also, she test if the file name is ".list". If it's not the case, she return an error."""
+	Also, she test if the file name is ".list" or "exlist". If it's not the case, she return an error."""
 
 	for fileInformations in listFileTitration:
 		directory = {"pathIn" : None, "fileNameOpen": None, "extensionIn": None}
@@ -45,7 +46,7 @@ def informationsFile(listFileTitration):
 		directory["extensionIn"] = fileInformations[1]	
 		
 		#If open file have ".list" extension :
-		if directory["extensionIn"] == "list" :	
+		if directory["extensionIn"] == "list" or directory["extensionIn"] == "exlist" :	
 			fileInformations = str(fileInformations[0]).split("/")
 			directory["fileNameOpen"] = fileInformations[-1]
 			i = 0
@@ -125,7 +126,7 @@ def parseTitrationFile(titrationFile, listChemicalShift, residusForgetted, missi
 			#In a first time, we search residus without all chemicals shifts.
 			if missingDatas == True :
 				#If the residu don't have all informations and doesn't write in residusNotRetained list yet, we write him in the list.
-				if chemicalShift[0] != "Assignment" and chemicalShift[0] != "" and (chemicalShift[4] == "" or len(chemicalShift) < 10) :
+				if chemicalShift[0] != "Assignment" and chemicalShift[0] != "" and ((chemicalShift[4] == "" or len(chemicalShift) < 10) or (chemicalShift[4] == "0.00000" or chemicalShift[10] == "0.000")):
 						listChemicalShiftParsed.append(chemicalShift[0])
 						aaNotRetained = "{0}\t{1}\n".format(titrationFile, chemicalShift[0]) 
 						fileAaNotRetained = open(residusForgetted, "a")
@@ -138,7 +139,7 @@ def parseTitrationFile(titrationFile, listChemicalShift, residusForgetted, missi
 				if chemicalShift[0] == "Assignment" or chemicalShift[0] == "" :
 					pass
 				#Residus without all chemicals shifts are not retained.
-				elif chemicalShift[4] == "" or len(chemicalShift) < 10 :
+				elif chemicalShift[4] == "" or len(chemicalShift) < 10 or chemicalShift[4] == "0.00000" or chemicalShift[10] == "0.000" :
 					pass
 				#We search if residu with all chemicals shifts are in residusNotRetained list or not.
 				elif chemicalShift[4] != "" and chemicalShift[10] != "" :
@@ -219,11 +220,11 @@ def cutoffSelection():
 	
 	try :
 		newCutoff = float(newCutoff)
-		if newCutoff <= 5 and newCutoff >= 0:
+		if newCutoff <= 2 and newCutoff >= 0:
 			print("New cutoff applied = {0}.".format(newCutoff))
 			return newCutoff
 		else:
-			if newCutoff > 5 :
+			if newCutoff > 2 :
 				raise ValueError ("Cutoff selected is too higher! It's must be lower or equal than 5 !") 
 			elif newCutoff < 0 :
 				raise ValueError ("Cutoff selected is too lower! It's must be higher or equal than 0 !") 
@@ -232,33 +233,41 @@ def cutoffSelection():
 			print("Cutoff value must be integer or decimal !")
 
 
-def plotSelection(deltaDeltaShifts):
-	"""This function takes deltaDeltaShifts list in argument, she return the selected plot (type : int).The user 
-	can choose the selected plot. 
-	If the plot is in 0 and the deltaDeltaShifts list length, the function return the selected plot. 
+def plotSelection(plotsAndCutoffs, newCutoff):
+	"""This function takes plotsAndCutoffs list in argument, she return the selected plot (type : int).The user 
+	can choose the selected plot. Then the function return plotsAndCutoffs list with a the affiliation between
+	plot(s) selectionned and cutoff selectionned previously.
+	If the plot is in 0 and the plotsAndCutoffs list length, the function return the selected plot. 
 	If the value entry isn't in acceptables values, the function return an error. If the value cannot 
 	be transform in integer type, the function return an error. 
 	They are an exception if the user write "all", or "All", or "ALL", in this case, the user
 	selected all plots."""
-
-	plotSelected = input('Which plot do you want to select ?\nEnter "all" to selection all plots.\n')
 	
+	plotSelected = input('Which plot do you want to select ?\nEnter "all" to selection all plots.\n')
+
 	try :
 		if plotSelected != "all" :
 			plotSelected = int(plotSelected)
 	
-			if plotSelected  <= len(deltaDeltaShifts) and plotSelected  >= 0:
-				print("You selectionned plot n°{0}.".format(plotSelected))
-				return plotSelected
+			if plotSelected  <= len(plotsAndCutoffs) and plotSelected  >= 0:
+				plotsAndCutoffs[plotSelected]["cutoff"] = newCutoff
+				print("You have selectionned plot n°{0}.".format(plotSelected))
+				return plotsAndCutoffs
 			else:
-				if plotSelected > len(deltaDeltaShifts) :
+				if plotSelected > len(plotsAndCutoffs) :
 					raise ValueError ("The plot choose cannot be selected !") 
 				elif plotSelected < 0 :
 					raise ValueError ("Plots numbers cannot be inderior of 0 !") 
 		elif plotSelected == "all" or plotSelected == "All" or plotSelected == "ALL" :
 			plotSelected.lower()
-			print("You selectionned all plots.")
-			return plotSelected
+			
+			i = 0
+			while i < len(plotsAndCutoffs) :
+				plotsAndCutoffs[i]["cutoff"] = newCutoff
+				i += 1
+			print("You have selectionned all plots.")
+
+			return plotsAndCutoffs
 	except TypeError:
 		if plotSelected != int :
 			print("Plot selected must be integer !")
@@ -266,7 +275,54 @@ def plotSelection(deltaDeltaShifts):
 		if plotSelected != "all":
 			print('Enter "all" to selection all plots.')
 
-def graph (deltaDeltaShifts, cutOff):
+
+def saveJob(directoryIn, listFileTitration, plotsAndCutoffs, deltaDeltaShifts):
+	"""The function can save the job. She takes diretoryIn dictionnary, listFileTitration list, 
+	plotsAndCutoffs list and deltaDeltaShifts list in arguments. She return a confirmation message.
+	If save cannot save objects in the file, she return an error message."""
+	
+	try:
+		with open("{0}saveJob.exlist".format(directoryIn["pathIn"]), 'ab') as saveJobFile:
+			my_pickler = pickle.Pickler(saveJobFile)
+			my_pickler.dump(listFileTitration)
+			my_pickler.dump(plotsAndCutoffs)
+			my_pickler.dump(deltaDeltaShifts)
+	
+		return "Job saves in {0}saveJob.exlist !".format(directoryIn["pathIn"])
+	except IOError :
+		return "The save file cannot be open to save the job..."
+
+
+def loadJob(directoryIn):
+	"""The function can load the last job save. She takes directoryIn dictionnary in argument. She
+	return elemntsLoads list. This list contains objects loaded from the save file: listFileTitration 
+	list, plotsAndCutoffs list and deltaDeltaShifts list."""
+	
+	elementsLoads = list()
+
+	try :	
+		with open("{0}saveJob.exlist".format(directoryIn["pathIn"]), 'rb') as loadJobFile:
+			my_depickler = pickle.Unpickler(loadJobFile)
+
+			listFileTitration = my_depickler.load()
+			elementsLoads.append(listFileTitration)
+
+			plotsAndCutoffs = my_depickler.load()
+			elementsLoads.append(plotsAndCutoffs)
+
+			deltaDeltaShifts = my_depickler.load()
+			elementsLoads.append(deltaDeltaShifts)
+
+		loadMessage = "Job loads from {0}saveJob.exlist !".format(directoryIn["pathIn"])
+		elementsLoads.append(loadMessage)
+		return elementsLoads
+	except IOError :
+		return "The save file cannot be open to load the last job..."
+	
+
+def histograms(deltaDeltaShifts, plotsAndCutoffs):
+	""" """
+
 	print (cutOff)
 	listNumber = 0
 	#plt.subplots(2, 2)
