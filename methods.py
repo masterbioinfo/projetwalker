@@ -281,7 +281,7 @@ def graph (deltaDeltaShifts, cutOff):
 				aminoAcid.append(listChemicalShift[index]['residue'].rstrip('N-H'))
 		number = len(values)
 		scale = num.arange(number)
-		plt.subplot(int(str(int(len(deltaDeltaShifts)/2+0.5))+'2'+str(listNumber)))
+		plt.subplot(int(str(int(len(deltaDeltaShifts)/2+0.5))), 2, listNumber)
 		plt.bar(scale, values, align='center', alpha=1)
 		plt.xticks(scale, aminoAcid)
 		plt.ylabel('Intensity')
