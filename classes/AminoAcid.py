@@ -62,11 +62,11 @@ class AminoAcid(object):
 		return self._deltaChemShiftN
 
 	@property
-	def deltaFinal(self):
+	def finalIntensity(self):
 		"""
 		Get distance to the reference for each chemical shift at the final titration step. 
 		"""
-		return (self.deltaChemShiftH[-1], self.deltaChemShiftN[-1])
+		return self.chemShiftIntensity[-1]
 
 	@property 
 	def chemShiftIntensity(self):
