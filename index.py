@@ -12,8 +12,7 @@ This program can calculate chimicals shifts of 15N and 1H during a portein prote
 He generate plots to show chemicals shifts for each titration of the secondary protein. You can fix a cutoff to appreciate residus involved in protein protein interaction. 
 You can see all chemical shift of interest 2D maps (N15/1H) too.
 
-Authors : Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY, Rainier-Numa GEORGES, Dr. Olivier WALKER, Dr. Maggy HOLOGNE (ISA-UMR 5280 CNRS,5 Rue de la DOUA, 69100 Villeurbanne -FRANCE). 
-This program is developped in Python 3.5.1, date of creation : 2017-10-13, last modification : 2017-10-16.
+Authors : Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY, Rainier-Numa GEORGES, Dr. Olivier WALKER, Dr. Maggy HOLOGNE. 
 """	
 
 """

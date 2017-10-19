@@ -48,25 +48,27 @@ class AminoAcid(object):
 		"""
 		Calculates distance to the reference for each chemical shift only once for hydrogen.
 		"""
-		if self._deltaChemShiftH is None:
-			self._deltaChemShiftH = tuple([dH - self.chemShiftH[0] for dH in self.chemShiftH])
-		return self._deltaChemShiftH
+		try :
+			if self._deltaChemShiftH is None:
+				self._deltaChemShiftH = tuple([dH - self.chemShiftH[0] for dH in self.chemShiftH])
+			return self._deltaChemShiftH
+		except IndexError as missingDataError:
+			sys.stderr.write("Could not calculate chem shift variation for residue %s : missing H chem shift data" % self.position)
+			exit(1)
+)
 
 	@property
 	def deltaChemShiftN(self):
 		"""
 		Calculates distance to the reference for each chemical shift only once for nitrogen.
 		"""
-		if self._deltaChemShiftN is None:
-			self._deltaChemShiftN = tuple([dN - self.chemShiftN[0] for dN in self.chemShiftN])
-		return self._deltaChemShiftN
-
-	@property
-	def finalIntensity(self):
-		"""
-		Get distance to the reference for each chemical shift at the final titration step. 
-		"""
-		return self.chemShiftIntensity[-1]
+		try:
+			if self._deltaChemShiftN is None:
+				self._deltaChemShiftN = tuple([dN - self.chemShiftN[0] for dN in self.chemShiftN])
+			return self._deltaChemShiftN
+		except IndexError as missingDataError:
+			sys.stderr.write("Could not calculate chem shift variation for residue %s : missing N chem shift data" % self.position)
+			exit(1)
 
 	@property 
 	def chemShiftIntensity(self):
@@ -76,3 +78,7 @@ class AminoAcid(object):
 		if self._chemShiftIntensity is None:
 			self._chemShiftIntensity = tuple([math.sqrt(ddH**2 + (ddN/5)**2) for (ddH, ddN) in zip(self.deltaChemShiftH,self.deltaChemShiftN)])
 		return self._chemShiftIntensity
+
+	@property
+	def deltaChemShifts(self):
+		return tuple(zip(self.deltaChemShiftH, self.deltaChemShiftN))
