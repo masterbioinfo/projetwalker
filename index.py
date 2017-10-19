@@ -98,11 +98,7 @@ print(saveMessage)
 ###Load job in progress automatically. The file loaded must be write in CLI.
 #fileLoad = args["<file.list>"]
 #directoryIn = methods.informationsFile(listFileTitration)
-elementsLoads = methods.loadJob(directoryIn)
-listFileTitration = elementsLoads[0]
-plotsAndCutoffs = elementsLoads[1]
-deltaDeltaShifts = elementsLoads[2]
-loadMessage = elementsLoads[3]
+(listFileTitration, plotsAndCutoffs, deltaDeltaShifts, loadMessage) = methods.loadJob(directoryIn)
 print(loadMessage)
 
 

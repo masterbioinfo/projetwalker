@@ -22,6 +22,7 @@ from math import *
 import matplotlib.pyplot as plt
 import numpy as num
 import pickle
+import sys
 
 
 ###############################################################################################
@@ -243,10 +244,10 @@ def plotSelection(plotsAndCutoffs, newCutoff):
 	They are an exception if the user write "all", or "All", or "ALL", in this case, the user
 	selected all plots."""
 	
-	plotSelected = input('Which plot do you want to select ?\nEnter "all" to selection all plots.\n')
+	plotSelected = input('Which plot do you want to select ? [default : all] \n')
 
 	try :
-		if plotSelected != "all" :
+		if plotSelected:
 			plotSelected = int(plotSelected)
 	
 			if plotSelected  <= len(plotsAndCutoffs) and plotSelected  >= 0:
@@ -258,9 +259,7 @@ def plotSelection(plotsAndCutoffs, newCutoff):
 					raise ValueError ("The plot choose cannot be selected !") 
 				elif plotSelected < 0 :
 					raise ValueError ("Plots numbers cannot be inderior of 0 !") 
-		elif plotSelected == "all" or plotSelected == "All" or plotSelected == "ALL" :
-			plotSelected.lower()
-			
+		else:
 			i = 0
 			while i < len(plotsAndCutoffs) :
 				plotsAndCutoffs[i]["cutoff"] = newCutoff
@@ -289,8 +288,10 @@ def saveJob(directoryIn, listFileTitration, plotsAndCutoffs, deltaDeltaShifts):
 			my_pickler.dump(deltaDeltaShifts)
 	
 		return "Job saves in {0}saveJob.exlist !".format(directoryIn["pathIn"])
-	except IOError :
-		return "The save file cannot be open to save the job..."
+	except IOError as err:
+		sys.stderr.write("%s\n" % err)
+		exit(1)
+
 
 
 def loadJob(directoryIn):
@@ -316,8 +317,9 @@ def loadJob(directoryIn):
 		loadMessage = "Job loads from {0}saveJob.exlist !".format(directoryIn["pathIn"])
 		elementsLoads.append(loadMessage)
 		return elementsLoads
-	except IOError :
-		return "The save file cannot be open to load the last job..."
+	except IOError as err:
+		sys.stderr.write("%s\n" % err)
+		exit(1)
 	
 
 def histograms(deltaDeltaShifts, plotsAndCutoffs):
@@ -325,26 +327,26 @@ def histograms(deltaDeltaShifts, plotsAndCutoffs):
 
 	print (cutOff)
 	listNumber = 0
+	scale = None
 	#plt.subplots(2, 2)
 	for listChemicalShift in deltaDeltaShifts :
 		listNumber += 1
-		values = []
-		aminoAcid = []
+		intensities = [] # ordonnees
+		aminoAcid = [] # residues
 		print (listChemicalShift,'\n\n\n\n')
-		for index in range (0, len(listChemicalShift)):
-			if listChemicalShift[index]['deltaDeltaChemicalShift'] >= cutOff:
-				values.append(listChemicalShift[index]['deltaDeltaChemicalShift'])
-				aminoAcid.append(listChemicalShift[index]['residue'].rstrip('N-H'))
-		number = len(values)
-		scale = num.arange(number)
-		plt.subplot(int(str(int(len(deltaDeltaShifts)/2+0.5))+'2'+str(listNumber)))
-		plt.bar(scale, values, align='center', alpha=1)
-		plt.xticks(scale, aminoAcid)
+		for index in range (len(listChemicalShift)):
+			intensities.append(listChemicalShift[index]['deltaDeltaChemicalShift'])
+			aminoAcid.append(listChemicalShift[index]['residue'].rstrip('N-H'))
+			if max(intensities) > scale:
+				scale = num.arange(max(intensities)) # Set scale after max value
+		plt.subplot(round(len(deltaDeltaShifts)/2), 2, listNumber) # set subplots arrangement
+		plt.bar(scale, intensities, align='center', alpha=1) # set scale and ordinates values
+		# plt.xticks(scale, aminoAcid)  # do not show ticks
 		plt.ylabel('Intensity')
-		plt.xlabel('Amino Acid')
+		plt.xlabel('Residue number')
 		axes = plt.gca()
 		axes.xaxis.set_tick_params(labelsize = 5)
-		plt.title('Delta Delta'+str(listNumber))
+		plt.title('Intensities at step '+str(listNumber))
 	
 	plt.show()
 
