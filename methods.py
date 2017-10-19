@@ -41,56 +41,59 @@ def informationsFile(listFileTitration):
 	the file's name(fileNameOpen), the file's extension (extensionIn) in the dictionary named "directory". 
 	Also, she test if the file name is ".list" or "exlist". If it's not the case, she return an error."""
 
-	for fileInformations in listFileTitration:
-		directory = {"pathIn" : None, "fileNameOpen": None, "extensionIn": None}
-		fileInformations = fileInformations.split(".")
-		directory["extensionIn"] = fileInformations[1]	
+	try:
+		for fileInformations in listFileTitration:
+			directory = {"pathIn" : None, "fileNameOpen": None, "extensionIn": None}
+			fileInformations = fileInformations.split(".")
+			directory["extensionIn"] = fileInformations[1]	
 		
-		#If open file have ".list" extension :
-		if directory["extensionIn"] == "list" or directory["extensionIn"] == "exlist" :	
-			fileInformations = str(fileInformations[0]).split("/")
-			directory["fileNameOpen"] = fileInformations[-1]
-			i = 0
-			path = ""
+			#If open file have ".list" extension :
+			if directory["extensionIn"] == "list" or directory["extensionIn"] == "exlist" :	
+				fileInformations = str(fileInformations[0]).split("/")
+				directory["fileNameOpen"] = fileInformations[-1]
+				i = 0
+				path = ""
 			
-			#Reformating open file's path :
-			while i < len(fileInformations) - 1 :
-				path = path + "{0}/".format(fileInformations[i])
-				i += 1 
-			directory["pathIn"] = path
+				#Reformating open file's path :
+				while i < len(fileInformations) - 1 :
+					path = path + "{0}/".format(fileInformations[i])
+					i += 1 
+				directory["pathIn"] = path
 			
-		#If open file haven't ".list" extension :
-		else :
-			raise IOError("Le fichier {0} n'a pas d'extension '.list'".format(fileInformation))
+			#If open file haven't ".list" extension :
+			else :
+				raise IOError("Le fichier {0} n'a pas d'extension '.list'".format(fileInformation))
 
-	return directory
+		return directory
+	except IOError as err:
+		sys.stderr.write("%s\n" % err)
+		exit(1)
 
 def formatVerification(listFileTitration):
 	"""The fonction takes the list who contained all files's paths. She test all files. If a file ".list" is in the good format,
 	she return True. In other case, she return an error with the file's name. To do that, the file tested must be open, his first 
 	three lines are parsed and then tested on seven marks."""
 
-	for titrationFile in listFileTitration :
-		testFileArray = list()			#Takes the first three lines of each file to test if the file have a good format.
-		f = open(titrationFile, "r", encoding = "utf-8")
-		testFile = f.readlines(50)		#Reads the first three lines of each files. 
+	try:
+		for titrationFile in listFileTitration :
+			testFileArray = list()			#Takes the first three lines of each file to test if the file have a good format.
+			with open(titrationFile, "r", encoding = "utf-8") as f:
+				testFile = f.readlines(50)		#Reads the first three lines of each files. 
 
-		for testLine in testFile :
-			testLine = (testLine.strip("\n").strip(" ")).split("\t")
-			testLine = str(testLine)
-			testLine = testLine.strip("['").strip("']")
-			testLine = testLine.split(" ")
-			testFileArray.append(testLine)
+				for testLine in testFile :
+					testLine = (testLine.strip("\n").strip(" ")).split("\t")
+					testLine = str(testLine)
+					testLine = testLine.strip("['").strip("']")
+					testLine = testLine.split(" ")
+					testFileArray.append(testLine)
 		
-		#Test if the file have a good format under seven marks :
+			#Test if the file have a good format under seven marks :
 		if testFileArray[0][0] == "Assignment" and testFileArray[0][9] == "w1" and testFileArray[0][18] == "w2" and testFileArray [1][0] == "" and testFileArray [2][0] != "" and testFileArray [2][4] != "" and testFileArray [2][10] != "" :
 			testFileArray = True
-		#Else, the function declare the file is not with the good format and raise an error :
-		else:
-			raise IOError ('Le fichier {0} n\'est pas enregistré au foramt ".list".'.format(titrationFile))
 
-		f.close()
-				
+	except IOError as err:
+		sys.stderr.write("%s\n" % err)
+		exit(1)
 
 def parseTitrationFile(titrationFile, listChemicalShift, residusForgetted, missingDatas, residusNotRetained):
 	"""This function takes in arguments: the file's path (titrationFile), the list who will contains all chemicals 
@@ -112,59 +115,60 @@ def parseTitrationFile(titrationFile, listChemicalShift, residusForgetted, missi
 	format, so an error is returned."""
 
 	try :
-		f = open(titrationFile, "r", encoding = "utf-8")
+		with open(titrationFile, "r", encoding = "utf-8") as f:
 
-		listChemicalShiftParsed = list()
-		for line in f :
+			listChemicalShiftParsed = list()
+			for line in f :
 		
-			chemicalShiftAssignements  = {"residue": None ,"chemicalShiftN": None ,"chemicalShiftH": None}		
+				chemicalShiftAssignements  = {"residue": None ,"chemicalShiftN": None ,"chemicalShiftH": None}		
 
-			chemicalShift = (line.strip("\n").strip(" ")).split("\t")
-			chemicalShift = str(chemicalShift)
-			chemicalShift = chemicalShift.strip("['").strip("']")
-			chemicalShift = chemicalShift.split(" ")
+				chemicalShift = (line.strip("\n").strip(" ")).split("\t")
+				chemicalShift = str(chemicalShift)
+				chemicalShift = chemicalShift.strip("['").strip("']")
+				chemicalShift = chemicalShift.split(" ")
 
-			#In a first time, we search residus without all chemicals shifts.
-			if missingDatas == True :
-				#If the residu don't have all informations and doesn't write in residusNotRetained list yet, we write him in the list.
-				if chemicalShift[0] != "Assignment" and chemicalShift[0] != "" and ((chemicalShift[4] == "" or len(chemicalShift) < 10) or (chemicalShift[4] == "0.00000" or chemicalShift[10] == "0.000")):
-						listChemicalShiftParsed.append(chemicalShift[0])
-						aaNotRetained = "{0}\t{1}\n".format(titrationFile, chemicalShift[0]) 
-						fileAaNotRetained = open(residusForgetted, "a")
-						fileAaNotRetained.write(aaNotRetained + "\n")
-						fileAaNotRetained.close()
+				#In a first time, we search residus without all chemicals shifts.
+				if missingDatas == True :
+					#If the residu don't have all informations and doesn't write in residusNotRetained list yet, we write him in the list.
+					if chemicalShift[0] != "Assignment" and chemicalShift[0] != "" and ((chemicalShift[4] == "" or len(chemicalShift) < 10) or (chemicalShift[4] == "0.00000" or chemicalShift[10] == "0.000")):
+							listChemicalShiftParsed.append(chemicalShift[0])
+							aaNotRetained = "{0}\t{1}\n".format(titrationFile, chemicalShift[0]) 
+							fileAaNotRetained = open(residusForgetted, "a")
+							fileAaNotRetained.write(aaNotRetained + "\n")
+							fileAaNotRetained.close()
 
-			#In a second time, we don't search residu without all chemicals shifts, we search residus with all informations.
-			elif missingDatas == False :
-				#Line in the headers don't retained.
-				if chemicalShift[0] == "Assignment" or chemicalShift[0] == "" :
-					pass
-				#Residus without all chemicals shifts are not retained.
-				elif chemicalShift[4] == "" or len(chemicalShift) < 10 or chemicalShift[4] == "0.00000" or chemicalShift[10] == "0.000" :
-					pass
-				#We search if residu with all chemicals shifts are in residusNotRetained list or not.
-				elif chemicalShift[4] != "" and chemicalShift[10] != "" :
-					chemicalShiftAssignements["residue"] = chemicalShift[0]
-					chemicalShiftAssignements["chemicalShiftN"] = chemicalShift[4]
-					chemicalShiftAssignements["chemicalShiftH"] = chemicalShift[10]
-					listChemicalShiftParsed.append(chemicalShiftAssignements)
-					#We test only the last residu write in listChemicalShift.
-					#If this is write in residusNotRetained list, we delete him.
-					for titration in residusNotRetained :
-						for residu in titration :
-							if residu == chemicalShift[0] :
-								del listChemicalShiftParsed[-1]
+				#In a second time, we don't search residu without all chemicals shifts, we search residus with all informations.
+				elif missingDatas == False :
+					#Line in the headers don't retained.
+					if chemicalShift[0] == "Assignment" or chemicalShift[0] == "" :
+						pass
+					#Residus without all chemicals shifts are not retained.
+					elif chemicalShift[4] == "" or len(chemicalShift) < 10 or chemicalShift[4] == "0.00000" or chemicalShift[10] == "0.000" :
+						pass
+					#We search if residu with all chemicals shifts are in residusNotRetained list or not.
+					elif chemicalShift[4] != "" and chemicalShift[10] != "" :
+						chemicalShiftAssignements["residue"] = chemicalShift[0]
+						chemicalShiftAssignements["chemicalShiftN"] = chemicalShift[4]
+						chemicalShiftAssignements["chemicalShiftH"] = chemicalShift[10]
+						listChemicalShiftParsed.append(chemicalShiftAssignements)
+						#We test only the last residu write in listChemicalShift.
+						#If this is write in residusNotRetained list, we delete him.
+						for titration in residusNotRetained :
+							for residu in titration :
+								if residu == chemicalShift[0] :
+									del listChemicalShiftParsed[-1]
 							
-				#If other line, not planned in the file, are presents the program print a message error.
-				else :
-					raise ValueError ("A line in {0} isn't in support format (.list).".format(titrationFile))
+					#If other line, not planned in the file, are presents the program print a message error.
+					else :
+						raise ValueError ("A line in {0} isn't in support format (.list).".format(titrationFile))
 
 		listChemicalShift.append(listChemicalShiftParsed)
-		f.close()
+
 		return listChemicalShift
 			
-	except IOError:
-		print("File doesn't exists !")
+	except IOError as err:
+		sys.stderr.write("%s\n" % err)
+		exit(1)
 
 
 def calculateRelativesShifts(listChemicalShift):
