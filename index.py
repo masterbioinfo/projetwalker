@@ -43,6 +43,12 @@ for titrationFile in listFileTitration :
 
 validatedResidues = [ residue for residue in residues.values() if residue.validate(len(sortedPath)) ]
 incompleteDataResidues = [residue for residue in residues.values() if not residue.validate(len(sortedPath))]
+
+# After parsing : 
+# residues is dict with all AminoAcid
+# validatedResidues is dict with AminoAcid having complete data
+# incompleteDataResidues : residues with missing data
+
 print(validatedResidues)
 print(incompleteDataResidues)
 print(len(residues))
