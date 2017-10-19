@@ -32,9 +32,9 @@ class AminoAcid(object):
 		Append chemical shifts to object's lists of chemical shifts
 		If one of the values is missing, None or 0, it is ignored.
 		"""
-		if kwargs.get("chemShiftH"):
+		if kwargs.get("chemShiftH") and float(kwargs["chemShiftH"]) != 0:
 			self.chemShiftH.append(float(kwargs["chemShiftH"]))
-		if kwargs.get("chemShiftN"):
+		if kwargs.get("chemShiftN") and float(kwargs["chemShiftN"]) != 0:
 			self.chemShiftN.append(float(kwargs["chemShiftN"]))
 
 	def validate(self, titrationSteps):
