@@ -18,6 +18,7 @@ Authors : Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY and Rainier-Nu
 #Moduls used in methods.py.
 
 
+import json
 from math import *
 import matplotlib.pyplot as plt
 import numpy as num
@@ -278,6 +279,39 @@ def plotSelection(plotsAndCutoffs, newCutoff):
 		if plotSelected != "all":
 			print('Enter "all" to selection all plots.')
 
+def jsonSaveJob(directoryIn, listFileTitration, plotsAndCutoffs, deltaDeltaShifts):
+	"""This function takes directoryIn and plotsAndCutoffs dictionnaries, plus listFileTitration
+	and deltaDeltaShifts lists. She allow to save listeFileTitration, plotsAndCutoffs and delatDeltaShifts
+	at json format. She return a confirmation message. In the other case, she return a message error."""
+
+	try:
+		datasSave = [listFileTitration, plotsAndCutoffs, deltaDeltaShifts]
+		with open("{0}saveJob.json".format(directoryIn["pathIn"]), 'w') as saveJobFile:
+			saveJobFile.write(json.dumps(datasSave, indent=5))
+			#saveJobFile.write(json.dumps(listFileTitration, indent=5))
+			#saveJobFile.write(json.dumps(plotsAndCutoffs, indent=5))
+			#saveJobFile.write(json.dumps(deltaDeltaShifts, indent=5))
+		return "Job saves in {0}saveJob.json !".format(directoryIn["pathIn"])
+	except IOError as err:
+		sys.stderr.write("%s\n" % err)
+		exit(1)
+
+
+def jsonLoadJob(directoryIn):
+	"""This function takes directoryIn dictionnay in argument and return datasLoad list who contains
+	all element saved in the save file at json format : listeFileTitration, plotsAndCutoffs, 
+	deltaDeltaShifts. Plus, the function return a confirmation message.
+	In the other case, she return a message error."""
+
+	try:
+		with open("{0}saveJob.json".format(directoryIn["pathIn"]), 'r') as loadJobFile:
+			datasLoad = json.load(loadJobFile) 
+		loadMessage = "Job loads from {0}saveJob.json !".format(directoryIn["pathIn"])
+		datasLoad.append(loadMessage)
+		return datasLoad
+	except IOError as err:
+		sys.stderr.write("%s\n" % err)
+		exit(1)
 
 def saveJob(directoryIn, listFileTitration, plotsAndCutoffs, deltaDeltaShifts):
 	"""The function can save the job. She takes diretoryIn dictionnary, listFileTitration list, 
@@ -290,12 +324,12 @@ def saveJob(directoryIn, listFileTitration, plotsAndCutoffs, deltaDeltaShifts):
 			my_pickler.dump(listFileTitration)
 			my_pickler.dump(plotsAndCutoffs)
 			my_pickler.dump(deltaDeltaShifts)
-	
+	        
 		return "Job saves in {0}saveJob.exlist !".format(directoryIn["pathIn"])
 	except IOError as err:
 		sys.stderr.write("%s\n" % err)
 		exit(1)
-
+	
 
 
 def loadJob(directoryIn):
