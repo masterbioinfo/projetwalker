@@ -1,0 +1,4239 @@
+[
+     [
+          "data/listes/listPP/15N_UIM-SH3-37_00.list",
+          "data/listes/listPP/15N_UIM-SH3-37_01.list",
+          "data/listes/listPP/15N_UIM-SH3-37_02.list",
+          "data/listes/listPP/15N_UIM-SH3-37_03.list",
+          "data/listes/listPP/15N_UIM-SH3-37_04.list",
+          "data/listes/listPP/15N_UIM-SH3-37_05.list",
+          "data/listes/listPP/15N_UIM-SH3-37_06.list",
+          "data/listes/listPP/15N_UIM-SH3-37_07.list",
+          "data/listes/listPP/15N_UIM-SH3-37_08.list",
+          "data/listes/listPP/15N_UIM-SH3-37_09.list",
+          "data/listes/listPP/15N_UIM-SH3-37_10.list"
+     ],
+     [
+          {
+               "plot": 0,
+               "cutoff": 0.0
+          },
+          {
+               "plot": 1,
+               "cutoff": 0.0
+          },
+          {
+               "plot": 2,
+               "cutoff": 0.0
+          },
+          {
+               "plot": 3,
+               "cutoff": 0.0
+          },
+          {
+               "plot": 4,
+               "cutoff": 0.0
+          },
+          {
+               "plot": 5,
+               "cutoff": 0.0
+          },
+          {
+               "plot": 6,
+               "cutoff": 0.0
+          },
+          {
+               "plot": 7,
+               "cutoff": 0.0
+          },
+          {
+               "plot": 8,
+               "cutoff": 0.0
+          },
+          {
+               "plot": 9,
+               "cutoff": 0.0
+          }
+     ],
+     [
+          [
+               {
+                    "residue": "166N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "167N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "168N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "169N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "170N-H",
+                    "deltaDeltaChemicalShift": 0.0031048349392516343
+               },
+               {
+                    "residue": "171N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "172N-H",
+                    "deltaDeltaChemicalShift": 0.0031048349392516343
+               },
+               {
+                    "residue": "173N-H",
+                    "deltaDeltaChemicalShift": 0.003999999999999204
+               },
+               {
+                    "residue": "174N-H",
+                    "deltaDeltaChemicalShift": 0.0011661903789685966
+               },
+               {
+                    "residue": "175N-H",
+                    "deltaDeltaChemicalShift": 0.0033526109228488965
+               },
+               {
+                    "residue": "176N-H",
+                    "deltaDeltaChemicalShift": 0.0018867962264126853
+               },
+               {
+                    "residue": "177N-H",
+                    "deltaDeltaChemicalShift": 0.0017204650534072207
+               },
+               {
+                    "residue": "178N-H",
+                    "deltaDeltaChemicalShift": 0.00040000000000190995
+               },
+               {
+                    "residue": "179N-H",
+                    "deltaDeltaChemicalShift": 0.0014000000000010005
+               },
+               {
+                    "residue": "180N-H",
+                    "deltaDeltaChemicalShift": 0.0025999999999982036
+               },
+               {
+                    "residue": "181N-H",
+                    "deltaDeltaChemicalShift": 0.002561249694973107
+               },
+               {
+                    "residue": "182N-H",
+                    "deltaDeltaChemicalShift": 0.005946427498928719
+               },
+               {
+                    "residue": "183N-H",
+                    "deltaDeltaChemicalShift": 0.0033526109228488965
+               },
+               {
+                    "residue": "184N-H",
+                    "deltaDeltaChemicalShift": 0.00107703296142604
+               },
+               {
+                    "residue": "185N-H",
+                    "deltaDeltaChemicalShift": 0.0028284271247473857
+               },
+               {
+                    "residue": "186N-H",
+                    "deltaDeltaChemicalShift": 0.0014000000000010005
+               },
+               {
+                    "residue": "187N-H",
+                    "deltaDeltaChemicalShift": 0.005200000000002092
+               },
+               {
+                    "residue": "188N-H",
+                    "deltaDeltaChemicalShift": 0.0011661903789685966
+               },
+               {
+                    "residue": "189N-H",
+                    "deltaDeltaChemicalShift": 0.058378420670654685
+               },
+               {
+                    "residue": "190N-H",
+                    "deltaDeltaChemicalShift": 0.0011661903789685966
+               },
+               {
+                    "residue": "191N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "192N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "193N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "194N-H",
+                    "deltaDeltaChemicalShift": 0.015331014317388952
+               },
+               {
+                    "residue": "195N-H",
+                    "deltaDeltaChemicalShift": 0.0012806248474849721
+               },
+               {
+                    "residue": "196N-H",
+                    "deltaDeltaChemicalShift": 0.0025999999999998706
+               },
+               {
+                    "residue": "197N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "198N-H",
+                    "deltaDeltaChemicalShift": 0.00465188133984487
+               },
+               {
+                    "residue": "199N-H",
+                    "deltaDeltaChemicalShift": 0.002561249694973107
+               },
+               {
+                    "residue": "201N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "202N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "203N-H",
+                    "deltaDeltaChemicalShift": 0.017367786272291127
+               },
+               {
+                    "residue": "204N-H",
+                    "deltaDeltaChemicalShift": 0.0011661903789693582
+               },
+               {
+                    "residue": "205N-H",
+                    "deltaDeltaChemicalShift": 0.0025999999999998706
+               },
+               {
+                    "residue": "206N-H",
+                    "deltaDeltaChemicalShift": 0.005946427498928719
+               },
+               {
+                    "residue": "207N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "208N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "209N-H",
+                    "deltaDeltaChemicalShift": 0.0033526109228488965
+               },
+               {
+                    "residue": "210N-H",
+                    "deltaDeltaChemicalShift": 0.006324555320336905
+               },
+               {
+                    "residue": "211N-H",
+                    "deltaDeltaChemicalShift": 0.0007999999999981355
+               },
+               {
+                    "residue": "212N-H",
+                    "deltaDeltaChemicalShift": 0.00377359245282296
+               },
+               {
+                    "residue": "213N-H",
+                    "deltaDeltaChemicalShift": 0.0031048349392516343
+               },
+               {
+                    "residue": "214N-H",
+                    "deltaDeltaChemicalShift": 0.0010000000000012221
+               },
+               {
+                    "residue": "215N-H",
+                    "deltaDeltaChemicalShift": 0.0018867962264126853
+               },
+               {
+                    "residue": "216N-H",
+                    "deltaDeltaChemicalShift": 0.0014142135623740697
+               },
+               {
+                    "residue": "217N-H",
+                    "deltaDeltaChemicalShift": 0.004512205669072355
+               },
+               {
+                    "residue": "218N-H",
+                    "deltaDeltaChemicalShift": 0.010371113729971503
+               },
+               {
+                    "residue": "219N-H",
+                    "deltaDeltaChemicalShift": 0.0030594117081557868
+               },
+               {
+                    "residue": "220N-H",
+                    "deltaDeltaChemicalShift": 0.0020880613017827563
+               },
+               {
+                    "residue": "221N-H",
+                    "deltaDeltaChemicalShift": 0.00860232526704201
+               },
+               {
+                    "residue": "222N-H",
+                    "deltaDeltaChemicalShift": 0.0030594117081557868
+               },
+               {
+                    "residue": "223N-H",
+                    "deltaDeltaChemicalShift": 0.009314504817756367
+               },
+               {
+                    "residue": "224N-H",
+                    "deltaDeltaChemicalShift": 0.010031948963187428
+               },
+               {
+                    "residue": "225N-H",
+                    "deltaDeltaChemicalShift": 0.006896375859827862
+               },
+               {
+                    "residue": "226N-H",
+                    "deltaDeltaChemicalShift": 0.006887670143090139
+               },
+               {
+                    "residue": "227N-H",
+                    "deltaDeltaChemicalShift": 0.005660388679234176
+               },
+               {
+                    "residue": "228N-H",
+                    "deltaDeltaChemicalShift": 0.009019977827024087
+               },
+               {
+                    "residue": "229N-H",
+                    "deltaDeltaChemicalShift": 0.0029999999999972713
+               },
+               {
+                    "residue": "230N-H",
+                    "deltaDeltaChemicalShift": 0.005491812087098493
+               },
+               {
+                    "residue": "231N-H",
+                    "deltaDeltaChemicalShift": 0.0033999999999991815
+               },
+               {
+                    "residue": "232N-H",
+                    "deltaDeltaChemicalShift": 0.006873136110974391
+               },
+               {
+                    "residue": "233N-H",
+                    "deltaDeltaChemicalShift": 0.00465188133984487
+               },
+               {
+                    "residue": "234N-H",
+                    "deltaDeltaChemicalShift": 0.0033999999999991815
+               },
+               {
+                    "residue": "235N-H",
+                    "deltaDeltaChemicalShift": 0.0010198039027182009
+               },
+               {
+                    "residue": "236N-H",
+                    "deltaDeltaChemicalShift": 0.005200000000000425
+               },
+               {
+                    "residue": "237N-H",
+                    "deltaDeltaChemicalShift": 0.0028284271247441205
+               },
+               {
+                    "residue": "238N-H",
+                    "deltaDeltaChemicalShift": 0.0018000000000000683
+               },
+               {
+                    "residue": "239N-H",
+                    "deltaDeltaChemicalShift": 0.004123105625616754
+               },
+               {
+                    "residue": "240N-H",
+                    "deltaDeltaChemicalShift": 0.0015620499351815796
+               },
+               {
+                    "residue": "241N-H",
+                    "deltaDeltaChemicalShift": 0.002973213749463511
+               },
+               {
+                    "residue": "242N-H",
+                    "deltaDeltaChemicalShift": 0.0022360679774999803
+               },
+               {
+                    "residue": "243N-H",
+                    "deltaDeltaChemicalShift": 0.0028284271247473857
+               },
+               {
+                    "residue": "244N-H",
+                    "deltaDeltaChemicalShift": 0.0031048349392516343
+               },
+               {
+                    "residue": "245N-H",
+                    "deltaDeltaChemicalShift": 0.009019977827022314
+               },
+               {
+                    "residue": "246N-H",
+                    "deltaDeltaChemicalShift": 0.0070000000000014495
+               },
+               {
+                    "residue": "247N-H",
+                    "deltaDeltaChemicalShift": 0.0028284271247441205
+               },
+               {
+                    "residue": "248N-H",
+                    "deltaDeltaChemicalShift": 0.0018867962264126853
+               },
+               {
+                    "residue": "249N-H",
+                    "deltaDeltaChemicalShift": 0.0009999999999994458
+               },
+               {
+                    "residue": "250N-H",
+                    "deltaDeltaChemicalShift": 0.0024166091947178986
+               },
+               {
+                    "residue": "251N-H",
+                    "deltaDeltaChemicalShift": 0.00107703296142604
+               },
+               {
+                    "residue": "253N-H",
+                    "deltaDeltaChemicalShift": 0.0038418745424598547
+               },
+               {
+                    "residue": "254N-H",
+                    "deltaDeltaChemicalShift": 0.0009999999999990906
+               },
+               {
+                    "residue": "255N-H",
+                    "deltaDeltaChemicalShift": 0.00215406592285396
+               },
+               {
+                    "residue": "256N-H",
+                    "deltaDeltaChemicalShift": 0.006800000000001205
+               },
+               {
+                    "residue": "257N-H",
+                    "deltaDeltaChemicalShift": 0.011001818031579303
+               },
+               {
+                    "residue": "258N-H",
+                    "deltaDeltaChemicalShift": 0.00020000000000095497
+               },
+               {
+                    "residue": "260N-H",
+                    "deltaDeltaChemicalShift": 0.004294182110717641
+               },
+               {
+                    "residue": "261N-H",
+                    "deltaDeltaChemicalShift": 0.0017204650534100498
+               },
+               {
+                    "residue": "262N-H",
+                    "deltaDeltaChemicalShift": 0.0014000000000010005
+               },
+               {
+                    "residue": "263N-H",
+                    "deltaDeltaChemicalShift": 0.005141984052873747
+               },
+               {
+                    "residue": "264N-H",
+                    "deltaDeltaChemicalShift": 0.001886796226410275
+               },
+               {
+                    "residue": "265N-H",
+                    "deltaDeltaChemicalShift": 0.0017204650534100498
+               },
+               {
+                    "residue": "266N-H",
+                    "deltaDeltaChemicalShift": 0.0018867962264126853
+               },
+               {
+                    "residue": "267N-H",
+                    "deltaDeltaChemicalShift": 0.002236067977500457
+               },
+               {
+                    "residue": "268N-H",
+                    "deltaDeltaChemicalShift": 0.0011661903789701197
+               },
+               {
+                    "residue": "269N-H",
+                    "deltaDeltaChemicalShift": 0.003162277660168312
+               },
+               {
+                    "residue": "270N-H",
+                    "deltaDeltaChemicalShift": 0.002236067977500457
+               },
+               {
+                    "residue": "271N-H",
+                    "deltaDeltaChemicalShift": 0.0025612496949748826
+               },
+               {
+                    "residue": "272N-H",
+                    "deltaDeltaChemicalShift": 0.0010198039027182009
+               }
+          ],
+          [
+               {
+                    "residue": "166N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "167N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "168N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "169N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "170N-H",
+                    "deltaDeltaChemicalShift": 0.010121264743103849
+               },
+               {
+                    "residue": "171N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "172N-H",
+                    "deltaDeltaChemicalShift": 0.010121264743103849
+               },
+               {
+                    "residue": "173N-H",
+                    "deltaDeltaChemicalShift": 0.0006000000000000227
+               },
+               {
+                    "residue": "174N-H",
+                    "deltaDeltaChemicalShift": 0.0033999999999991815
+               },
+               {
+                    "residue": "175N-H",
+                    "deltaDeltaChemicalShift": 0.002416609194720486
+               },
+               {
+                    "residue": "176N-H",
+                    "deltaDeltaChemicalShift": 0.0017204650534090172
+               },
+               {
+                    "residue": "177N-H",
+                    "deltaDeltaChemicalShift": 0.002785677655435267
+               },
+               {
+                    "residue": "178N-H",
+                    "deltaDeltaChemicalShift": 0.0018867962264126853
+               },
+               {
+                    "residue": "179N-H",
+                    "deltaDeltaChemicalShift": 0.011599999999998546
+               },
+               {
+                    "residue": "180N-H",
+                    "deltaDeltaChemicalShift": 0.0015999999999991132
+               },
+               {
+                    "residue": "181N-H",
+                    "deltaDeltaChemicalShift": 0.0014000000000010005
+               },
+               {
+                    "residue": "182N-H",
+                    "deltaDeltaChemicalShift": 0.002973213749462722
+               },
+               {
+                    "residue": "183N-H",
+                    "deltaDeltaChemicalShift": 0.002416609194720486
+               },
+               {
+                    "residue": "184N-H",
+                    "deltaDeltaChemicalShift": 0.001562049935181011
+               },
+               {
+                    "residue": "185N-H",
+                    "deltaDeltaChemicalShift": 0.0022360679775012514
+               },
+               {
+                    "residue": "186N-H",
+                    "deltaDeltaChemicalShift": 0.011599999999998546
+               },
+               {
+                    "residue": "187N-H",
+                    "deltaDeltaChemicalShift": 0.00490306026885257
+               },
+               {
+                    "residue": "188N-H",
+                    "deltaDeltaChemicalShift": 0.0033999999999991815
+               },
+               {
+                    "residue": "189N-H",
+                    "deltaDeltaChemicalShift": 0.05818934610390305
+               },
+               {
+                    "residue": "190N-H",
+                    "deltaDeltaChemicalShift": 0.0033999999999991815
+               },
+               {
+                    "residue": "191N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "192N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "193N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "194N-H",
+                    "deltaDeltaChemicalShift": 0.009329523031753342
+               },
+               {
+                    "residue": "195N-H",
+                    "deltaDeltaChemicalShift": 0.011539497389402104
+               },
+               {
+                    "residue": "196N-H",
+                    "deltaDeltaChemicalShift": 0.004472135955001708
+               },
+               {
+                    "residue": "197N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "198N-H",
+                    "deltaDeltaChemicalShift": 0.005035871324804684
+               },
+               {
+                    "residue": "199N-H",
+                    "deltaDeltaChemicalShift": 0.0014000000000010005
+               },
+               {
+                    "residue": "201N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "202N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "203N-H",
+                    "deltaDeltaChemicalShift": 0.017664653973400272
+               },
+               {
+                    "residue": "204N-H",
+                    "deltaDeltaChemicalShift": 0.0010198039027190717
+               },
+               {
+                    "residue": "205N-H",
+                    "deltaDeltaChemicalShift": 0.004472135955001708
+               },
+               {
+                    "residue": "206N-H",
+                    "deltaDeltaChemicalShift": 0.002973213749462722
+               },
+               {
+                    "residue": "207N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "208N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "209N-H",
+                    "deltaDeltaChemicalShift": 0.002416609194720486
+               },
+               {
+                    "residue": "210N-H",
+                    "deltaDeltaChemicalShift": 0.005491812087097807
+               },
+               {
+                    "residue": "211N-H",
+                    "deltaDeltaChemicalShift": 0.0014000000000010005
+               },
+               {
+                    "residue": "212N-H",
+                    "deltaDeltaChemicalShift": 0.00948472456110522
+               },
+               {
+                    "residue": "213N-H",
+                    "deltaDeltaChemicalShift": 0.010121264743103849
+               },
+               {
+                    "residue": "214N-H",
+                    "deltaDeltaChemicalShift": 0.006708203932499624
+               },
+               {
+                    "residue": "215N-H",
+                    "deltaDeltaChemicalShift": 0.012639620247457708
+               },
+               {
+                    "residue": "216N-H",
+                    "deltaDeltaChemicalShift": 0.008089499366461809
+               },
+               {
+                    "residue": "217N-H",
+                    "deltaDeltaChemicalShift": 0.010647065323364336
+               },
+               {
+                    "residue": "218N-H",
+                    "deltaDeltaChemicalShift": 0.09135994746058033
+               },
+               {
+                    "residue": "219N-H",
+                    "deltaDeltaChemicalShift": 0.05307541803886117
+               },
+               {
+                    "residue": "220N-H",
+                    "deltaDeltaChemicalShift": 0.004103656905738087
+               },
+               {
+                    "residue": "221N-H",
+                    "deltaDeltaChemicalShift": 0.11451480253661543
+               },
+               {
+                    "residue": "222N-H",
+                    "deltaDeltaChemicalShift": 0.014171802990445596
+               },
+               {
+                    "residue": "223N-H",
+                    "deltaDeltaChemicalShift": 0.0891367488749725
+               },
+               {
+                    "residue": "224N-H",
+                    "deltaDeltaChemicalShift": 0.010031948963187428
+               },
+               {
+                    "residue": "225N-H",
+                    "deltaDeltaChemicalShift": 0.04757898695853112
+               },
+               {
+                    "residue": "226N-H",
+                    "deltaDeltaChemicalShift": 0.11509456981109101
+               },
+               {
+                    "residue": "227N-H",
+                    "deltaDeltaChemicalShift": 0.03379999999999998
+               },
+               {
+                    "residue": "228N-H",
+                    "deltaDeltaChemicalShift": 0.09914716334822717
+               },
+               {
+                    "residue": "229N-H",
+                    "deltaDeltaChemicalShift": 0.009610411021386546
+               },
+               {
+                    "residue": "230N-H",
+                    "deltaDeltaChemicalShift": 0.005122499389946603
+               },
+               {
+                    "residue": "231N-H",
+                    "deltaDeltaChemicalShift": 0.011400000000000432
+               },
+               {
+                    "residue": "232N-H",
+                    "deltaDeltaChemicalShift": 0.00937229961108834
+               },
+               {
+                    "residue": "233N-H",
+                    "deltaDeltaChemicalShift": 0.016160445538412747
+               },
+               {
+                    "residue": "234N-H",
+                    "deltaDeltaChemicalShift": 0.006403124237431797
+               },
+               {
+                    "residue": "235N-H",
+                    "deltaDeltaChemicalShift": 0.0008000000000009777
+               },
+               {
+                    "residue": "236N-H",
+                    "deltaDeltaChemicalShift": 0.007138627319029775
+               },
+               {
+                    "residue": "237N-H",
+                    "deltaDeltaChemicalShift": 0.00466476151587591
+               },
+               {
+                    "residue": "238N-H",
+                    "deltaDeltaChemicalShift": 0.00750732975164865
+               },
+               {
+                    "residue": "239N-H",
+                    "deltaDeltaChemicalShift": 0.02319482700948787
+               },
+               {
+                    "residue": "240N-H",
+                    "deltaDeltaChemicalShift": 0.008692525524839978
+               },
+               {
+                    "residue": "241N-H",
+                    "deltaDeltaChemicalShift": 0.010647065323363942
+               },
+               {
+                    "residue": "242N-H",
+                    "deltaDeltaChemicalShift": 0.020195048898184163
+               },
+               {
+                    "residue": "243N-H",
+                    "deltaDeltaChemicalShift": 0.009848857801796094
+               },
+               {
+                    "residue": "244N-H",
+                    "deltaDeltaChemicalShift": 0.010121264743103849
+               },
+               {
+                    "residue": "245N-H",
+                    "deltaDeltaChemicalShift": 0.06958764258113632
+               },
+               {
+                    "residue": "246N-H",
+                    "deltaDeltaChemicalShift": 0.09805223097920891
+               },
+               {
+                    "residue": "247N-H",
+                    "deltaDeltaChemicalShift": 0.00466476151587591
+               },
+               {
+                    "residue": "248N-H",
+                    "deltaDeltaChemicalShift": 0.012639620247457708
+               },
+               {
+                    "residue": "249N-H",
+                    "deltaDeltaChemicalShift": 0.00769675256195769
+               },
+               {
+                    "residue": "250N-H",
+                    "deltaDeltaChemicalShift": 0.02240178564311255
+               },
+               {
+                    "residue": "251N-H",
+                    "deltaDeltaChemicalShift": 0.02082402458700028
+               },
+               {
+                    "residue": "253N-H",
+                    "deltaDeltaChemicalShift": 0.00662117814289859
+               },
+               {
+                    "residue": "254N-H",
+                    "deltaDeltaChemicalShift": 0.00039999999999906777
+               },
+               {
+                    "residue": "255N-H",
+                    "deltaDeltaChemicalShift": 0.005385164807134554
+               },
+               {
+                    "residue": "256N-H",
+                    "deltaDeltaChemicalShift": 0.03321505682668564
+               },
+               {
+                    "residue": "257N-H",
+                    "deltaDeltaChemicalShift": 0.011001818031579303
+               },
+               {
+                    "residue": "258N-H",
+                    "deltaDeltaChemicalShift": 0.01252996408614048
+               },
+               {
+                    "residue": "260N-H",
+                    "deltaDeltaChemicalShift": 0.018027756377320302
+               },
+               {
+                    "residue": "261N-H",
+                    "deltaDeltaChemicalShift": 0.008829496021859038
+               },
+               {
+                    "residue": "262N-H",
+                    "deltaDeltaChemicalShift": 0.011599999999998546
+               },
+               {
+                    "residue": "263N-H",
+                    "deltaDeltaChemicalShift": 0.0030066592756738727
+               },
+               {
+                    "residue": "264N-H",
+                    "deltaDeltaChemicalShift": 0.006477653896279877
+               },
+               {
+                    "residue": "265N-H",
+                    "deltaDeltaChemicalShift": 0.008829496021859038
+               },
+               {
+                    "residue": "266N-H",
+                    "deltaDeltaChemicalShift": 0.0017204650534090172
+               },
+               {
+                    "residue": "267N-H",
+                    "deltaDeltaChemicalShift": 0.004841487374762778
+               },
+               {
+                    "residue": "268N-H",
+                    "deltaDeltaChemicalShift": 0.007211102550928909
+               },
+               {
+                    "residue": "269N-H",
+                    "deltaDeltaChemicalShift": 0.011088733020503177
+               },
+               {
+                    "residue": "270N-H",
+                    "deltaDeltaChemicalShift": 0.004841487374762778
+               },
+               {
+                    "residue": "271N-H",
+                    "deltaDeltaChemicalShift": 0.0022360679774999803
+               },
+               {
+                    "residue": "272N-H",
+                    "deltaDeltaChemicalShift": 0.0009999999999990906
+               }
+          ],
+          [
+               {
+                    "residue": "166N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "167N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "168N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "169N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "170N-H",
+                    "deltaDeltaChemicalShift": 0.005688585061329403
+               },
+               {
+                    "residue": "171N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "172N-H",
+                    "deltaDeltaChemicalShift": 0.005688585061329403
+               },
+               {
+                    "residue": "173N-H",
+                    "deltaDeltaChemicalShift": 0.003162277660168874
+               },
+               {
+                    "residue": "174N-H",
+                    "deltaDeltaChemicalShift": 0.0010198039027176434
+               },
+               {
+                    "residue": "175N-H",
+                    "deltaDeltaChemicalShift": 0.004707440918377832
+               },
+               {
+                    "residue": "176N-H",
+                    "deltaDeltaChemicalShift": 0.0010198039027182009
+               },
+               {
+                    "residue": "177N-H",
+                    "deltaDeltaChemicalShift": 0.0015999999999991132
+               },
+               {
+                    "residue": "178N-H",
+                    "deltaDeltaChemicalShift": 0.0008000000000009777
+               },
+               {
+                    "residue": "179N-H",
+                    "deltaDeltaChemicalShift": 0.009999999999999431
+               },
+               {
+                    "residue": "180N-H",
+                    "deltaDeltaChemicalShift": 0.008260750571224653
+               },
+               {
+                    "residue": "181N-H",
+                    "deltaDeltaChemicalShift": 0.0015999999999991132
+               },
+               {
+                    "residue": "182N-H",
+                    "deltaDeltaChemicalShift": 0.007249827584157018
+               },
+               {
+                    "residue": "183N-H",
+                    "deltaDeltaChemicalShift": 0.004707440918377832
+               },
+               {
+                    "residue": "184N-H",
+                    "deltaDeltaChemicalShift": 0.0012806248474867478
+               },
+               {
+                    "residue": "185N-H",
+                    "deltaDeltaChemicalShift": 0.0033999999999996832
+               },
+               {
+                    "residue": "186N-H",
+                    "deltaDeltaChemicalShift": 0.009999999999999431
+               },
+               {
+                    "residue": "187N-H",
+                    "deltaDeltaChemicalShift": 0.005200000000002092
+               },
+               {
+                    "residue": "188N-H",
+                    "deltaDeltaChemicalShift": 0.0010198039027176434
+               },
+               {
+                    "residue": "189N-H",
+                    "deltaDeltaChemicalShift": 0.05592638017966222
+               },
+               {
+                    "residue": "190N-H",
+                    "deltaDeltaChemicalShift": 0.0010198039027176434
+               },
+               {
+                    "residue": "191N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "192N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "193N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "194N-H",
+                    "deltaDeltaChemicalShift": 0.003944616584661937
+               },
+               {
+                    "residue": "195N-H",
+                    "deltaDeltaChemicalShift": 0.011151681487562539
+               },
+               {
+                    "residue": "196N-H",
+                    "deltaDeltaChemicalShift": 0.0037999999999982492
+               },
+               {
+                    "residue": "197N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "198N-H",
+                    "deltaDeltaChemicalShift": 0.008009993757799387
+               },
+               {
+                    "residue": "199N-H",
+                    "deltaDeltaChemicalShift": 0.0015999999999991132
+               },
+               {
+                    "residue": "201N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "202N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "203N-H",
+                    "deltaDeltaChemicalShift": 0.013120975573483653
+               },
+               {
+                    "residue": "204N-H",
+                    "deltaDeltaChemicalShift": 0.0012000000000000454
+               },
+               {
+                    "residue": "205N-H",
+                    "deltaDeltaChemicalShift": 0.0037999999999982492
+               },
+               {
+                    "residue": "206N-H",
+                    "deltaDeltaChemicalShift": 0.007249827584157018
+               },
+               {
+                    "residue": "207N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "208N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "209N-H",
+                    "deltaDeltaChemicalShift": 0.004707440918377832
+               },
+               {
+                    "residue": "210N-H",
+                    "deltaDeltaChemicalShift": 0.002441311123147134
+               },
+               {
+                    "residue": "211N-H",
+                    "deltaDeltaChemicalShift": 0.0038000000000010916
+               },
+               {
+                    "residue": "212N-H",
+                    "deltaDeltaChemicalShift": 0.011401754250991448
+               },
+               {
+                    "residue": "213N-H",
+                    "deltaDeltaChemicalShift": 0.005688585061329403
+               },
+               {
+                    "residue": "214N-H",
+                    "deltaDeltaChemicalShift": 0.010781465577554147
+               },
+               {
+                    "residue": "215N-H",
+                    "deltaDeltaChemicalShift": 0.013350655414620428
+               },
+               {
+                    "residue": "216N-H",
+                    "deltaDeltaChemicalShift": 0.008022468448051755
+               },
+               {
+                    "residue": "217N-H",
+                    "deltaDeltaChemicalShift": 0.011359577456931032
+               },
+               {
+                    "residue": "218N-H",
+                    "deltaDeltaChemicalShift": 0.11780814912390326
+               },
+               {
+                    "residue": "219N-H",
+                    "deltaDeltaChemicalShift": 0.06263577252656764
+               },
+               {
+                    "residue": "220N-H",
+                    "deltaDeltaChemicalShift": 0.006529931086927733
+               },
+               {
+                    "residue": "221N-H",
+                    "deltaDeltaChemicalShift": 0.11699982905970434
+               },
+               {
+                    "residue": "222N-H",
+                    "deltaDeltaChemicalShift": 0.008411896337924689
+               },
+               {
+                    "residue": "223N-H",
+                    "deltaDeltaChemicalShift": 0.11125843788225652
+               },
+               {
+                    "residue": "224N-H",
+                    "deltaDeltaChemicalShift": 0.010031948963187428
+               },
+               {
+                    "residue": "225N-H",
+                    "deltaDeltaChemicalShift": 0.11770743391986908
+               },
+               {
+                    "residue": "226N-H",
+                    "deltaDeltaChemicalShift": 0.11684673722445184
+               },
+               {
+                    "residue": "227N-H",
+                    "deltaDeltaChemicalShift": 0.048663744204489975
+               },
+               {
+                    "residue": "228N-H",
+                    "deltaDeltaChemicalShift": 0.09914716334822717
+               },
+               {
+                    "residue": "229N-H",
+                    "deltaDeltaChemicalShift": 0.010846197490362525
+               },
+               {
+                    "residue": "230N-H",
+                    "deltaDeltaChemicalShift": 0.005830951894846029
+               },
+               {
+                    "residue": "231N-H",
+                    "deltaDeltaChemicalShift": 0.014035668847616924
+               },
+               {
+                    "residue": "232N-H",
+                    "deltaDeltaChemicalShift": 0.012370933675353826
+               },
+               {
+                    "residue": "233N-H",
+                    "deltaDeltaChemicalShift": 0.017888543819997618
+               },
+               {
+                    "residue": "234N-H",
+                    "deltaDeltaChemicalShift": 0.008634813257969626
+               },
+               {
+                    "residue": "235N-H",
+                    "deltaDeltaChemicalShift": 0.0054918120870988164
+               },
+               {
+                    "residue": "236N-H",
+                    "deltaDeltaChemicalShift": 0.010121264743105427
+               },
+               {
+                    "residue": "237N-H",
+                    "deltaDeltaChemicalShift": 0.007665507158695616
+               },
+               {
+                    "residue": "238N-H",
+                    "deltaDeltaChemicalShift": 0.012043255373858247
+               },
+               {
+                    "residue": "239N-H",
+                    "deltaDeltaChemicalShift": 0.02800000000000047
+               },
+               {
+                    "residue": "240N-H",
+                    "deltaDeltaChemicalShift": 0.008475848040166566
+               },
+               {
+                    "residue": "241N-H",
+                    "deltaDeltaChemicalShift": 0.00948472456110447
+               },
+               {
+                    "residue": "242N-H",
+                    "deltaDeltaChemicalShift": 0.02674397128326367
+               },
+               {
+                    "residue": "243N-H",
+                    "deltaDeltaChemicalShift": 0.00976524449258836
+               },
+               {
+                    "residue": "244N-H",
+                    "deltaDeltaChemicalShift": 0.005688585061329403
+               },
+               {
+                    "residue": "245N-H",
+                    "deltaDeltaChemicalShift": 0.023169807940506992
+               },
+               {
+                    "residue": "246N-H",
+                    "deltaDeltaChemicalShift": 0.09803448372894172
+               },
+               {
+                    "residue": "247N-H",
+                    "deltaDeltaChemicalShift": 0.007665507158695616
+               },
+               {
+                    "residue": "248N-H",
+                    "deltaDeltaChemicalShift": 0.013350655414620428
+               },
+               {
+                    "residue": "249N-H",
+                    "deltaDeltaChemicalShift": 0.0037363083384538637
+               },
+               {
+                    "residue": "250N-H",
+                    "deltaDeltaChemicalShift": 0.019235384061671027
+               },
+               {
+                    "residue": "251N-H",
+                    "deltaDeltaChemicalShift": 0.025200000000000954
+               },
+               {
+                    "residue": "253N-H",
+                    "deltaDeltaChemicalShift": 0.008039900496895933
+               },
+               {
+                    "residue": "254N-H",
+                    "deltaDeltaChemicalShift": 0.0016000000000019553
+               },
+               {
+                    "residue": "255N-H",
+                    "deltaDeltaChemicalShift": 0.007071067811864822
+               },
+               {
+                    "residue": "256N-H",
+                    "deltaDeltaChemicalShift": 0.040412374342520006
+               },
+               {
+                    "residue": "257N-H",
+                    "deltaDeltaChemicalShift": 0.11906065680987962
+               },
+               {
+                    "residue": "258N-H",
+                    "deltaDeltaChemicalShift": 0.01819999999999784
+               },
+               {
+                    "residue": "260N-H",
+                    "deltaDeltaChemicalShift": 0.021470910553586103
+               },
+               {
+                    "residue": "261N-H",
+                    "deltaDeltaChemicalShift": 0.00600333240792086
+               },
+               {
+                    "residue": "262N-H",
+                    "deltaDeltaChemicalShift": 0.009999999999999431
+               },
+               {
+                    "residue": "263N-H",
+                    "deltaDeltaChemicalShift": 0.00942549733435777
+               },
+               {
+                    "residue": "264N-H",
+                    "deltaDeltaChemicalShift": 0.009090654541890094
+               },
+               {
+                    "residue": "265N-H",
+                    "deltaDeltaChemicalShift": 0.00600333240792086
+               },
+               {
+                    "residue": "266N-H",
+                    "deltaDeltaChemicalShift": 0.0010198039027182009
+               },
+               {
+                    "residue": "267N-H",
+                    "deltaDeltaChemicalShift": 0.008345058418009685
+               },
+               {
+                    "residue": "268N-H",
+                    "deltaDeltaChemicalShift": 0.005830951894846029
+               },
+               {
+                    "residue": "269N-H",
+                    "deltaDeltaChemicalShift": 0.01552417469625951
+               },
+               {
+                    "residue": "270N-H",
+                    "deltaDeltaChemicalShift": 0.008345058418009685
+               },
+               {
+                    "residue": "271N-H",
+                    "deltaDeltaChemicalShift": 0.002039607805437586
+               },
+               {
+                    "residue": "272N-H",
+                    "deltaDeltaChemicalShift": 0.0014000000000010005
+               }
+          ],
+          [
+               {
+                    "residue": "166N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "167N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "168N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "169N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "170N-H",
+                    "deltaDeltaChemicalShift": 0.008158431221749717
+               },
+               {
+                    "residue": "171N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "172N-H",
+                    "deltaDeltaChemicalShift": 0.008158431221749717
+               },
+               {
+                    "residue": "173N-H",
+                    "deltaDeltaChemicalShift": 0.002199999999999136
+               },
+               {
+                    "residue": "174N-H",
+                    "deltaDeltaChemicalShift": 0.0044721359549983715
+               },
+               {
+                    "residue": "175N-H",
+                    "deltaDeltaChemicalShift": 0.0016000000000019553
+               },
+               {
+                    "residue": "176N-H",
+                    "deltaDeltaChemicalShift": 0.0018867962264126853
+               },
+               {
+                    "residue": "177N-H",
+                    "deltaDeltaChemicalShift": 0.0009999999999990906
+               },
+               {
+                    "residue": "178N-H",
+                    "deltaDeltaChemicalShift": 0.0006000000000000227
+               },
+               {
+                    "residue": "179N-H",
+                    "deltaDeltaChemicalShift": 0.004317406628984813
+               },
+               {
+                    "residue": "180N-H",
+                    "deltaDeltaChemicalShift": 0.0024166091947178986
+               },
+               {
+                    "residue": "181N-H",
+                    "deltaDeltaChemicalShift": 0.0015999999999991132
+               },
+               {
+                    "residue": "182N-H",
+                    "deltaDeltaChemicalShift": 0.008199999999999364
+               },
+               {
+                    "residue": "183N-H",
+                    "deltaDeltaChemicalShift": 0.0016000000000019553
+               },
+               {
+                    "residue": "184N-H",
+                    "deltaDeltaChemicalShift": 0.002199999999999136
+               },
+               {
+                    "residue": "185N-H",
+                    "deltaDeltaChemicalShift": 0.0020880613017827563
+               },
+               {
+                    "residue": "186N-H",
+                    "deltaDeltaChemicalShift": 0.004317406628984813
+               },
+               {
+                    "residue": "187N-H",
+                    "deltaDeltaChemicalShift": 0.0017204650534090172
+               },
+               {
+                    "residue": "188N-H",
+                    "deltaDeltaChemicalShift": 0.0044721359549983715
+               },
+               {
+                    "residue": "189N-H",
+                    "deltaDeltaChemicalShift": 0.051865209919560444
+               },
+               {
+                    "residue": "190N-H",
+                    "deltaDeltaChemicalShift": 0.0044721359549983715
+               },
+               {
+                    "residue": "191N-H",
+                    "deltaDeltaChemicalShift": 0.04837933443113941
+               },
+               {
+                    "residue": "192N-H",
+                    "deltaDeltaChemicalShift": 0.036166835637087065
+               },
+               {
+                    "residue": "193N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "194N-H",
+                    "deltaDeltaChemicalShift": 0.0009999999999990906
+               },
+               {
+                    "residue": "195N-H",
+                    "deltaDeltaChemicalShift": 0.019840362899907277
+               },
+               {
+                    "residue": "196N-H",
+                    "deltaDeltaChemicalShift": 0.003124099870363159
+               },
+               {
+                    "residue": "197N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "198N-H",
+                    "deltaDeltaChemicalShift": 0.006082762530298762
+               },
+               {
+                    "residue": "199N-H",
+                    "deltaDeltaChemicalShift": 0.0015999999999991132
+               },
+               {
+                    "residue": "201N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "202N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "203N-H",
+                    "deltaDeltaChemicalShift": 0.010248902380253742
+               },
+               {
+                    "residue": "204N-H",
+                    "deltaDeltaChemicalShift": 0.0010198039027182009
+               },
+               {
+                    "residue": "205N-H",
+                    "deltaDeltaChemicalShift": 0.003124099870363159
+               },
+               {
+                    "residue": "206N-H",
+                    "deltaDeltaChemicalShift": 0.008199999999999364
+               },
+               {
+                    "residue": "207N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "208N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "209N-H",
+                    "deltaDeltaChemicalShift": 0.0016000000000019553
+               },
+               {
+                    "residue": "210N-H",
+                    "deltaDeltaChemicalShift": 0.01012126474310588
+               },
+               {
+                    "residue": "211N-H",
+                    "deltaDeltaChemicalShift": 0.0043174066289818425
+               },
+               {
+                    "residue": "212N-H",
+                    "deltaDeltaChemicalShift": 0.016011246047700326
+               },
+               {
+                    "residue": "213N-H",
+                    "deltaDeltaChemicalShift": 0.008158431221749717
+               },
+               {
+                    "residue": "214N-H",
+                    "deltaDeltaChemicalShift": 0.018427153876819265
+               },
+               {
+                    "residue": "215N-H",
+                    "deltaDeltaChemicalShift": 0.012440257232066668
+               },
+               {
+                    "residue": "216N-H",
+                    "deltaDeltaChemicalShift": 0.019808079159775147
+               },
+               {
+                    "residue": "217N-H",
+                    "deltaDeltaChemicalShift": 0.020306649157356263
+               },
+               {
+                    "residue": "218N-H",
+                    "deltaDeltaChemicalShift": 0.13675320837186822
+               },
+               {
+                    "residue": "219N-H",
+                    "deltaDeltaChemicalShift": 0.122708760893424
+               },
+               {
+                    "residue": "220N-H",
+                    "deltaDeltaChemicalShift": 0.010816653826392379
+               },
+               {
+                    "residue": "221N-H",
+                    "deltaDeltaChemicalShift": 0.18928243447293203
+               },
+               {
+                    "residue": "222N-H",
+                    "deltaDeltaChemicalShift": 0.061131006862311765
+               },
+               {
+                    "residue": "223N-H",
+                    "deltaDeltaChemicalShift": 0.14723980440084833
+               },
+               {
+                    "residue": "224N-H",
+                    "deltaDeltaChemicalShift": 0.6982907703815084
+               },
+               {
+                    "residue": "225N-H",
+                    "deltaDeltaChemicalShift": 0.1368019005715942
+               },
+               {
+                    "residue": "226N-H",
+                    "deltaDeltaChemicalShift": 0.3045075368525385
+               },
+               {
+                    "residue": "227N-H",
+                    "deltaDeltaChemicalShift": 0.09885524771098445
+               },
+               {
+                    "residue": "228N-H",
+                    "deltaDeltaChemicalShift": 0.18633689919068624
+               },
+               {
+                    "residue": "229N-H",
+                    "deltaDeltaChemicalShift": 0.016230834852216526
+               },
+               {
+                    "residue": "230N-H",
+                    "deltaDeltaChemicalShift": 0.009551963149008321
+               },
+               {
+                    "residue": "231N-H",
+                    "deltaDeltaChemicalShift": 0.024282503989497363
+               },
+               {
+                    "residue": "232N-H",
+                    "deltaDeltaChemicalShift": 0.027312268305653583
+               },
+               {
+                    "residue": "233N-H",
+                    "deltaDeltaChemicalShift": 0.0443265157665233
+               },
+               {
+                    "residue": "234N-H",
+                    "deltaDeltaChemicalShift": 0.01398427688512947
+               },
+               {
+                    "residue": "235N-H",
+                    "deltaDeltaChemicalShift": 0.010248902380256459
+               },
+               {
+                    "residue": "236N-H",
+                    "deltaDeltaChemicalShift": 0.021567568244939193
+               },
+               {
+                    "residue": "237N-H",
+                    "deltaDeltaChemicalShift": 0.02524202844464088
+               },
+               {
+                    "residue": "238N-H",
+                    "deltaDeltaChemicalShift": 0.022887551201470038
+               },
+               {
+                    "residue": "239N-H",
+                    "deltaDeltaChemicalShift": 0.05253341793563435
+               },
+               {
+                    "residue": "240N-H",
+                    "deltaDeltaChemicalShift": 0.018540765895723673
+               },
+               {
+                    "residue": "241N-H",
+                    "deltaDeltaChemicalShift": 0.025198412648417007
+               },
+               {
+                    "residue": "242N-H",
+                    "deltaDeltaChemicalShift": 0.05262090839200735
+               },
+               {
+                    "residue": "243N-H",
+                    "deltaDeltaChemicalShift": 0.023021728866442524
+               },
+               {
+                    "residue": "244N-H",
+                    "deltaDeltaChemicalShift": 0.008158431221749717
+               },
+               {
+                    "residue": "245N-H",
+                    "deltaDeltaChemicalShift": 0.12509532365360376
+               },
+               {
+                    "residue": "246N-H",
+                    "deltaDeltaChemicalShift": 0.17845963128954476
+               },
+               {
+                    "residue": "247N-H",
+                    "deltaDeltaChemicalShift": 0.02524202844464088
+               },
+               {
+                    "residue": "248N-H",
+                    "deltaDeltaChemicalShift": 0.012440257232066668
+               },
+               {
+                    "residue": "249N-H",
+                    "deltaDeltaChemicalShift": 0.010486181383135838
+               },
+               {
+                    "residue": "250N-H",
+                    "deltaDeltaChemicalShift": 0.054153854895103146
+               },
+               {
+                    "residue": "251N-H",
+                    "deltaDeltaChemicalShift": 0.051088159097781145
+               },
+               {
+                    "residue": "253N-H",
+                    "deltaDeltaChemicalShift": 0.024007498828490202
+               },
+               {
+                    "residue": "254N-H",
+                    "deltaDeltaChemicalShift": 0.0015620499351815796
+               },
+               {
+                    "residue": "255N-H",
+                    "deltaDeltaChemicalShift": 0.017151093259613715
+               },
+               {
+                    "residue": "256N-H",
+                    "deltaDeltaChemicalShift": 0.0729098072964133
+               },
+               {
+                    "residue": "257N-H",
+                    "deltaDeltaChemicalShift": 0.21699917050532633
+               },
+               {
+                    "residue": "258N-H",
+                    "deltaDeltaChemicalShift": 0.03362677504608347
+               },
+               {
+                    "residue": "260N-H",
+                    "deltaDeltaChemicalShift": 0.09758708931001263
+               },
+               {
+                    "residue": "261N-H",
+                    "deltaDeltaChemicalShift": 0.016492422502470638
+               },
+               {
+                    "residue": "262N-H",
+                    "deltaDeltaChemicalShift": 0.004317406628984813
+               },
+               {
+                    "residue": "263N-H",
+                    "deltaDeltaChemicalShift": 0.01508509197850635
+               },
+               {
+                    "residue": "264N-H",
+                    "deltaDeltaChemicalShift": 0.023277456905771144
+               },
+               {
+                    "residue": "265N-H",
+                    "deltaDeltaChemicalShift": 0.016492422502470638
+               },
+               {
+                    "residue": "266N-H",
+                    "deltaDeltaChemicalShift": 0.0018867962264126853
+               },
+               {
+                    "residue": "267N-H",
+                    "deltaDeltaChemicalShift": 0.011599999999999623
+               },
+               {
+                    "residue": "268N-H",
+                    "deltaDeltaChemicalShift": 0.024083189157584874
+               },
+               {
+                    "residue": "269N-H",
+                    "deltaDeltaChemicalShift": 0.030083217912981717
+               },
+               {
+                    "residue": "270N-H",
+                    "deltaDeltaChemicalShift": 0.011599999999999623
+               },
+               {
+                    "residue": "271N-H",
+                    "deltaDeltaChemicalShift": 0.001562049935181011
+               },
+               {
+                    "residue": "272N-H",
+                    "deltaDeltaChemicalShift": 0.0018867962264107457
+               }
+          ],
+          [
+               {
+                    "residue": "166N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "167N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "168N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "169N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "170N-H",
+                    "deltaDeltaChemicalShift": 0.008002499609497941
+               },
+               {
+                    "residue": "171N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "172N-H",
+                    "deltaDeltaChemicalShift": 0.008002499609497941
+               },
+               {
+                    "residue": "173N-H",
+                    "deltaDeltaChemicalShift": 0.0025999999999998706
+               },
+               {
+                    "residue": "174N-H",
+                    "deltaDeltaChemicalShift": 0.0080622577482969
+               },
+               {
+                    "residue": "175N-H",
+                    "deltaDeltaChemicalShift": 0.001562049935181011
+               },
+               {
+                    "residue": "176N-H",
+                    "deltaDeltaChemicalShift": 0.0020591260281971903
+               },
+               {
+                    "residue": "177N-H",
+                    "deltaDeltaChemicalShift": 0.005400000000000205
+               },
+               {
+                    "residue": "178N-H",
+                    "deltaDeltaChemicalShift": 0.0014000000000010005
+               },
+               {
+                    "residue": "179N-H",
+                    "deltaDeltaChemicalShift": 0.002000000000001023
+               },
+               {
+                    "residue": "180N-H",
+                    "deltaDeltaChemicalShift": 0.005571355310872868
+               },
+               {
+                    "residue": "181N-H",
+                    "deltaDeltaChemicalShift": 0.0012000000000000454
+               },
+               {
+                    "residue": "182N-H",
+                    "deltaDeltaChemicalShift": 0.007088018058669085
+               },
+               {
+                    "residue": "183N-H",
+                    "deltaDeltaChemicalShift": 0.001562049935181011
+               },
+               {
+                    "residue": "184N-H",
+                    "deltaDeltaChemicalShift": 0.001562049935181011
+               },
+               {
+                    "residue": "185N-H",
+                    "deltaDeltaChemicalShift": 0.0032310988842808247
+               },
+               {
+                    "residue": "186N-H",
+                    "deltaDeltaChemicalShift": 0.002000000000001023
+               },
+               {
+                    "residue": "187N-H",
+                    "deltaDeltaChemicalShift": 0.0009999999999994458
+               },
+               {
+                    "residue": "188N-H",
+                    "deltaDeltaChemicalShift": 0.0080622577482969
+               },
+               {
+                    "residue": "189N-H",
+                    "deltaDeltaChemicalShift": 0.05502726596879161
+               },
+               {
+                    "residue": "190N-H",
+                    "deltaDeltaChemicalShift": 0.0080622577482969
+               },
+               {
+                    "residue": "191N-H",
+                    "deltaDeltaChemicalShift": 0.04801708029441223
+               },
+               {
+                    "residue": "192N-H",
+                    "deltaDeltaChemicalShift": 0.036166835637087065
+               },
+               {
+                    "residue": "193N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "194N-H",
+                    "deltaDeltaChemicalShift": 0.006708203932499624
+               },
+               {
+                    "residue": "195N-H",
+                    "deltaDeltaChemicalShift": 0.022475764725587762
+               },
+               {
+                    "residue": "196N-H",
+                    "deltaDeltaChemicalShift": 0.005295280917948649
+               },
+               {
+                    "residue": "197N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "198N-H",
+                    "deltaDeltaChemicalShift": 0.008352245207127622
+               },
+               {
+                    "residue": "199N-H",
+                    "deltaDeltaChemicalShift": 0.0012000000000000454
+               },
+               {
+                    "residue": "201N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "202N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "203N-H",
+                    "deltaDeltaChemicalShift": 0.015331014317388952
+               },
+               {
+                    "residue": "204N-H",
+                    "deltaDeltaChemicalShift": 0.005122499389946603
+               },
+               {
+                    "residue": "205N-H",
+                    "deltaDeltaChemicalShift": 0.005295280917948649
+               },
+               {
+                    "residue": "206N-H",
+                    "deltaDeltaChemicalShift": 0.007088018058669085
+               },
+               {
+                    "residue": "207N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "208N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "209N-H",
+                    "deltaDeltaChemicalShift": 0.001562049935181011
+               },
+               {
+                    "residue": "210N-H",
+                    "deltaDeltaChemicalShift": 0.004118252056394813
+               },
+               {
+                    "residue": "211N-H",
+                    "deltaDeltaChemicalShift": 0.004000000000002046
+               },
+               {
+                    "residue": "212N-H",
+                    "deltaDeltaChemicalShift": 0.014312232530252418
+               },
+               {
+                    "residue": "213N-H",
+                    "deltaDeltaChemicalShift": 0.008002499609497941
+               },
+               {
+                    "residue": "214N-H",
+                    "deltaDeltaChemicalShift": 0.021136697944570036
+               },
+               {
+                    "residue": "215N-H",
+                    "deltaDeltaChemicalShift": 0.01475262688472751
+               },
+               {
+                    "residue": "216N-H",
+                    "deltaDeltaChemicalShift": 0.020494877408755847
+               },
+               {
+                    "residue": "217N-H",
+                    "deltaDeltaChemicalShift": 0.018867962264112807
+               },
+               {
+                    "residue": "218N-H",
+                    "deltaDeltaChemicalShift": 0.14498399911714321
+               },
+               {
+                    "residue": "219N-H",
+                    "deltaDeltaChemicalShift": 0.12651387275710024
+               },
+               {
+                    "residue": "220N-H",
+                    "deltaDeltaChemicalShift": 0.009350935782050637
+               },
+               {
+                    "residue": "221N-H",
+                    "deltaDeltaChemicalShift": 0.19584749168677043
+               },
+               {
+                    "residue": "222N-H",
+                    "deltaDeltaChemicalShift": 0.06249767995693905
+               },
+               {
+                    "residue": "223N-H",
+                    "deltaDeltaChemicalShift": 0.15913692217709952
+               },
+               {
+                    "residue": "224N-H",
+                    "deltaDeltaChemicalShift": 0.713021991245711
+               },
+               {
+                    "residue": "225N-H",
+                    "deltaDeltaChemicalShift": 0.13996413826405785
+               },
+               {
+                    "residue": "226N-H",
+                    "deltaDeltaChemicalShift": 0.31519676394277946
+               },
+               {
+                    "residue": "227N-H",
+                    "deltaDeltaChemicalShift": 0.09836178119574658
+               },
+               {
+                    "residue": "228N-H",
+                    "deltaDeltaChemicalShift": 0.1953566993988179
+               },
+               {
+                    "residue": "229N-H",
+                    "deltaDeltaChemicalShift": 0.014736349615829559
+               },
+               {
+                    "residue": "230N-H",
+                    "deltaDeltaChemicalShift": 0.009769339793456589
+               },
+               {
+                    "residue": "231N-H",
+                    "deltaDeltaChemicalShift": 0.02517935662402836
+               },
+               {
+                    "residue": "232N-H",
+                    "deltaDeltaChemicalShift": 0.026969612529660656
+               },
+               {
+                    "residue": "233N-H",
+                    "deltaDeltaChemicalShift": 0.04558113644919239
+               },
+               {
+                    "residue": "234N-H",
+                    "deltaDeltaChemicalShift": 0.01281561547488048
+               },
+               {
+                    "residue": "235N-H",
+                    "deltaDeltaChemicalShift": 0.006477653896279877
+               },
+               {
+                    "residue": "236N-H",
+                    "deltaDeltaChemicalShift": 0.021470910553583588
+               },
+               {
+                    "residue": "237N-H",
+                    "deltaDeltaChemicalShift": 0.01431223253024938
+               },
+               {
+                    "residue": "238N-H",
+                    "deltaDeltaChemicalShift": 0.02376972864800849
+               },
+               {
+                    "residue": "239N-H",
+                    "deltaDeltaChemicalShift": 0.06151227519772088
+               },
+               {
+                    "residue": "240N-H",
+                    "deltaDeltaChemicalShift": 0.018788294228056786
+               },
+               {
+                    "residue": "241N-H",
+                    "deltaDeltaChemicalShift": 0.023124878378056834
+               },
+               {
+                    "residue": "242N-H",
+                    "deltaDeltaChemicalShift": 0.05363357157601949
+               },
+               {
+                    "residue": "243N-H",
+                    "deltaDeltaChemicalShift": 0.022804385543134936
+               },
+               {
+                    "residue": "244N-H",
+                    "deltaDeltaChemicalShift": 0.008002499609497941
+               },
+               {
+                    "residue": "245N-H",
+                    "deltaDeltaChemicalShift": 0.12849529174253782
+               },
+               {
+                    "residue": "246N-H",
+                    "deltaDeltaChemicalShift": 0.18552897347853825
+               },
+               {
+                    "residue": "247N-H",
+                    "deltaDeltaChemicalShift": 0.01431223253024938
+               },
+               {
+                    "residue": "248N-H",
+                    "deltaDeltaChemicalShift": 0.01475262688472751
+               },
+               {
+                    "residue": "249N-H",
+                    "deltaDeltaChemicalShift": 0.01344023809312896
+               },
+               {
+                    "residue": "250N-H",
+                    "deltaDeltaChemicalShift": 0.06296824596572394
+               },
+               {
+                    "residue": "251N-H",
+                    "deltaDeltaChemicalShift": 0.05320939766620284
+               },
+               {
+                    "residue": "253N-H",
+                    "deltaDeltaChemicalShift": 0.023000869548779803
+               },
+               {
+                    "residue": "254N-H",
+                    "deltaDeltaChemicalShift": 0.0030000000000001137
+               },
+               {
+                    "residue": "255N-H",
+                    "deltaDeltaChemicalShift": 0.00948472456110344
+               },
+               {
+                    "residue": "256N-H",
+                    "deltaDeltaChemicalShift": 0.07865723107254681
+               },
+               {
+                    "residue": "257N-H",
+                    "deltaDeltaChemicalShift": 0.22864785150969577
+               },
+               {
+                    "residue": "258N-H",
+                    "deltaDeltaChemicalShift": 0.03401235069794538
+               },
+               {
+                    "residue": "260N-H",
+                    "deltaDeltaChemicalShift": 0.09507975599464052
+               },
+               {
+                    "residue": "261N-H",
+                    "deltaDeltaChemicalShift": 0.020788458336299068
+               },
+               {
+                    "residue": "262N-H",
+                    "deltaDeltaChemicalShift": 0.002000000000001023
+               },
+               {
+                    "residue": "263N-H",
+                    "deltaDeltaChemicalShift": 0.018216476058776788
+               },
+               {
+                    "residue": "264N-H",
+                    "deltaDeltaChemicalShift": 0.023277456905771144
+               },
+               {
+                    "residue": "265N-H",
+                    "deltaDeltaChemicalShift": 0.016492422502470638
+               },
+               {
+                    "residue": "266N-H",
+                    "deltaDeltaChemicalShift": 0.0018867962264126853
+               },
+               {
+                    "residue": "267N-H",
+                    "deltaDeltaChemicalShift": 0.011599999999999623
+               },
+               {
+                    "residue": "268N-H",
+                    "deltaDeltaChemicalShift": 0.024083189157584874
+               },
+               {
+                    "residue": "269N-H",
+                    "deltaDeltaChemicalShift": 0.030083217912981717
+               },
+               {
+                    "residue": "270N-H",
+                    "deltaDeltaChemicalShift": 0.011599999999999623
+               },
+               {
+                    "residue": "271N-H",
+                    "deltaDeltaChemicalShift": 0.001562049935181011
+               },
+               {
+                    "residue": "272N-H",
+                    "deltaDeltaChemicalShift": 0.0018867962264107457
+               }
+          ],
+          [
+               {
+                    "residue": "166N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "167N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "168N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "169N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "170N-H",
+                    "deltaDeltaChemicalShift": 0.007045565981524644
+               },
+               {
+                    "residue": "171N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "172N-H",
+                    "deltaDeltaChemicalShift": 0.007045565981524644
+               },
+               {
+                    "residue": "173N-H",
+                    "deltaDeltaChemicalShift": 0.0048332183894383846
+               },
+               {
+                    "residue": "174N-H",
+                    "deltaDeltaChemicalShift": 0.0032802438933692453
+               },
+               {
+                    "residue": "175N-H",
+                    "deltaDeltaChemicalShift": 0.003124099870363159
+               },
+               {
+                    "residue": "176N-H",
+                    "deltaDeltaChemicalShift": 0.0017204650534090172
+               },
+               {
+                    "residue": "177N-H",
+                    "deltaDeltaChemicalShift": 0.004200000000000159
+               },
+               {
+                    "residue": "178N-H",
+                    "deltaDeltaChemicalShift": 0.0015999999999991132
+               },
+               {
+                    "residue": "179N-H",
+                    "deltaDeltaChemicalShift": 0.0030000000000001137
+               },
+               {
+                    "residue": "180N-H",
+                    "deltaDeltaChemicalShift": 0.0014142135623720603
+               },
+               {
+                    "residue": "181N-H",
+                    "deltaDeltaChemicalShift": 0.002236067977500457
+               },
+               {
+                    "residue": "182N-H",
+                    "deltaDeltaChemicalShift": 0.0063245553203371855
+               },
+               {
+                    "residue": "183N-H",
+                    "deltaDeltaChemicalShift": 0.003124099870363159
+               },
+               {
+                    "residue": "184N-H",
+                    "deltaDeltaChemicalShift": 0.00107703296142604
+               },
+               {
+                    "residue": "185N-H",
+                    "deltaDeltaChemicalShift": 0.002600000000001046
+               },
+               {
+                    "residue": "186N-H",
+                    "deltaDeltaChemicalShift": 0.0030000000000001137
+               },
+               {
+                    "residue": "187N-H",
+                    "deltaDeltaChemicalShift": 0.003400000000002024
+               },
+               {
+                    "residue": "188N-H",
+                    "deltaDeltaChemicalShift": 0.0032802438933692453
+               },
+               {
+                    "residue": "189N-H",
+                    "deltaDeltaChemicalShift": 0.053329541531876315
+               },
+               {
+                    "residue": "190N-H",
+                    "deltaDeltaChemicalShift": 0.0032802438933692453
+               },
+               {
+                    "residue": "191N-H",
+                    "deltaDeltaChemicalShift": 0.048166378315168096
+               },
+               {
+                    "residue": "192N-H",
+                    "deltaDeltaChemicalShift": 0.03544009029333921
+               },
+               {
+                    "residue": "193N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "194N-H",
+                    "deltaDeltaChemicalShift": 0.006708203932499624
+               },
+               {
+                    "residue": "195N-H",
+                    "deltaDeltaChemicalShift": 0.02097236276626833
+               },
+               {
+                    "residue": "196N-H",
+                    "deltaDeltaChemicalShift": 0.0024166091947178986
+               },
+               {
+                    "residue": "197N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "198N-H",
+                    "deltaDeltaChemicalShift": 0.014001428498550395
+               },
+               {
+                    "residue": "199N-H",
+                    "deltaDeltaChemicalShift": 0.002236067977500457
+               },
+               {
+                    "residue": "201N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "202N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "203N-H",
+                    "deltaDeltaChemicalShift": 0.014284257068533373
+               },
+               {
+                    "residue": "204N-H",
+                    "deltaDeltaChemicalShift": 0.0036055512754646513
+               },
+               {
+                    "residue": "205N-H",
+                    "deltaDeltaChemicalShift": 0.0024166091947178986
+               },
+               {
+                    "residue": "206N-H",
+                    "deltaDeltaChemicalShift": 0.0063245553203371855
+               },
+               {
+                    "residue": "207N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "208N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "209N-H",
+                    "deltaDeltaChemicalShift": 0.003124099870363159
+               },
+               {
+                    "residue": "210N-H",
+                    "deltaDeltaChemicalShift": 0.004651881339845252
+               },
+               {
+                    "residue": "211N-H",
+                    "deltaDeltaChemicalShift": 0.00865794432876675
+               },
+               {
+                    "residue": "212N-H",
+                    "deltaDeltaChemicalShift": 0.015370100845472256
+               },
+               {
+                    "residue": "213N-H",
+                    "deltaDeltaChemicalShift": 0.007045565981524644
+               },
+               {
+                    "residue": "214N-H",
+                    "deltaDeltaChemicalShift": 0.021954498400099567
+               },
+               {
+                    "residue": "215N-H",
+                    "deltaDeltaChemicalShift": 0.013944174410840232
+               },
+               {
+                    "residue": "216N-H",
+                    "deltaDeltaChemicalShift": 0.019338045402778906
+               },
+               {
+                    "residue": "217N-H",
+                    "deltaDeltaChemicalShift": 0.022135943621179308
+               },
+               {
+                    "residue": "218N-H",
+                    "deltaDeltaChemicalShift": 0.1504460036026216
+               },
+               {
+                    "residue": "219N-H",
+                    "deltaDeltaChemicalShift": 0.13008551033839172
+               },
+               {
+                    "residue": "220N-H",
+                    "deltaDeltaChemicalShift": 0.011160645142643387
+               },
+               {
+                    "residue": "221N-H",
+                    "deltaDeltaChemicalShift": 0.2112160978713509
+               },
+               {
+                    "residue": "222N-H",
+                    "deltaDeltaChemicalShift": 0.06751029551112903
+               },
+               {
+                    "residue": "223N-H",
+                    "deltaDeltaChemicalShift": 0.16500303027520524
+               },
+               {
+                    "residue": "224N-H",
+                    "deltaDeltaChemicalShift": 0.7510223964703052
+               },
+               {
+                    "residue": "225N-H",
+                    "deltaDeltaChemicalShift": 0.14976568365283263
+               },
+               {
+                    "residue": "226N-H",
+                    "deltaDeltaChemicalShift": 0.33468038484500384
+               },
+               {
+                    "residue": "227N-H",
+                    "deltaDeltaChemicalShift": 0.10515398233067634
+               },
+               {
+                    "residue": "228N-H",
+                    "deltaDeltaChemicalShift": 0.20228850684109564
+               },
+               {
+                    "residue": "229N-H",
+                    "deltaDeltaChemicalShift": 0.01839999999999975
+               },
+               {
+                    "residue": "230N-H",
+                    "deltaDeltaChemicalShift": 0.010097524449091004
+               },
+               {
+                    "residue": "231N-H",
+                    "deltaDeltaChemicalShift": 0.02517935662402836
+               },
+               {
+                    "residue": "232N-H",
+                    "deltaDeltaChemicalShift": 0.02875134779449489
+               },
+               {
+                    "residue": "233N-H",
+                    "deltaDeltaChemicalShift": 0.04292365315301028
+               },
+               {
+                    "residue": "234N-H",
+                    "deltaDeltaChemicalShift": 0.011401754250989984
+               },
+               {
+                    "residue": "235N-H",
+                    "deltaDeltaChemicalShift": 0.005099019513594139
+               },
+               {
+                    "residue": "236N-H",
+                    "deltaDeltaChemicalShift": 0.022003636063162357
+               },
+               {
+                    "residue": "237N-H",
+                    "deltaDeltaChemicalShift": 0.026729010456803162
+               },
+               {
+                    "residue": "238N-H",
+                    "deltaDeltaChemicalShift": 0.025419677417304307
+               },
+               {
+                    "residue": "239N-H",
+                    "deltaDeltaChemicalShift": 0.04738143096192915
+               },
+               {
+                    "residue": "240N-H",
+                    "deltaDeltaChemicalShift": 0.021256528408938803
+               },
+               {
+                    "residue": "241N-H",
+                    "deltaDeltaChemicalShift": 0.02457722522987439
+               },
+               {
+                    "residue": "242N-H",
+                    "deltaDeltaChemicalShift": 0.05724508712544703
+               },
+               {
+                    "residue": "243N-H",
+                    "deltaDeltaChemicalShift": 0.02496477518424708
+               },
+               {
+                    "residue": "244N-H",
+                    "deltaDeltaChemicalShift": 0.007045565981524644
+               },
+               {
+                    "residue": "245N-H",
+                    "deltaDeltaChemicalShift": 0.13469313271284442
+               },
+               {
+                    "residue": "246N-H",
+                    "deltaDeltaChemicalShift": 0.19673586353281028
+               },
+               {
+                    "residue": "247N-H",
+                    "deltaDeltaChemicalShift": 0.026729010456803162
+               },
+               {
+                    "residue": "248N-H",
+                    "deltaDeltaChemicalShift": 0.013944174410840232
+               },
+               {
+                    "residue": "249N-H",
+                    "deltaDeltaChemicalShift": 0.0139441744108433
+               },
+               {
+                    "residue": "250N-H",
+                    "deltaDeltaChemicalShift": 0.06239390995922545
+               },
+               {
+                    "residue": "251N-H",
+                    "deltaDeltaChemicalShift": 0.050609880458266254
+               },
+               {
+                    "residue": "253N-H",
+                    "deltaDeltaChemicalShift": 0.024000833318865385
+               },
+               {
+                    "residue": "254N-H",
+                    "deltaDeltaChemicalShift": 0.0037735924528214913
+               },
+               {
+                    "residue": "255N-H",
+                    "deltaDeltaChemicalShift": 0.009130169768409836
+               },
+               {
+                    "residue": "256N-H",
+                    "deltaDeltaChemicalShift": 0.07217340230306434
+               },
+               {
+                    "residue": "257N-H",
+                    "deltaDeltaChemicalShift": 0.24155901970326032
+               },
+               {
+                    "residue": "258N-H",
+                    "deltaDeltaChemicalShift": 0.03156960563580135
+               },
+               {
+                    "residue": "260N-H",
+                    "deltaDeltaChemicalShift": 0.0985178156477306
+               },
+               {
+                    "residue": "261N-H",
+                    "deltaDeltaChemicalShift": 0.01850837648201466
+               },
+               {
+                    "residue": "262N-H",
+                    "deltaDeltaChemicalShift": 0.0030000000000001137
+               },
+               {
+                    "residue": "263N-H",
+                    "deltaDeltaChemicalShift": 0.02506471623617498
+               },
+               {
+                    "residue": "264N-H",
+                    "deltaDeltaChemicalShift": 0.02581549922042945
+               },
+               {
+                    "residue": "265N-H",
+                    "deltaDeltaChemicalShift": 0.01850837648201466
+               },
+               {
+                    "residue": "266N-H",
+                    "deltaDeltaChemicalShift": 0.0017204650534090172
+               },
+               {
+                    "residue": "267N-H",
+                    "deltaDeltaChemicalShift": 0.011766052864065126
+               },
+               {
+                    "residue": "268N-H",
+                    "deltaDeltaChemicalShift": 0.015587174214719592
+               },
+               {
+                    "residue": "269N-H",
+                    "deltaDeltaChemicalShift": 0.03632960225490985
+               },
+               {
+                    "residue": "270N-H",
+                    "deltaDeltaChemicalShift": 0.011766052864065126
+               },
+               {
+                    "residue": "271N-H",
+                    "deltaDeltaChemicalShift": 0.0023323807579387163
+               },
+               {
+                    "residue": "272N-H",
+                    "deltaDeltaChemicalShift": 0.0033526109228491615
+               }
+          ],
+          [
+               {
+                    "residue": "166N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "167N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "168N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "169N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "170N-H",
+                    "deltaDeltaChemicalShift": 0.007045565981524644
+               },
+               {
+                    "residue": "171N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "172N-H",
+                    "deltaDeltaChemicalShift": 0.007045565981524644
+               },
+               {
+                    "residue": "173N-H",
+                    "deltaDeltaChemicalShift": 0.0020591260281980534
+               },
+               {
+                    "residue": "174N-H",
+                    "deltaDeltaChemicalShift": 0.004512205669069583
+               },
+               {
+                    "residue": "175N-H",
+                    "deltaDeltaChemicalShift": 0.004118252056395244
+               },
+               {
+                    "residue": "176N-H",
+                    "deltaDeltaChemicalShift": 0.0012000000000000454
+               },
+               {
+                    "residue": "177N-H",
+                    "deltaDeltaChemicalShift": 0.0018867962264107457
+               },
+               {
+                    "residue": "178N-H",
+                    "deltaDeltaChemicalShift": 0.0033999999999991815
+               },
+               {
+                    "residue": "179N-H",
+                    "deltaDeltaChemicalShift": 0.004903060268852752
+               },
+               {
+                    "residue": "180N-H",
+                    "deltaDeltaChemicalShift": 0.00107703296142604
+               },
+               {
+                    "residue": "181N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "182N-H",
+                    "deltaDeltaChemicalShift": 0.0063245553203371855
+               },
+               {
+                    "residue": "183N-H",
+                    "deltaDeltaChemicalShift": 0.004118252056395244
+               },
+               {
+                    "residue": "184N-H",
+                    "deltaDeltaChemicalShift": 0.001562049935181011
+               },
+               {
+                    "residue": "185N-H",
+                    "deltaDeltaChemicalShift": 0.004386342439891888
+               },
+               {
+                    "residue": "186N-H",
+                    "deltaDeltaChemicalShift": 0.004903060268852752
+               },
+               {
+                    "residue": "187N-H",
+                    "deltaDeltaChemicalShift": 0.00490306026885257
+               },
+               {
+                    "residue": "188N-H",
+                    "deltaDeltaChemicalShift": 0.004512205669069583
+               },
+               {
+                    "residue": "189N-H",
+                    "deltaDeltaChemicalShift": 0.05318984865554599
+               },
+               {
+                    "residue": "190N-H",
+                    "deltaDeltaChemicalShift": 0.004512205669069583
+               },
+               {
+                    "residue": "191N-H",
+                    "deltaDeltaChemicalShift": 0.04548626166217645
+               },
+               {
+                    "residue": "192N-H",
+                    "deltaDeltaChemicalShift": 0.03233635724691338
+               },
+               {
+                    "residue": "193N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "194N-H",
+                    "deltaDeltaChemicalShift": 0.004386342439891888
+               },
+               {
+                    "residue": "195N-H",
+                    "deltaDeltaChemicalShift": 0.02077113381594797
+               },
+               {
+                    "residue": "196N-H",
+                    "deltaDeltaChemicalShift": 0.001562049935181011
+               },
+               {
+                    "residue": "197N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "198N-H",
+                    "deltaDeltaChemicalShift": 0.00672011904656448
+               },
+               {
+                    "residue": "199N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "201N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "202N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "203N-H",
+                    "deltaDeltaChemicalShift": 0.01596997182214143
+               },
+               {
+                    "residue": "204N-H",
+                    "deltaDeltaChemicalShift": 0.006177378084592435
+               },
+               {
+                    "residue": "205N-H",
+                    "deltaDeltaChemicalShift": 0.001562049935181011
+               },
+               {
+                    "residue": "206N-H",
+                    "deltaDeltaChemicalShift": 0.0063245553203371855
+               },
+               {
+                    "residue": "207N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "208N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "209N-H",
+                    "deltaDeltaChemicalShift": 0.004118252056395244
+               },
+               {
+                    "residue": "210N-H",
+                    "deltaDeltaChemicalShift": 0.0030000000000001137
+               },
+               {
+                    "residue": "211N-H",
+                    "deltaDeltaChemicalShift": 0.0031622776601656155
+               },
+               {
+                    "residue": "212N-H",
+                    "deltaDeltaChemicalShift": 0.01998099096641681
+               },
+               {
+                    "residue": "213N-H",
+                    "deltaDeltaChemicalShift": 0.007045565981524644
+               },
+               {
+                    "residue": "214N-H",
+                    "deltaDeltaChemicalShift": 0.03264965543462775
+               },
+               {
+                    "residue": "215N-H",
+                    "deltaDeltaChemicalShift": 0.011045361017185737
+               },
+               {
+                    "residue": "216N-H",
+                    "deltaDeltaChemicalShift": 0.02193171219946106
+               },
+               {
+                    "residue": "217N-H",
+                    "deltaDeltaChemicalShift": 0.01818350901228817
+               },
+               {
+                    "residue": "218N-H",
+                    "deltaDeltaChemicalShift": 0.15608331108737974
+               },
+               {
+                    "residue": "219N-H",
+                    "deltaDeltaChemicalShift": 0.13803318441592036
+               },
+               {
+                    "residue": "220N-H",
+                    "deltaDeltaChemicalShift": 0.012083045973595961
+               },
+               {
+                    "residue": "221N-H",
+                    "deltaDeltaChemicalShift": 0.21657340556956592
+               },
+               {
+                    "residue": "222N-H",
+                    "deltaDeltaChemicalShift": 0.06902579228085697
+               },
+               {
+                    "residue": "223N-H",
+                    "deltaDeltaChemicalShift": 0.1712692616904732
+               },
+               {
+                    "residue": "224N-H",
+                    "deltaDeltaChemicalShift": 0.7760425246080257
+               },
+               {
+                    "residue": "225N-H",
+                    "deltaDeltaChemicalShift": 0.15344002085505695
+               },
+               {
+                    "residue": "226N-H",
+                    "deltaDeltaChemicalShift": 0.34484089084677927
+               },
+               {
+                    "residue": "227N-H",
+                    "deltaDeltaChemicalShift": 0.10965327172501559
+               },
+               {
+                    "residue": "228N-H",
+                    "deltaDeltaChemicalShift": 0.20823073740444784
+               },
+               {
+                    "residue": "229N-H",
+                    "deltaDeltaChemicalShift": 0.017514565367142947
+               },
+               {
+                    "residue": "230N-H",
+                    "deltaDeltaChemicalShift": 0.010239140588935769
+               },
+               {
+                    "residue": "231N-H",
+                    "deltaDeltaChemicalShift": 0.026219077024182247
+               },
+               {
+                    "residue": "232N-H",
+                    "deltaDeltaChemicalShift": 0.031216021527415063
+               },
+               {
+                    "residue": "233N-H",
+                    "deltaDeltaChemicalShift": 0.04455827644781411
+               },
+               {
+                    "residue": "234N-H",
+                    "deltaDeltaChemicalShift": 0.015094369811289374
+               },
+               {
+                    "residue": "235N-H",
+                    "deltaDeltaChemicalShift": 0.008459314393022891
+               },
+               {
+                    "residue": "236N-H",
+                    "deltaDeltaChemicalShift": 0.017088007490637484
+               },
+               {
+                    "residue": "237N-H",
+                    "deltaDeltaChemicalShift": 0.019940912717324902
+               },
+               {
+                    "residue": "238N-H",
+                    "deltaDeltaChemicalShift": 0.02373941869549293
+               },
+               {
+                    "residue": "239N-H",
+                    "deltaDeltaChemicalShift": 0.06337318044725301
+               },
+               {
+                    "residue": "240N-H",
+                    "deltaDeltaChemicalShift": 0.021060864179800926
+               },
+               {
+                    "residue": "241N-H",
+                    "deltaDeltaChemicalShift": 0.026907248094145842
+               },
+               {
+                    "residue": "242N-H",
+                    "deltaDeltaChemicalShift": 0.061243448629220716
+               },
+               {
+                    "residue": "243N-H",
+                    "deltaDeltaChemicalShift": 0.025576551761330033
+               },
+               {
+                    "residue": "244N-H",
+                    "deltaDeltaChemicalShift": 0.007045565981524644
+               },
+               {
+                    "residue": "245N-H",
+                    "deltaDeltaChemicalShift": 0.14046508462959748
+               },
+               {
+                    "residue": "246N-H",
+                    "deltaDeltaChemicalShift": 0.20664220285314416
+               },
+               {
+                    "residue": "247N-H",
+                    "deltaDeltaChemicalShift": 0.019940912717324902
+               },
+               {
+                    "residue": "248N-H",
+                    "deltaDeltaChemicalShift": 0.011045361017185737
+               },
+               {
+                    "residue": "249N-H",
+                    "deltaDeltaChemicalShift": 0.014317821063276035
+               },
+               {
+                    "residue": "250N-H",
+                    "deltaDeltaChemicalShift": 0.06016942745281832
+               },
+               {
+                    "residue": "251N-H",
+                    "deltaDeltaChemicalShift": 0.06087396816374016
+               },
+               {
+                    "residue": "253N-H",
+                    "deltaDeltaChemicalShift": 0.02500079998720075
+               },
+               {
+                    "residue": "254N-H",
+                    "deltaDeltaChemicalShift": 0.0026000000000002124
+               },
+               {
+                    "residue": "255N-H",
+                    "deltaDeltaChemicalShift": 0.009848857801796094
+               },
+               {
+                    "residue": "256N-H",
+                    "deltaDeltaChemicalShift": 0.07563835006132993
+               },
+               {
+                    "residue": "257N-H",
+                    "deltaDeltaChemicalShift": 0.24607722365143747
+               },
+               {
+                    "residue": "258N-H",
+                    "deltaDeltaChemicalShift": 0.028999310336625485
+               },
+               {
+                    "residue": "260N-H",
+                    "deltaDeltaChemicalShift": 0.10598754643824942
+               },
+               {
+                    "residue": "261N-H",
+                    "deltaDeltaChemicalShift": 0.022203603311174422
+               },
+               {
+                    "residue": "262N-H",
+                    "deltaDeltaChemicalShift": 0.004903060268852752
+               },
+               {
+                    "residue": "263N-H",
+                    "deltaDeltaChemicalShift": 0.025079872407968228
+               },
+               {
+                    "residue": "264N-H",
+                    "deltaDeltaChemicalShift": 0.025257870060635734
+               },
+               {
+                    "residue": "265N-H",
+                    "deltaDeltaChemicalShift": 0.022203603311174422
+               },
+               {
+                    "residue": "266N-H",
+                    "deltaDeltaChemicalShift": 0.0012000000000000454
+               },
+               {
+                    "residue": "267N-H",
+                    "deltaDeltaChemicalShift": 0.01500133327407904
+               },
+               {
+                    "residue": "268N-H",
+                    "deltaDeltaChemicalShift": 0.014312232530252418
+               },
+               {
+                    "residue": "269N-H",
+                    "deltaDeltaChemicalShift": 0.037941533970043954
+               },
+               {
+                    "residue": "270N-H",
+                    "deltaDeltaChemicalShift": 0.01500133327407904
+               },
+               {
+                    "residue": "271N-H",
+                    "deltaDeltaChemicalShift": 0.002039607805437586
+               },
+               {
+                    "residue": "272N-H",
+                    "deltaDeltaChemicalShift": 0.005015974481593338
+               }
+          ],
+          [
+               {
+                    "residue": "166N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "167N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "168N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "169N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "170N-H",
+                    "deltaDeltaChemicalShift": 0.011001818031581028
+               },
+               {
+                    "residue": "171N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "172N-H",
+                    "deltaDeltaChemicalShift": 0.011001818031581028
+               },
+               {
+                    "residue": "173N-H",
+                    "deltaDeltaChemicalShift": 0.006280127387244394
+               },
+               {
+                    "residue": "174N-H",
+                    "deltaDeltaChemicalShift": 0.0010198039027182009
+               },
+               {
+                    "residue": "175N-H",
+                    "deltaDeltaChemicalShift": 0.005758472019555612
+               },
+               {
+                    "residue": "176N-H",
+                    "deltaDeltaChemicalShift": 0.0006000000000000227
+               },
+               {
+                    "residue": "177N-H",
+                    "deltaDeltaChemicalShift": 0.0036000000000001365
+               },
+               {
+                    "residue": "178N-H",
+                    "deltaDeltaChemicalShift": 0.00107703296142604
+               },
+               {
+                    "residue": "179N-H",
+                    "deltaDeltaChemicalShift": 0.003736308338454102
+               },
+               {
+                    "residue": "180N-H",
+                    "deltaDeltaChemicalShift": 0.00107703296142604
+               },
+               {
+                    "residue": "181N-H",
+                    "deltaDeltaChemicalShift": 0.0006000000000000227
+               },
+               {
+                    "residue": "182N-H",
+                    "deltaDeltaChemicalShift": 0.0068963758598271
+               },
+               {
+                    "residue": "183N-H",
+                    "deltaDeltaChemicalShift": 0.005758472019555612
+               },
+               {
+                    "residue": "184N-H",
+                    "deltaDeltaChemicalShift": 0.002973213749463511
+               },
+               {
+                    "residue": "185N-H",
+                    "deltaDeltaChemicalShift": 0.0032310988842808247
+               },
+               {
+                    "residue": "186N-H",
+                    "deltaDeltaChemicalShift": 0.003736308338454102
+               },
+               {
+                    "residue": "187N-H",
+                    "deltaDeltaChemicalShift": 0.006177378084592435
+               },
+               {
+                    "residue": "188N-H",
+                    "deltaDeltaChemicalShift": 0.0010198039027182009
+               },
+               {
+                    "residue": "189N-H",
+                    "deltaDeltaChemicalShift": 0.05326011640993756
+               },
+               {
+                    "residue": "190N-H",
+                    "deltaDeltaChemicalShift": 0.0010198039027182009
+               },
+               {
+                    "residue": "191N-H",
+                    "deltaDeltaChemicalShift": 0.041128578871632133
+               },
+               {
+                    "residue": "192N-H",
+                    "deltaDeltaChemicalShift": 0.037107950630560355
+               },
+               {
+                    "residue": "193N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "194N-H",
+                    "deltaDeltaChemicalShift": 0.004386342439891888
+               },
+               {
+                    "residue": "195N-H",
+                    "deltaDeltaChemicalShift": 0.025482543044210382
+               },
+               {
+                    "residue": "196N-H",
+                    "deltaDeltaChemicalShift": 0.002236067977497915
+               },
+               {
+                    "residue": "197N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "198N-H",
+                    "deltaDeltaChemicalShift": 0.009433981132056459
+               },
+               {
+                    "residue": "199N-H",
+                    "deltaDeltaChemicalShift": 0.0006000000000000227
+               },
+               {
+                    "residue": "201N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "202N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "203N-H",
+                    "deltaDeltaChemicalShift": 0.01835755975068569
+               },
+               {
+                    "residue": "204N-H",
+                    "deltaDeltaChemicalShift": 0.00468614980554417
+               },
+               {
+                    "residue": "205N-H",
+                    "deltaDeltaChemicalShift": 0.002236067977497915
+               },
+               {
+                    "residue": "206N-H",
+                    "deltaDeltaChemicalShift": 0.0068963758598271
+               },
+               {
+                    "residue": "207N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "208N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "209N-H",
+                    "deltaDeltaChemicalShift": 0.004118252056395244
+               },
+               {
+                    "residue": "210N-H",
+                    "deltaDeltaChemicalShift": 0.002059126028197622
+               },
+               {
+                    "residue": "211N-H",
+                    "deltaDeltaChemicalShift": 0.0039293765408786145
+               },
+               {
+                    "residue": "212N-H",
+                    "deltaDeltaChemicalShift": 0.018384776310849844
+               },
+               {
+                    "residue": "213N-H",
+                    "deltaDeltaChemicalShift": 0.011001818031581028
+               },
+               {
+                    "residue": "214N-H",
+                    "deltaDeltaChemicalShift": 0.028827764394764116
+               },
+               {
+                    "residue": "215N-H",
+                    "deltaDeltaChemicalShift": 0.0061999999999983405
+               },
+               {
+                    "residue": "216N-H",
+                    "deltaDeltaChemicalShift": 0.022014540649306188
+               },
+               {
+                    "residue": "217N-H",
+                    "deltaDeltaChemicalShift": 0.024061587645040742
+               },
+               {
+                    "residue": "218N-H",
+                    "deltaDeltaChemicalShift": 0.157998607588801
+               },
+               {
+                    "residue": "219N-H",
+                    "deltaDeltaChemicalShift": 0.1461771527975552
+               },
+               {
+                    "residue": "220N-H",
+                    "deltaDeltaChemicalShift": 0.011271202242885072
+               },
+               {
+                    "residue": "221N-H",
+                    "deltaDeltaChemicalShift": 0.2206761427975391
+               },
+               {
+                    "residue": "222N-H",
+                    "deltaDeltaChemicalShift": 0.07151531304552858
+               },
+               {
+                    "residue": "223N-H",
+                    "deltaDeltaChemicalShift": 0.17009891240099087
+               },
+               {
+                    "residue": "224N-H",
+                    "deltaDeltaChemicalShift": 0.789876977762992
+               },
+               {
+                    "residue": "225N-H",
+                    "deltaDeltaChemicalShift": 0.15796518603793802
+               },
+               {
+                    "residue": "226N-H",
+                    "deltaDeltaChemicalShift": 0.35183297173516886
+               },
+               {
+                    "residue": "227N-H",
+                    "deltaDeltaChemicalShift": 0.10965327172501559
+               },
+               {
+                    "residue": "228N-H",
+                    "deltaDeltaChemicalShift": 0.21453913395928542
+               },
+               {
+                    "residue": "229N-H",
+                    "deltaDeltaChemicalShift": 0.018508376482014567
+               },
+               {
+                    "residue": "230N-H",
+                    "deltaDeltaChemicalShift": 0.011704699910720302
+               },
+               {
+                    "residue": "231N-H",
+                    "deltaDeltaChemicalShift": 0.027658633371879324
+               },
+               {
+                    "residue": "232N-H",
+                    "deltaDeltaChemicalShift": 0.03216457678875993
+               },
+               {
+                    "residue": "233N-H",
+                    "deltaDeltaChemicalShift": 0.04152156066430873
+               },
+               {
+                    "residue": "234N-H",
+                    "deltaDeltaChemicalShift": 0.015118200951170436
+               },
+               {
+                    "residue": "235N-H",
+                    "deltaDeltaChemicalShift": 0.008062257748299943
+               },
+               {
+                    "residue": "236N-H",
+                    "deltaDeltaChemicalShift": 0.02454465318557181
+               },
+               {
+                    "residue": "237N-H",
+                    "deltaDeltaChemicalShift": 0.019334942461769283
+               },
+               {
+                    "residue": "238N-H",
+                    "deltaDeltaChemicalShift": 0.02689907061591185
+               },
+               {
+                    "residue": "239N-H",
+                    "deltaDeltaChemicalShift": 0.06634937829399845
+               },
+               {
+                    "residue": "240N-H",
+                    "deltaDeltaChemicalShift": 0.020035967658188655
+               },
+               {
+                    "residue": "241N-H",
+                    "deltaDeltaChemicalShift": 0.025198412648417007
+               },
+               {
+                    "residue": "242N-H",
+                    "deltaDeltaChemicalShift": 0.060146820364836935
+               },
+               {
+                    "residue": "243N-H",
+                    "deltaDeltaChemicalShift": 0.024185946332528963
+               },
+               {
+                    "residue": "244N-H",
+                    "deltaDeltaChemicalShift": 0.011001818031581028
+               },
+               {
+                    "residue": "245N-H",
+                    "deltaDeltaChemicalShift": 0.14156002260525327
+               },
+               {
+                    "residue": "246N-H",
+                    "deltaDeltaChemicalShift": 0.20557762524165907
+               },
+               {
+                    "residue": "247N-H",
+                    "deltaDeltaChemicalShift": 0.019334942461769283
+               },
+               {
+                    "residue": "248N-H",
+                    "deltaDeltaChemicalShift": 0.0061999999999983405
+               },
+               {
+                    "residue": "249N-H",
+                    "deltaDeltaChemicalShift": 0.010770329614268315
+               },
+               {
+                    "residue": "250N-H",
+                    "deltaDeltaChemicalShift": 0.06023985391748404
+               },
+               {
+                    "residue": "251N-H",
+                    "deltaDeltaChemicalShift": 0.06000833275470941
+               },
+               {
+                    "residue": "253N-H",
+                    "deltaDeltaChemicalShift": 0.02603766502588096
+               },
+               {
+                    "residue": "254N-H",
+                    "deltaDeltaChemicalShift": 0.0017204650534072207
+               },
+               {
+                    "residue": "255N-H",
+                    "deltaDeltaChemicalShift": 0.012727922061358338
+               },
+               {
+                    "residue": "256N-H",
+                    "deltaDeltaChemicalShift": 0.08749148529999884
+               },
+               {
+                    "residue": "257N-H",
+                    "deltaDeltaChemicalShift": 0.2513277541378984
+               },
+               {
+                    "residue": "258N-H",
+                    "deltaDeltaChemicalShift": 0.0370734406280288
+               },
+               {
+                    "residue": "260N-H",
+                    "deltaDeltaChemicalShift": 0.10873711417910788
+               },
+               {
+                    "residue": "261N-H",
+                    "deltaDeltaChemicalShift": 0.01608228839437845
+               },
+               {
+                    "residue": "262N-H",
+                    "deltaDeltaChemicalShift": 0.003736308338454102
+               },
+               {
+                    "residue": "263N-H",
+                    "deltaDeltaChemicalShift": 0.021999999999999353
+               },
+               {
+                    "residue": "264N-H",
+                    "deltaDeltaChemicalShift": 0.025384247083575166
+               },
+               {
+                    "residue": "265N-H",
+                    "deltaDeltaChemicalShift": 0.01608228839437845
+               },
+               {
+                    "residue": "266N-H",
+                    "deltaDeltaChemicalShift": 0.0006000000000000227
+               },
+               {
+                    "residue": "267N-H",
+                    "deltaDeltaChemicalShift": 0.015393505123914198
+               },
+               {
+                    "residue": "268N-H",
+                    "deltaDeltaChemicalShift": 0.024233035303074604
+               },
+               {
+                    "residue": "269N-H",
+                    "deltaDeltaChemicalShift": 0.04528399275682304
+               },
+               {
+                    "residue": "270N-H",
+                    "deltaDeltaChemicalShift": 0.015393505123914198
+               },
+               {
+                    "residue": "271N-H",
+                    "deltaDeltaChemicalShift": 0.0030066592756747587
+               },
+               {
+                    "residue": "272N-H",
+                    "deltaDeltaChemicalShift": 0.0036055512754644544
+               }
+          ],
+          [
+               {
+                    "residue": "166N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "167N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "168N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "169N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "170N-H",
+                    "deltaDeltaChemicalShift": 0.011461239025514514
+               },
+               {
+                    "residue": "171N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "172N-H",
+                    "deltaDeltaChemicalShift": 0.011461239025514514
+               },
+               {
+                    "residue": "173N-H",
+                    "deltaDeltaChemicalShift": 0.0068963758598271
+               },
+               {
+                    "residue": "174N-H",
+                    "deltaDeltaChemicalShift": 0.0011661903789685966
+               },
+               {
+                    "residue": "175N-H",
+                    "deltaDeltaChemicalShift": 0.009453041838479358
+               },
+               {
+                    "residue": "176N-H",
+                    "deltaDeltaChemicalShift": 0.002785677655437601
+               },
+               {
+                    "residue": "177N-H",
+                    "deltaDeltaChemicalShift": 0.005295280917948817
+               },
+               {
+                    "residue": "178N-H",
+                    "deltaDeltaChemicalShift": 0.0037363083384511254
+               },
+               {
+                    "residue": "179N-H",
+                    "deltaDeltaChemicalShift": 0.003544009029333179
+               },
+               {
+                    "residue": "180N-H",
+                    "deltaDeltaChemicalShift": 0.003440930106816238
+               },
+               {
+                    "residue": "181N-H",
+                    "deltaDeltaChemicalShift": 0.0012806248474867478
+               },
+               {
+                    "residue": "182N-H",
+                    "deltaDeltaChemicalShift": 0.010295630140987678
+               },
+               {
+                    "residue": "183N-H",
+                    "deltaDeltaChemicalShift": 0.009453041838479358
+               },
+               {
+                    "residue": "184N-H",
+                    "deltaDeltaChemicalShift": 0.001886796226410275
+               },
+               {
+                    "residue": "185N-H",
+                    "deltaDeltaChemicalShift": 0.004386342439891888
+               },
+               {
+                    "residue": "186N-H",
+                    "deltaDeltaChemicalShift": 0.003544009029333179
+               },
+               {
+                    "residue": "187N-H",
+                    "deltaDeltaChemicalShift": 0.0032802438933703286
+               },
+               {
+                    "residue": "188N-H",
+                    "deltaDeltaChemicalShift": 0.0011661903789685966
+               },
+               {
+                    "residue": "189N-H",
+                    "deltaDeltaChemicalShift": 0.05092150822589491
+               },
+               {
+                    "residue": "190N-H",
+                    "deltaDeltaChemicalShift": 0.0011661903789685966
+               },
+               {
+                    "residue": "191N-H",
+                    "deltaDeltaChemicalShift": 0.04098829101097117
+               },
+               {
+                    "residue": "192N-H",
+                    "deltaDeltaChemicalShift": 0.03800210520484383
+               },
+               {
+                    "residue": "193N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "194N-H",
+                    "deltaDeltaChemicalShift": 0.013601470508736996
+               },
+               {
+                    "residue": "195N-H",
+                    "deltaDeltaChemicalShift": 0.024233035303074604
+               },
+               {
+                    "residue": "196N-H",
+                    "deltaDeltaChemicalShift": 0.001886796226410275
+               },
+               {
+                    "residue": "197N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "198N-H",
+                    "deltaDeltaChemicalShift": 0.009425497334359463
+               },
+               {
+                    "residue": "199N-H",
+                    "deltaDeltaChemicalShift": 0.0012806248474867478
+               },
+               {
+                    "residue": "201N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "202N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "203N-H",
+                    "deltaDeltaChemicalShift": 0.01392695228684047
+               },
+               {
+                    "residue": "204N-H",
+                    "deltaDeltaChemicalShift": 0.002690724809414624
+               },
+               {
+                    "residue": "205N-H",
+                    "deltaDeltaChemicalShift": 0.001886796226410275
+               },
+               {
+                    "residue": "206N-H",
+                    "deltaDeltaChemicalShift": 0.010295630140987678
+               },
+               {
+                    "residue": "207N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "208N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "209N-H",
+                    "deltaDeltaChemicalShift": 0.009453041838479358
+               },
+               {
+                    "residue": "210N-H",
+                    "deltaDeltaChemicalShift": 0.009867117106837386
+               },
+               {
+                    "residue": "211N-H",
+                    "deltaDeltaChemicalShift": 0.002199999999999136
+               },
+               {
+                    "residue": "212N-H",
+                    "deltaDeltaChemicalShift": 0.01780449381476658
+               },
+               {
+                    "residue": "213N-H",
+                    "deltaDeltaChemicalShift": 0.011461239025514514
+               },
+               {
+                    "residue": "214N-H",
+                    "deltaDeltaChemicalShift": 0.028650305408493067
+               },
+               {
+                    "residue": "215N-H",
+                    "deltaDeltaChemicalShift": 0.013548431643550421
+               },
+               {
+                    "residue": "216N-H",
+                    "deltaDeltaChemicalShift": 0.021587033144921556
+               },
+               {
+                    "residue": "217N-H",
+                    "deltaDeltaChemicalShift": 0.02042155723739102
+               },
+               {
+                    "residue": "218N-H",
+                    "deltaDeltaChemicalShift": 0.15916205577963594
+               },
+               {
+                    "residue": "219N-H",
+                    "deltaDeltaChemicalShift": 0.1443037075060784
+               },
+               {
+                    "residue": "220N-H",
+                    "deltaDeltaChemicalShift": 0.01177454882362902
+               },
+               {
+                    "residue": "221N-H",
+                    "deltaDeltaChemicalShift": 0.2234657915655105
+               },
+               {
+                    "residue": "222N-H",
+                    "deltaDeltaChemicalShift": 0.07172977066741525
+               },
+               {
+                    "residue": "223N-H",
+                    "deltaDeltaChemicalShift": 0.17001423469815688
+               },
+               {
+                    "residue": "224N-H",
+                    "deltaDeltaChemicalShift": 0.7966156915351339
+               },
+               {
+                    "residue": "225N-H",
+                    "deltaDeltaChemicalShift": 0.15982315226524693
+               },
+               {
+                    "residue": "226N-H",
+                    "deltaDeltaChemicalShift": 0.35531034322124694
+               },
+               {
+                    "residue": "227N-H",
+                    "deltaDeltaChemicalShift": 0.10837435120913022
+               },
+               {
+                    "residue": "228N-H",
+                    "deltaDeltaChemicalShift": 0.21427235005945164
+               },
+               {
+                    "residue": "229N-H",
+                    "deltaDeltaChemicalShift": 0.013746272221951206
+               },
+               {
+                    "residue": "230N-H",
+                    "deltaDeltaChemicalShift": 0.01100181803158108
+               },
+               {
+                    "residue": "231N-H",
+                    "deltaDeltaChemicalShift": 0.02597383298629702
+               },
+               {
+                    "residue": "232N-H",
+                    "deltaDeltaChemicalShift": 0.034795976778932695
+               },
+               {
+                    "residue": "233N-H",
+                    "deltaDeltaChemicalShift": 0.03838541389642628
+               },
+               {
+                    "residue": "234N-H",
+                    "deltaDeltaChemicalShift": 0.017275416058666216
+               },
+               {
+                    "residue": "235N-H",
+                    "deltaDeltaChemicalShift": 0.012999999999999545
+               },
+               {
+                    "residue": "236N-H",
+                    "deltaDeltaChemicalShift": 0.02135509306933434
+               },
+               {
+                    "residue": "237N-H",
+                    "deltaDeltaChemicalShift": 0.018813824704189887
+               },
+               {
+                    "residue": "238N-H",
+                    "deltaDeltaChemicalShift": 0.02799999999999727
+               },
+               {
+                    "residue": "239N-H",
+                    "deltaDeltaChemicalShift": 0.05913543776789107
+               },
+               {
+                    "residue": "240N-H",
+                    "deltaDeltaChemicalShift": 0.0210237960416289
+               },
+               {
+                    "residue": "241N-H",
+                    "deltaDeltaChemicalShift": 0.027487451682540836
+               },
+               {
+                    "residue": "242N-H",
+                    "deltaDeltaChemicalShift": 0.06232046212922278
+               },
+               {
+                    "residue": "243N-H",
+                    "deltaDeltaChemicalShift": 0.02690724809414756
+               },
+               {
+                    "residue": "244N-H",
+                    "deltaDeltaChemicalShift": 0.011461239025514514
+               },
+               {
+                    "residue": "245N-H",
+                    "deltaDeltaChemicalShift": 0.14179210133149103
+               },
+               {
+                    "residue": "246N-H",
+                    "deltaDeltaChemicalShift": 0.21174947461564128
+               },
+               {
+                    "residue": "247N-H",
+                    "deltaDeltaChemicalShift": 0.018813824704189887
+               },
+               {
+                    "residue": "248N-H",
+                    "deltaDeltaChemicalShift": 0.013548431643550421
+               },
+               {
+                    "residue": "249N-H",
+                    "deltaDeltaChemicalShift": 0.016278820596100963
+               },
+               {
+                    "residue": "250N-H",
+                    "deltaDeltaChemicalShift": 0.05953855893452476
+               },
+               {
+                    "residue": "251N-H",
+                    "deltaDeltaChemicalShift": 0.06526898191331161
+               },
+               {
+                    "residue": "253N-H",
+                    "deltaDeltaChemicalShift": 0.027238942710758073
+               },
+               {
+                    "residue": "254N-H",
+                    "deltaDeltaChemicalShift": 0.0030000000000001137
+               },
+               {
+                    "residue": "255N-H",
+                    "deltaDeltaChemicalShift": 0.008944271909998809
+               },
+               {
+                    "residue": "256N-H",
+                    "deltaDeltaChemicalShift": 0.08494727776686087
+               },
+               {
+                    "residue": "257N-H",
+                    "deltaDeltaChemicalShift": 0.258477774673181
+               },
+               {
+                    "residue": "258N-H",
+                    "deltaDeltaChemicalShift": 0.03883297567789494
+               },
+               {
+                    "residue": "260N-H",
+                    "deltaDeltaChemicalShift": 0.10993252475950857
+               },
+               {
+                    "residue": "261N-H",
+                    "deltaDeltaChemicalShift": 0.027018512172213658
+               },
+               {
+                    "residue": "262N-H",
+                    "deltaDeltaChemicalShift": 0.003544009029333179
+               },
+               {
+                    "residue": "263N-H",
+                    "deltaDeltaChemicalShift": 0.020099751242241174
+               },
+               {
+                    "residue": "264N-H",
+                    "deltaDeltaChemicalShift": 0.027776968877110023
+               },
+               {
+                    "residue": "265N-H",
+                    "deltaDeltaChemicalShift": 0.027018512172213658
+               },
+               {
+                    "residue": "266N-H",
+                    "deltaDeltaChemicalShift": 0.002785677655437601
+               },
+               {
+                    "residue": "267N-H",
+                    "deltaDeltaChemicalShift": 0.01768162888424001
+               },
+               {
+                    "residue": "268N-H",
+                    "deltaDeltaChemicalShift": 0.019622436138259387
+               },
+               {
+                    "residue": "269N-H",
+                    "deltaDeltaChemicalShift": 0.04291200298284821
+               },
+               {
+                    "residue": "270N-H",
+                    "deltaDeltaChemicalShift": 0.01768162888424001
+               },
+               {
+                    "residue": "271N-H",
+                    "deltaDeltaChemicalShift": 0.00020000000000095497
+               },
+               {
+                    "residue": "272N-H",
+                    "deltaDeltaChemicalShift": 0.004534313619501315
+               }
+          ],
+          [
+               {
+                    "residue": "166N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "167N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "168N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "169N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "170N-H",
+                    "deltaDeltaChemicalShift": 0.015160474926598631
+               },
+               {
+                    "residue": "171N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "172N-H",
+                    "deltaDeltaChemicalShift": 0.015160474926598631
+               },
+               {
+                    "residue": "173N-H",
+                    "deltaDeltaChemicalShift": 0.00039999999999906777
+               },
+               {
+                    "residue": "174N-H",
+                    "deltaDeltaChemicalShift": 0.004242640687117436
+               },
+               {
+                    "residue": "175N-H",
+                    "deltaDeltaChemicalShift": 0.004800000000000182
+               },
+               {
+                    "residue": "176N-H",
+                    "deltaDeltaChemicalShift": 0.0014142135623733162
+               },
+               {
+                    "residue": "177N-H",
+                    "deltaDeltaChemicalShift": 0.00020000000000095497
+               },
+               {
+                    "residue": "178N-H",
+                    "deltaDeltaChemicalShift": 0.002332380757935731
+               },
+               {
+                    "residue": "179N-H",
+                    "deltaDeltaChemicalShift": 0.005885575587824205
+               },
+               {
+                    "residue": "180N-H",
+                    "deltaDeltaChemicalShift": 0.007432361670423366
+               },
+               {
+                    "residue": "181N-H",
+                    "deltaDeltaChemicalShift": 0.002039607805437586
+               },
+               {
+                    "residue": "182N-H",
+                    "deltaDeltaChemicalShift": 0.00948472456110447
+               },
+               {
+                    "residue": "183N-H",
+                    "deltaDeltaChemicalShift": 0.004800000000000182
+               },
+               {
+                    "residue": "184N-H",
+                    "deltaDeltaChemicalShift": 0.0031622776601682
+               },
+               {
+                    "residue": "185N-H",
+                    "deltaDeltaChemicalShift": 0.0020880613017827563
+               },
+               {
+                    "residue": "186N-H",
+                    "deltaDeltaChemicalShift": 0.005885575587824205
+               },
+               {
+                    "residue": "187N-H",
+                    "deltaDeltaChemicalShift": 0.00529528091795144
+               },
+               {
+                    "residue": "188N-H",
+                    "deltaDeltaChemicalShift": 0.004242640687117436
+               },
+               {
+                    "residue": "189N-H",
+                    "deltaDeltaChemicalShift": 0.05092150822589491
+               },
+               {
+                    "residue": "190N-H",
+                    "deltaDeltaChemicalShift": 0.004242640687117436
+               },
+               {
+                    "residue": "191N-H",
+                    "deltaDeltaChemicalShift": 0.04366508903002543
+               },
+               {
+                    "residue": "192N-H",
+                    "deltaDeltaChemicalShift": 0.03800210520484383
+               },
+               {
+                    "residue": "193N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "194N-H",
+                    "deltaDeltaChemicalShift": 0.007432361670425967
+               },
+               {
+                    "residue": "195N-H",
+                    "deltaDeltaChemicalShift": 0.024233035303074604
+               },
+               {
+                    "residue": "196N-H",
+                    "deltaDeltaChemicalShift": 0.0035440090293329283
+               },
+               {
+                    "residue": "197N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "198N-H",
+                    "deltaDeltaChemicalShift": 0.014489996549345885
+               },
+               {
+                    "residue": "199N-H",
+                    "deltaDeltaChemicalShift": 0.002039607805437586
+               },
+               {
+                    "residue": "201N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "202N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "203N-H",
+                    "deltaDeltaChemicalShift": 0.016155494421401486
+               },
+               {
+                    "residue": "204N-H",
+                    "deltaDeltaChemicalShift": 0.002690724809414624
+               },
+               {
+                    "residue": "205N-H",
+                    "deltaDeltaChemicalShift": 0.001886796226410275
+               },
+               {
+                    "residue": "206N-H",
+                    "deltaDeltaChemicalShift": 0.010295630140987678
+               },
+               {
+                    "residue": "207N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "208N-H",
+                    "deltaDeltaChemicalShift": 0.0
+               },
+               {
+                    "residue": "209N-H",
+                    "deltaDeltaChemicalShift": 0.004800000000000182
+               },
+               {
+                    "residue": "210N-H",
+                    "deltaDeltaChemicalShift": 0.007269112738154815
+               },
+               {
+                    "residue": "211N-H",
+                    "deltaDeltaChemicalShift": 0.00490306026885257
+               },
+               {
+                    "residue": "212N-H",
+                    "deltaDeltaChemicalShift": 0.01818130908378337
+               },
+               {
+                    "residue": "213N-H",
+                    "deltaDeltaChemicalShift": 0.015160474926598631
+               },
+               {
+                    "residue": "214N-H",
+                    "deltaDeltaChemicalShift": 0.014589036979870202
+               },
+               {
+                    "residue": "215N-H",
+                    "deltaDeltaChemicalShift": 0.011574109036981663
+               },
+               {
+                    "residue": "216N-H",
+                    "deltaDeltaChemicalShift": 0.020478281177871538
+               },
+               {
+                    "residue": "217N-H",
+                    "deltaDeltaChemicalShift": 0.022181974664128204
+               },
+               {
+                    "residue": "218N-H",
+                    "deltaDeltaChemicalShift": 0.15723409299512572
+               },
+               {
+                    "residue": "219N-H",
+                    "deltaDeltaChemicalShift": 0.14509651959988445
+               },
+               {
+                    "residue": "220N-H",
+                    "deltaDeltaChemicalShift": 0.010897706180661713
+               },
+               {
+                    "residue": "221N-H",
+                    "deltaDeltaChemicalShift": 0.22193206167654067
+               },
+               {
+                    "residue": "222N-H",
+                    "deltaDeltaChemicalShift": 0.07087623014805403
+               },
+               {
+                    "residue": "223N-H",
+                    "deltaDeltaChemicalShift": 0.17416589792493767
+               },
+               {
+                    "residue": "224N-H",
+                    "deltaDeltaChemicalShift": 0.7981344748850275
+               },
+               {
+                    "residue": "225N-H",
+                    "deltaDeltaChemicalShift": 0.1597340289356045
+               },
+               {
+                    "residue": "226N-H",
+                    "deltaDeltaChemicalShift": 0.35773515343057954
+               },
+               {
+                    "residue": "227N-H",
+                    "deltaDeltaChemicalShift": 0.10776288786033963
+               },
+               {
+                    "residue": "228N-H",
+                    "deltaDeltaChemicalShift": 0.2153688928327411
+               },
+               {
+                    "residue": "229N-H",
+                    "deltaDeltaChemicalShift": 0.019399999999998842
+               },
+               {
+                    "residue": "230N-H",
+                    "deltaDeltaChemicalShift": 0.0070114192571830245
+               },
+               {
+                    "residue": "231N-H",
+                    "deltaDeltaChemicalShift": 0.025819372571773497
+               },
+               {
+                    "residue": "232N-H",
+                    "deltaDeltaChemicalShift": 0.035070785562915756
+               },
+               {
+                    "residue": "233N-H",
+                    "deltaDeltaChemicalShift": 0.03824604554721807
+               },
+               {
+                    "residue": "234N-H",
+                    "deltaDeltaChemicalShift": 0.015811388300841715
+               },
+               {
+                    "residue": "235N-H",
+                    "deltaDeltaChemicalShift": 0.011704699910721364
+               },
+               {
+                    "residue": "236N-H",
+                    "deltaDeltaChemicalShift": 0.02442457778549926
+               },
+               {
+                    "residue": "237N-H",
+                    "deltaDeltaChemicalShift": 0.020808652046682995
+               },
+               {
+                    "residue": "238N-H",
+                    "deltaDeltaChemicalShift": 0.02726829660979586
+               },
+               {
+                    "residue": "239N-H",
+                    "deltaDeltaChemicalShift": 0.06718630812896423
+               },
+               {
+                    "residue": "240N-H",
+                    "deltaDeltaChemicalShift": 0.02021484602958965
+               },
+               {
+                    "residue": "241N-H",
+                    "deltaDeltaChemicalShift": 0.02559765614270221
+               },
+               {
+                    "residue": "242N-H",
+                    "deltaDeltaChemicalShift": 0.06038840948394071
+               },
+               {
+                    "residue": "243N-H",
+                    "deltaDeltaChemicalShift": 0.03238579935712604
+               },
+               {
+                    "residue": "244N-H",
+                    "deltaDeltaChemicalShift": 0.015160474926598631
+               },
+               {
+                    "residue": "245N-H",
+                    "deltaDeltaChemicalShift": 0.14167483897996788
+               },
+               {
+                    "residue": "246N-H",
+                    "deltaDeltaChemicalShift": 0.20935720670662397
+               },
+               {
+                    "residue": "247N-H",
+                    "deltaDeltaChemicalShift": 0.020808652046682995
+               },
+               {
+                    "residue": "248N-H",
+                    "deltaDeltaChemicalShift": 0.011574109036981663
+               },
+               {
+                    "residue": "249N-H",
+                    "deltaDeltaChemicalShift": 0.010394229168148946
+               },
+               {
+                    "residue": "250N-H",
+                    "deltaDeltaChemicalShift": 0.06192447012288271
+               },
+               {
+                    "residue": "251N-H",
+                    "deltaDeltaChemicalShift": 0.06320791089729245
+               },
+               {
+                    "residue": "253N-H",
+                    "deltaDeltaChemicalShift": 0.027144796923166594
+               },
+               {
+                    "residue": "254N-H",
+                    "deltaDeltaChemicalShift": 0.0036000000000001365
+               },
+               {
+                    "residue": "255N-H",
+                    "deltaDeltaChemicalShift": 0.00932952303175258
+               },
+               {
+                    "residue": "256N-H",
+                    "deltaDeltaChemicalShift": 0.07935767133680283
+               },
+               {
+                    "residue": "257N-H",
+                    "deltaDeltaChemicalShift": 0.2562031225414699
+               },
+               {
+                    "residue": "258N-H",
+                    "deltaDeltaChemicalShift": 0.042643170613825596
+               },
+               {
+                    "residue": "260N-H",
+                    "deltaDeltaChemicalShift": 0.10670070290302834
+               },
+               {
+                    "residue": "261N-H",
+                    "deltaDeltaChemicalShift": 0.020895932618574264
+               },
+               {
+                    "residue": "262N-H",
+                    "deltaDeltaChemicalShift": 0.005885575587824205
+               },
+               {
+                    "residue": "263N-H",
+                    "deltaDeltaChemicalShift": 0.023021728866442447
+               },
+               {
+                    "residue": "264N-H",
+                    "deltaDeltaChemicalShift": 0.02453487314008379
+               },
+               {
+                    "residue": "265N-H",
+                    "deltaDeltaChemicalShift": 0.020895932618574264
+               },
+               {
+                    "residue": "266N-H",
+                    "deltaDeltaChemicalShift": 0.0014142135623733162
+               },
+               {
+                    "residue": "267N-H",
+                    "deltaDeltaChemicalShift": 0.014086873322351284
+               },
+               {
+                    "residue": "268N-H",
+                    "deltaDeltaChemicalShift": 0.018867962264112918
+               },
+               {
+                    "residue": "269N-H",
+                    "deltaDeltaChemicalShift": 0.04892811052963277
+               },
+               {
+                    "residue": "270N-H",
+                    "deltaDeltaChemicalShift": 0.014086873322351284
+               },
+               {
+                    "residue": "271N-H",
+                    "deltaDeltaChemicalShift": 0.0022360679774999803
+               },
+               {
+                    "residue": "272N-H",
+                    "deltaDeltaChemicalShift": 0.005517245689654565
+               }
+          ]
+     ]
+]
