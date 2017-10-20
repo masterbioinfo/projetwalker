@@ -313,6 +313,36 @@ def jsonLoadJob(directoryIn):
 		sys.stderr.write("%s\n" % err)
 		exit(1)
 
+def jsonSaveJob(directoryIn, listFileTitration, plotsAndCutoffs, deltaDeltaShifts):
+    """ """
+    try:
+        with open("{0}saveJob.json".format(directoryIn["pathIn"]), 'w') as saveJobFile:
+            saveJobFile.write(json.dumps(listFileTitration, indent = 5)) 
+            saveJobFile.write(json.dumps(plotsAndCutoffs, indent = 5)) 
+            saveJobFile.write(json.dumps(deltaDeltaShifts, indent = 5)) 
+    
+        return "Job saves in {0}saveJob.exlist !".format(directoryIn["pathIn"]) 
+    except IOError as err:
+        sys.stderr.write("%s\n" % err)
+        exit(1)
+
+
+def jsonLoadJob(directoryIn):
+    """ """
+    
+    liste = list()
+    try:
+        with open("{0}saveJob.json".format(directoryIn["pathIn"]), 'r') as loadJobFile:
+            datas = json.load(loadJobFile)
+           
+             
+    
+        #return "Job saves in {0}saveJob.exlist !".format(directoryIn["pathIn"]) 
+    except IOError as err:
+        sys.stderr.write("%s\n" % err)
+        exit(1)
+
+
 def saveJob(directoryIn, listFileTitration, plotsAndCutoffs, deltaDeltaShifts):
 	"""The function can save the job. She takes diretoryIn dictionnary, listFileTitration list, 
 	plotsAndCutoffs list and deltaDeltaShifts list in arguments. She return a confirmation message.

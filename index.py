@@ -91,8 +91,13 @@ plotsAndCutoffs = methods.plotSelection(plotsAndCutoffs, newCutoff)
 
 
 ###Save job in progress automatically.
+<<<<<<< HEAD
 saveMessage = methods.jsonSaveJob(directoryIn, listFileTitration, plotsAndCutoffs, deltaDeltaShifts)
 #saveMessage = methods.saveJob(directoryIn, listFileTitration, plotsAndCutoffs, deltaDeltaShifts)
+=======
+#saveMessage = methods.saveJob(directoryIn, listFileTitration, plotsAndCutoffs, deltaDeltaShifts)
+saveMessage = methods.jsonSaveJob(directoryIn, listFileTitration, plotsAndCutoffs, deltaDeltaShifts)
+>>>>>>> 197033439e0e3d9c647760608453b96df93f46a2
 print(saveMessage)
 
 
@@ -101,7 +106,11 @@ print(saveMessage)
 #directoryIn = methods.informationsFile(listFileTitration)
 #(listFileTitration, plotsAndCutoffs, deltaDeltaShifts, loadMessage) = methods.loadJob(directoryIn)
 (listFileTitration, plotsAndCutoffs, deltaDeltaShifts, loadMessage) = methods.jsonLoadJob(directoryIn)
+<<<<<<< HEAD
 print(loadMessage)
+=======
+#print(loadMessage)
+>>>>>>> 197033439e0e3d9c647760608453b96df93f46a2
 
 
 ###Show histograms.
