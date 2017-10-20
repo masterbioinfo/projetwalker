@@ -18,6 +18,7 @@ Authors : Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY and Rainier-Nu
 #Moduls used in methods.py.
 
 
+import json
 from math import *
 import matplotlib.pyplot as plt
 import numpy as num
@@ -277,6 +278,36 @@ def plotSelection(plotsAndCutoffs, newCutoff):
 	except ValueError:
 		if plotSelected != "all":
 			print('Enter "all" to selection all plots.')
+
+
+def jsonSaveJob(directoryIn, listFileTitration, plotsAndCutoffs, deltaDeltaShifts):
+    """ """
+    try:
+        with open("{0}saveJob.json".format(directoryIn["pathIn"]), 'w') as saveJobFile:
+            saveJobFile.write(json.dumps(listFileTitration, indent = 5)) 
+            saveJobFile.write(json.dumps(plotsAndCutoffs, indent = 5)) 
+            saveJobFile.write(json.dumps(deltaDeltaShifts, indent = 5)) 
+    
+        return "Job saves in {0}saveJob.exlist !".format(directoryIn["pathIn"]) 
+    except IOError as err:
+        sys.stderr.write("%s\n" % err)
+        exit(1)
+
+
+def jsonLoadJob(directoryIn):
+    """ """
+    
+    liste = list()
+    try:
+        with open("{0}saveJob.json".format(directoryIn["pathIn"]), 'r') as loadJobFile:
+            datas = json.load(loadJobFile)
+           
+             
+    
+        #return "Job saves in {0}saveJob.exlist !".format(directoryIn["pathIn"]) 
+    except IOError as err:
+        sys.stderr.write("%s\n" % err)
+        exit(1)
 
 
 def saveJob(directoryIn, listFileTitration, plotsAndCutoffs, deltaDeltaShifts):

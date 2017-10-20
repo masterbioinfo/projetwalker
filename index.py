@@ -91,15 +91,17 @@ plotsAndCutoffs = methods.plotSelection(plotsAndCutoffs, newCutoff)
 
 
 ###Save job in progress automatically.
-saveMessage = methods.saveJob(directoryIn, listFileTitration, plotsAndCutoffs, deltaDeltaShifts)
+#saveMessage = methods.saveJob(directoryIn, listFileTitration, plotsAndCutoffs, deltaDeltaShifts)
+saveMessage = methods.jsonSaveJob(directoryIn, listFileTitration, plotsAndCutoffs, deltaDeltaShifts)
 print(saveMessage)
 
 
 ###Load job in progress automatically. The file loaded must be write in CLI.
 #fileLoad = args["<file.list>"]
 #directoryIn = methods.informationsFile(listFileTitration)
-(listFileTitration, plotsAndCutoffs, deltaDeltaShifts, loadMessage) = methods.loadJob(directoryIn)
-print(loadMessage)
+#(listFileTitration, plotsAndCutoffs, deltaDeltaShifts, loadMessage) = methods.loadJob(directoryIn)
+(listFileTitration, plotsAndCutoffs, deltaDeltaShifts, loadMessage) = methods.jsonLoadJob(directoryIn)
+#print(loadMessage)
 
 
 ###Show histograms.
