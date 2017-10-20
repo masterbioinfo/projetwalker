@@ -19,13 +19,12 @@ Authors : Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY, Rainier-Numa 
 Exemple :  ./index.py data/listes/listPP/*.list
 """
 
+
 import functions
 import os
 import sys
 from docopt import docopt
 import classes.AminoAcid as aa
-
-
 
 args = docopt(__doc__)
 
@@ -42,6 +41,7 @@ for titrationFile in listFileTitration :
 
 validatedResidues = [ residue for residue in residues.values() if residue.validate(len(sortedPath)) ]
 incompleteDataResidues = [residue for residue in residues.values() if not residue.validate(len(sortedPath))]
+print (validatedResidues[4].chemShiftIntensity)
 
 # After parsing : 
 # residues is dict with all AminoAcid
@@ -56,4 +56,8 @@ newCutoff = functions.cutoffSelection()
 
 #Plot(s) selection by the user.
 #plotSelected = functions.plotSelection(deltaDeltaShifts)
+
+functions.setHistogram(validatedResidues, None, newCutoff)
+
+
 

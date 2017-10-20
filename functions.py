@@ -17,7 +17,8 @@ Authors : Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY and Rainier-Nu
 
 #Moduls used in methods.py.
 
-
+import matplotlib.pyplot as plt
+import numpy as num
 from math import *
 import re
 import sys
@@ -215,3 +216,42 @@ def graph (deltaDeltaShifts, cutOff):
 		plt.title('Delta Delta'+str(listNumber))
 	
 	plt.show()
+
+def setHistogram (aaList, step, cutoff):
+	if step is None:
+		aminoAcidList = []
+		intensitiesList = []
+		for titrationStep in aaList:
+			aminoAcidList.append(titrationStep.position)
+			intensitiesList.append(titrationStep.chemShiftN)
+		print (intensitiesList)
+		getHistogram (aminoAcidList, intensitiesList)
+			
+		
+		
+
+
+def getHistogram (aminoAcidList, intensitiesList):
+		print ('\n',aminoAcidList,'\n')
+		scale = 0
+		listNumber = 0
+		for index in range (0, len(intensitiesList[0])):
+			listNumber += 1
+			
+			shiftPerAa = []
+			for intensityStep in intensitiesList:
+				shiftPerAa.append(intensityStep[index])
+			
+			scale = num.arange(len(shiftPerAa))
+			scale2 = num.arange(len (aminoAcidList))
+			plt.bar(scale, shiftPerAa, align ='center', alpha = 1)
+			plt.xticks(scale2, [])
+			plt.subplot (round(len(intensitiesList)/2), 2, listNumber)
+		print (listNumber)
+			
+			
+		plt.show()
+	
+
+
+
