@@ -191,7 +191,7 @@ def plotSelection(deltaDeltaShifts):
 		if plotSelected != "all":
 			print('Enter "all" to selection all plots.')
 
-def graph (deltaDeltaShifts, cutOff):
+#def graph (deltaDeltaShifts, cutOff):
 	print (cutOff)
 	listNumber = 0
 	#plt.subplots(2, 2)
@@ -206,7 +206,7 @@ def graph (deltaDeltaShifts, cutOff):
 				aminoAcid.append(listChemicalShift[index]['residue'].rstrip('N-H'))
 		number = len(values)
 		scale = num.arange(number)
-		plt.subplot(int(str(int(len(deltaDeltaShifts)/2+0.5))), 2, listNumber)
+		#plt.subplot(int(str(int(len(deltaDeltaShifts)/2+0.5))), 2, listNumber)
 		plt.bar(scale, values, align='center', alpha=1)
 		plt.xticks(scale, aminoAcid)
 		plt.ylabel('Intensity')
@@ -217,41 +217,49 @@ def graph (deltaDeltaShifts, cutOff):
 	
 	plt.show()
 
-def setHistogram (aaList, step, cutoff):
-	if step is None:
-		aminoAcidList = []
-		intensitiesList = []
-		for titrationStep in aaList:
-			aminoAcidList.append(titrationStep.position)
-			intensitiesList.append(titrationStep.chemShiftN)
-		print (intensitiesList)
-		getHistogram (aminoAcidList, intensitiesList)
+def setHistogram (aaList, step = None, cutoff = None):
+	""" Prend en entrée une liste d'objets résidus, l'étape à afficher en histo, le cutoff (pas encore utilisé).
+	Call the getHistogram function to show corresponding histogram plots."""
+
+	if step is None: #if step is not precised, all the plots will be showed
+		residuNumberList = [] #liste des numéros des résidus
+		intensitiesList = [] #liste de l'ensemble des intensités pour toutes les étapes de titration pour tous les résidus
+		for aaObject in aaList:
+			residuNumberList.append(aaObject.position)
+			intensitiesList.append(aaObject.chemShiftN)
+		#print (intensitiesList)
+		getHistogram (residuNumberList, intensitiesList)		
+		
 			
 		
 		
 
 
-def getHistogram (aminoAcidList, intensitiesList):
-		print ('\n',aminoAcidList,'\n')
-		scale = 0
-		listNumber = 0
-		for index in range (0, len(intensitiesList[0])):
-			listNumber += 1
-			
-			shiftPerAa = []
-			for intensityStep in intensitiesList:
-				shiftPerAa.append(intensityStep[index])
-			
-			scale = num.arange(len(shiftPerAa))
-			scale2 = num.arange(len (aminoAcidList))
-			plt.bar(scale, shiftPerAa, align ='center', alpha = 1)
-			plt.xticks(scale2, [])
-			plt.subplot (round(len(intensitiesList)/2), 2, listNumber)
-		print (listNumber)
-			
-			
-		plt.show()
+def getHistogram (residuNumberList, intensitiesList):
+	"""Takes a list of residu numbers and a list of their intensities calculated per titration step. Show the corresponding plot."""
+	listNumber = 0 #represents the number of the titration
 	
+	for index in range (0, len(intensitiesList[0])):
+		print (index) #this 'index' enables to get all the elements of a list
+		listNumber += 1
+			
+		shiftPerAa = []
+		for intensityStep in intensitiesList: #loop to get the intensities in every steps of titration			
+			print (intensityStep[index], '\n')
+			shiftPerAa.append(intensityStep[index]) #list of intensity per residu at the step k
+
+		plt.subplot (round(len(intensitiesList[0])/2), 2, listNumber) #set the showed plot : first is numbner of lines second is number of rows and third arg set the submitted order
+		ordinatesScale = num.arange(len(shiftPerAa)) #scale for ordinates axe : should be the max of intensity per titration (set arbitrary there)
+		abscissaScale = num.arange(len (shiftPerAa)) #scale for absissa : its length is equal to list of residue length
+		plt.bar(ordinatesScale, shiftPerAa, align = 'center', alpha = 1) #set the y ax (alpha is the width of a bar)
+		plt.xticks(abscissaScale, []) #set x ax (second argument prevent to print all residue numbers)
+		#print (intensitiesList[10])
+		plt.ylabel('Intensity')
+		plt.xlabel('Amino Acid')	
+		plt.title('Delta Delta'+str(listNumber))
+		
+	
+	plt.show()
 
 
 
