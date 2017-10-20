@@ -55,7 +55,7 @@ class AminoAcid(object):
 		except IndexError as missingDataError:
 			sys.stderr.write("Could not calculate chem shift variation for residue %s : missing H chem shift data" % self.position)
 			exit(1)
-
+)
 
 	@property
 	def deltaChemShiftN(self):
@@ -70,13 +70,6 @@ class AminoAcid(object):
 			sys.stderr.write("Could not calculate chem shift variation for residue %s : missing N chem shift data" % self.position)
 			exit(1)
 
-	@property
-	def deltaChemShift(self):
-		"""
-		Returns a tuple of deltaChemShift as tuple like (deltaH, deltaN)
-		"""
-		return tuple(zip(self.deltaChemShiftH, self.deltaChemShiftN))
-
 	@property 
 	def chemShiftIntensity(self):
 		"""
@@ -86,3 +79,6 @@ class AminoAcid(object):
 			self._chemShiftIntensity = tuple([math.sqrt(ddH**2 + (ddN/5)**2) for (ddH, ddN) in zip(self.deltaChemShiftH,self.deltaChemShiftN)])
 		return self._chemShiftIntensity
 
+	@property
+	def deltaChemShifts(self):
+		return tuple(zip(self.deltaChemShiftH, self.deltaChemShiftN))
