@@ -192,32 +192,6 @@ def plotSelection(deltaDeltaShifts):
 		if plotSelected != "all":
 			print('Enter "all" to selection all plots.')
 
-#def graph (deltaDeltaShifts, cutOff):
-	print (cutOff)
-	listNumber = 0
-	#plt.subplots(2, 2)
-	for listChemicalShift in deltaDeltaShifts :
-		listNumber += 1
-		values = []
-		aminoAcid = []
-		print (listChemicalShift,'\n\n\n\n')
-		for index in range (0, len(listChemicalShift)):
-			if listChemicalShift[index]['deltaDeltaChemicalShift'] >= cutOff:
-				values.append(listChemicalShift[index]['deltaDeltaChemicalShift'])
-				aminoAcid.append(listChemicalShift[index]['residue'].rstrip('N-H'))
-		number = len(values)
-		scale = num.arange(number)
-		#plt.subplot(int(str(int(len(deltaDeltaShifts)/2+0.5))), 2, listNumber)
-		plt.bar(scale, values, align='center', alpha=1)
-		plt.xticks(scale, aminoAcid)
-		plt.ylabel('Intensity')
-		plt.xlabel('Amino Acid')
-		axes = plt.gca()
-		axes.xaxis.set_tick_params(labelsize = 5)
-		plt.title('Delta Delta'+str(listNumber))
-	
-	plt.show()
-
 def setHistogram (aaList, step = None, cutoff = None):
 	""" Prend en entrée une liste d'objets résidus, l'étape à afficher en histo, le cutoff (pas encore utilisé).
 	Call the getHistogram function to show corresponding histogram plots."""
