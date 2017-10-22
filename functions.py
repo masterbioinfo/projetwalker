@@ -228,31 +228,35 @@ def setHistogram (aaList, step = None, cutoff = None):
 			residuNumberList.append(aaObject.position)
 			intensitiesList.append(aaObject.chemShiftN)
 		#print (intensitiesList)
-		getHistogram (residuNumberList, intensitiesList)		
+		getHistogram (residuNumberList, intensitiesList, cutoff)		
 		
 			
 		
 		
 
 
-def getHistogram (residuNumberList, intensitiesList):
+def getHistogram (residuNumberList, intensitiesList, cutoff):
 	"""Takes a list of residu numbers and a list of their intensities calculated per titration step. Show the corresponding plot."""
 	listNumber = 0 #represents the number of the titration
 	
 	for index in range (0, len(intensitiesList[0])):
 		print (index) #this 'index' enables to get all the elements of a list
 		listNumber += 1
-			
+		cutoffList = []
 		shiftPerAa = []
 		for intensityStep in intensitiesList: #loop to get the intensities in every steps of titration			
 			print (intensityStep[index], '\n')
 			shiftPerAa.append(intensityStep[index]) #list of intensity per residu at the step k
+		for aa in residuNumberList :
+			cutoffList.append (cutoff)
 
 		plt.subplot (round(len(intensitiesList[0])/2), 2, listNumber) #set the showed plot : first is numbner of lines second is number of rows and third arg set the submitted order
 		ordinatesScale = num.arange(len(shiftPerAa)) #scale for ordinates axe : should be the max of intensity per titration (set arbitrary there)
 		abscissaScale = num.arange(len (shiftPerAa)) #scale for absissa : its length is equal to list of residue length
-		plt.bar(ordinatesScale, shiftPerAa, align = 'center', alpha = 1) #set the y ax (alpha is the width of a bar)
-		plt.xticks(abscissaScale, []) #set x ax (second argument prevent to print all residue numbers)
+		plt.bar(residuNumberList, shiftPerAa, align = 'center', alpha = 1) #set the y ax (alpha is the width of a bar)
+		plt.plot (residuNumberList, cutoffList)
+		plt.plot (residuNumberList, cutoffList)
+		#plt.xticks(residuNumberList, []) #set x ax (second argument prevent to print all residue numbers)
 		#print (intensitiesList[10])
 		plt.ylabel('Intensity')
 		plt.xlabel('Amino Acid')	
