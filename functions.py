@@ -197,20 +197,21 @@ def setHistogram (aaList, step = None, cutoff = None):
 	Define all the options needed (step, cutoof) for the representation.
 	Call the getHistogram function to show corresponding histogram plots."""
 
-	if step is None: #if step is not precised, all the plots will be showed
-		residuNumberList = [] #liste des numéros des résidus
-		intensitiesList = [] #liste de l'ensemble des intensités pour toutes les étapes de titration pour tous les résidus
-		for aaObject in aaList:
-			residuNumberList.append(int(aaObject.position))
-			intensitiesList.append(aaObject.chemShiftN)
-		#print (intensitiesList)
+	residuNumberList = [] #liste des numéros des résidus
+	intensitiesList = [] #liste de l'ensemble des intensités pour toutes les étapes de titration pour tous les résidus
+	for aaObject in aaList:
+		residuNumberList.append(int(aaObject.position))
+		intensitiesList.append(aaObject.chemShiftN)
+	#print (intensitiesList)
+	cutoffList = []
+	for aa in residuNumberList :
+		cutoffList.append (cutoff)
 
+	if step is None: #if step is not precised, all the plots will be showed
+		
 		#necessary to put before the call to getHistogram because plt.show() stops the sript. 
 		#creates a list of cutoff needed to be traced on the plot point (x+1,y+1) after point (x,y)
 		listNumber = 0 #represents the number of the titration
-		cutoffList = []
-		for aa in residuNumberList :
-			cutoffList.append (cutoff) 
 		for index in range (0, len(intensitiesList[0])): #all the titration steps (the first titration is indexed '0')
 			print (index) #this 'index' enables to get all the elements of a list
 			listNumber += 1
@@ -218,29 +219,32 @@ def setHistogram (aaList, step = None, cutoff = None):
 			for intensityPerAa in intensitiesList: #loop to get all the intensities per aa of one titration step ('index')			
 				print (intensityPerAa[index], '\n')
 				shiftPerAa.append(intensityPerAa[index]) #list of intensity per residue at the step k
-			plt.subplot (round(len(intensitiesList[0])/2), 2, listNumber) #set the showed plot : first is numbner of lines second is number of rows and third arg set the submitted order
-			plt.title('Delta Delta'+str(listNumber)) #set the title before calling the function because of 'listNumber'
+			
 			print ('\n\n\n', cutoffList)
 			print (residuNumberList)
-			getHistogram (residuNumberList, shiftPerAa, cutoffList)
+			
+			plt.subplot(round(len(intensitiesList[0])/2), 2, listNumber)
+			getHistogram (residuNumberList, shiftPerAa, cutoffList, listNumber)
+		
 		plt.show()
 
 		
-
-
-
+	#case : step is mentionned
+	elif str(step).isdigit() == True: #checks the value of step
+		shiftPerAa = []
+		for intensityPerAa in intensitiesList: #loop to get all the intensities per aa of one titration step ('index')			
+			print (intensityPerAa[step], '\n')
+			shiftPerAa.append(intensityPerAa[step]) #list of intensity per residue at the step k
+		plt.title('Delta Delta'+str(step)) #set the title before calling the function because of 'listNumber'
+		print ('\n\n\n', cutoffList)
+		print (residuNumberList)
+		getHistogram (residuNumberList, shiftPerAa, cutoffList, step)
+		plt.show()
 		
-	if str(step).isdigit() == True:
-		residuNumberList = []
-		intensitiesList = []
-		residuNumberList.append(aaList[int(step)].position)
-		intensitiesList.append(aaList[int(step)].chemShiftN)
-			
-		
 
 
 
-def getHistogram (residuNumberList, shiftPerAa, cutoffList):
+def getHistogram (residuNumberList, shiftPerAa, cutoffList, listNumber):
 	"""Takes a list of residu numbers and a list of their intensities previously calculated per titration step. Shows the corresponding plot.
 	In this function remain only graph properties (color, size, abscissa, ordinates) and not any calculation"""
 
@@ -257,11 +261,13 @@ def getHistogram (residuNumberList, shiftPerAa, cutoffList):
 	cutoffList = num.array(cutoffList)
 	plt.bar(abscissaScale, shiftPerAa, align = 'center', alpha = 1, color = setColorBar) #set the bar chart ( first arg is the scale for abscissa, alpha is the width of a bar)
 	plt.plot (abscissaScale, cutoffList, color = setColorPlot) #show the cutoff on every graph
+
 	#plt.xticks(residuNumberList, []) #set x ax (second argument prevent to print all residue numbers)
-		
 	#print (intensitiesList[10])
 	plt.ylabel('Intensity')
-	plt.xlabel('Amino Acid')	
+	plt.xlabel('Amino Acid')
+	plt.ylim(0,8)
+	plt.title('Delta Delta'+str(listNumber)) #set the title before calling the function because of 'listNumber'
 	
 
 

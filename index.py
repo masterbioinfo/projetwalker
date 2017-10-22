@@ -57,7 +57,7 @@ newCutoff = functions.cutoffSelection()
 #Plot(s) selection by the user.
 #plotSelected = functions.plotSelection(deltaDeltaShifts)
 
-functions.setHistogram(validatedResidues, None, newCutoff)
+functions.setHistogram(validatedResidues,None, (newCutoff+5))
 
 
 
