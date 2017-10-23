@@ -20,7 +20,7 @@ Exemple :  ./index.py data/listes/listPP/*.list
 
 from classes.AminoAcid import AminoAcid
 from math import *
-import methods
+import functions
 import os
 import sys
 from docopt import docopt
@@ -34,11 +34,11 @@ listFileTitration = args["<file.list>"]
 
 
 ###Test of all extensions files : 
-directoryIn = methods.informationsFile(listFileTitration)
+directoryIn = functions.informationsFile(listFileTitration)
 
 
 ###Test of all files format:
-goodFormats = methods.formatVerification(listFileTitration)
+goodFormats = functions.formatVerification(listFileTitration)
 
 
 ###Creation of file who takes only residus not retained in the study because all chemical shift aren't presents.
@@ -52,7 +52,7 @@ residusNotRetained = list()
 listChemicalShift = list()
 missingDatas = True
 for titrationFile in listFileTitration :
-	residusNotRetained = methods.parseTitrationFile(titrationFile, listChemicalShift, residusForgetted, missingDatas, residusNotRetained)
+	residusNotRetained = functions.parseTitrationFile(titrationFile, listChemicalShift, residusForgetted, missingDatas, residusNotRetained)
 	
 
 
@@ -60,7 +60,7 @@ for titrationFile in listFileTitration :
 listChemicalShift = list()
 missingDatas = False	
 for titrationFile in listFileTitration :
-	listChemicalShift = methods.parseTitrationFile(titrationFile, listChemicalShift, residusForgetted, missingDatas, residusNotRetained)
+	listChemicalShift = functions.parseTitrationFile(titrationFile, listChemicalShift, residusForgetted, missingDatas, residusNotRetained)
 
 
 #Objects residus initialisation.
@@ -79,7 +79,7 @@ while i < len(listChemicalShift):
 	i += 1
 
 ###For each residus retained, each chemicals shifts are calculate in a relative form.
-#listChemicalShift = methods.calculateRelativesShifts(listChemicalShift)
+#listChemicalShift = functions.calculateRelativesShifts(listChemicalShift)
 for residu in listResidus:
 	residu.deltaChemShiftH.append(residu.chemShiftH[0] - residu.chemShiftH[0])
 	residu.deltaChemShiftN.append(residu.chemShiftN[0] - residu.chemShiftN[0])
@@ -94,7 +94,7 @@ for residu in listResidus:
 
 ###For each residus retained, delta(ChemicalShift) is calculate.
 #deltaDeltaShifts = list()
-#deltaDeltaShifts = methods.deltaDeltaChemicalsShifts(listChemicalShift)	
+#deltaDeltaShifts = functions.deltaDeltaChemicalsShifts(listChemicalShift)	
 for residu in listResidus:
 	i = 0
 	while i < len(residu.deltaChemShiftH):
@@ -115,28 +115,28 @@ print(plotsAndCutoffs)
 
 
 ###Cutoff selection by the user.
-newCutoff = methods.cutoffSelection()
+newCutoff = functions.cutoffSelection()
 
 
 ###Plot(s) selectionned by the user and affiliate cutoff selectionned with plot selestionned.
-plotsAndCutoffs = methods.plotSelection(plotsAndCutoffs, newCutoff)
+plotsAndCutoffs = functions.plotSelection(plotsAndCutoffs, newCutoff)
 
 
 ###Save job in progress automatically.
-saveMessage = methods.saveJob(directoryIn, listFileTitration, plotsAndCutoffs, listResidus)
-#saveMessage = methods.jsonSaveJob(directoryIn, listFileTitration, plotsAndCutoffs, deltaDeltaShift)
+saveMessage = functions.saveJob(directoryIn, listFileTitration, plotsAndCutoffs, listResidus)
+#saveMessage = functions.jsonSaveJob(directoryIn, listFileTitration, plotsAndCutoffs, listResidus)
 print(saveMessage)
 
 
 ###Load job in progress automatically. The file loaded must be write in CLI.
 #fileLoad = args["<file.list>"]
-#directoryIn = methods.informationsFile(fileLoad)
-(listFileTitration, plotsAndCutoffs, listResidus, loadMessage) = methods.loadJob(directoryIn)
-#(listFileTitration, plotsAndCutoffs, deltaDeltaShifts, loadMessage) = methods.jsonLoadJob(directoryIn)
+#directoryIn = functions.informationsFile(fileLoad)
+(listFileTitration, plotsAndCutoffs, listResidus, loadMessage) = functions.loadJob(directoryIn)
+#(listFileTitration, plotsAndCutoffs, listResidus, loadMessage) = functions.jsonLoadJob(directoryIn)
 print(loadMessage)
 
 
 ###Show histograms.
-#graphic = methods.histograms(deltaDeltaShifts, plotsAndCutoffs)
+#graphic = functions.histograms(deltaDeltaShifts, plotsAndCutoffs)
 #print(graphic)
 

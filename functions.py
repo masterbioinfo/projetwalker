@@ -311,29 +311,36 @@ def jsonLoadJob(directoryIn):
 		sys.stderr.write("%s\n" % err)
 		exit(1)
 
-def jsonSaveJob(directoryIn, listFileTitration, plotsAndCutoffs, deltaDeltaShifts):
-    """ """
-    try:
-        datas = [listFileTitration, plotsAndCutoffs, deltaDeltaShifts]
-        with open("{0}saveJob.json".format(directoryIn["pathIn"]), 'w') as saveJobFile:
-            saveJobFile.write(json.dumps(datas, indent = 5)) 
-        return "Job saves in {0}saveJob.exlist !".format(directoryIn["pathIn"]) 
-    except IOError as err:
-        sys.stderr.write("%s\n" % err)
-        exit(1)
+def jsonSaveJob(directoryIn, listFileTitration, plotsAndCutoffs, listResidus):
+	"""This function takes directoryIn and plotsAndCutoffs dictionnaries, plus listFileTitration
+	and deltaDeltaShifts lists. She allow to save listeFileTitration, plotsAndCutoffs and delatDeltaShifts
+	at json format. She return a confirmation message. In the other case, she return a message error."""
+
+	try:
+		datasSave = [listFileTitration, plotsAndCutoffs, listResidus]
+		with open("{0}saveJob.json".format(directoryIn["pathIn"]), 'w') as saveJobFile:
+			saveJobFile.write(json.dumps(datasSave, indent=5))
+		return "Job saves in {0}saveJob.json !".format(directoryIn["pathIn"])
+	except IOError as err:
+		sys.stderr.write("%s\n" % err)
+		exit(1)
 
 
 def jsonLoadJob(directoryIn):
-    """ """
-    
-    liste = list()
-    try:
-        with open("{0}saveJob.json".format(directoryIn["pathIn"]), 'r') as loadJobFile:
-            datas = json.load(loadJobFile)
-        return "Job saves in {0}saveJob.exlist !".format(directoryIn["pathIn"]) 
-    except IOError as err:
-        sys.stderr.write("%s\n" % err)
-        exit(1)
+	"""This function takes directoryIn dictionnay in argument and return datasLoad list who contains
+	all element saved in the save file at json format : listeFileTitration, plotsAndCutoffs, 
+	deltaDeltaShifts. Plus, the function return a confirmation message.
+	In the other case, she return a message error."""
+
+	try:
+		with open("{0}saveJob.json".format(directoryIn["pathIn"]), 'r') as loadJobFile:
+			datasLoad = json.load(loadJobFile) 
+		loadMessage = "Job loads from {0}saveJob.json !".format(directoryIn["pathIn"])
+		datasLoad.append(loadMessage)
+		return datasLoad
+	except IOError as err:
+		sys.stderr.write("%s\n" % err)
+		exit(1)
 
 
 def saveJob(directoryIn, listFileTitration, plotsAndCutoffs, listResidus):
@@ -342,13 +349,13 @@ def saveJob(directoryIn, listFileTitration, plotsAndCutoffs, listResidus):
 	If save cannot save objects in the file, she return an error message."""
 	
 	try:
-		with open("{0}saveJob.list".format(directoryIn["pathIn"]), 'ab') as saveJobFile:
+		with open("{0}saveJob.txt".format(directoryIn["pathIn"]), 'ab') as saveJobFile:
 			my_pickler = pickle.Pickler(saveJobFile)
 			my_pickler.dump(listFileTitration)
 			my_pickler.dump(plotsAndCutoffs)
 			my_pickler.dump(listResidus)
 	        
-		return "Job saves in {0}saveJob.list !".format(directoryIn["pathIn"])
+		return "Job saves in {0}saveJob.txt !".format(directoryIn["pathIn"])
 	except IOError as err:
 		sys.stderr.write("%s\n" % err)
 		exit(1)
@@ -363,7 +370,7 @@ def loadJob(directoryIn):
 	elementsLoads = list()
 
 	try :	
-		with open("{0}saveJob.list".format(directoryIn["pathIn"]), 'rb') as loadJobFile:
+		with open("{0}saveJob.txt".format(directoryIn["pathIn"]), 'rb') as loadJobFile:
 			my_depickler = pickle.Unpickler(loadJobFile)
 
 			listFileTitration = my_depickler.load()
@@ -375,7 +382,7 @@ def loadJob(directoryIn):
 			listResidus = my_depickler.load()
 			elementsLoads.append(listResidus)
 
-		loadMessage = "Job loads from {0}saveJob.list !".format(directoryIn["pathIn"])
+		loadMessage = "Job loads from {0}saveJob.txt !".format(directoryIn["pathIn"])
 		elementsLoads.append(loadMessage)
 		return elementsLoads
 	except IOError as err:
