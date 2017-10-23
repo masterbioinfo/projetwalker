@@ -199,9 +199,12 @@ def setHistogram (aaList, step = None, cutoff = None):
 
 	residuNumberList = [] #liste des numéros des résidus
 	intensitiesList = [] #liste de l'ensemble des intensités pour toutes les étapes de titration pour tous les résidus
+	#residuNumberOverCutoff = []
+	#shiftPerAaOverCutoff = []
 	for aaObject in aaList:
 		residuNumberList.append(int(aaObject.position))
 		intensitiesList.append(aaObject.chemShiftN)
+			
 	#print (intensitiesList)
 	cutoffList = []
 	for aa in residuNumberList :
@@ -225,6 +228,7 @@ def setHistogram (aaList, step = None, cutoff = None):
 			
 			plt.subplot(round(len(intensitiesList[0])/2), 2, listNumber)
 			getHistogram (residuNumberList, shiftPerAa, cutoffList, listNumber)
+			#getHistogram (residuNumberOverCutoff, shiftPerAaOverCutoff, cutoffList, listNumber)
 		
 		plt.show()
 
@@ -266,9 +270,8 @@ def getHistogram (residuNumberList, shiftPerAa, cutoffList, listNumber):
 	#print (intensitiesList[10])
 	plt.ylabel('Intensity')
 	plt.xlabel('Amino Acid')
-	plt.ylim(0,8)
+	plt.ylim(0,11)
 	plt.title('Delta Delta'+str(listNumber)) #set the title before calling the function because of 'listNumber'
-	
 
 
 
