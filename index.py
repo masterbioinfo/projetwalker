@@ -25,6 +25,7 @@ import os
 import sys
 from docopt import docopt
 import classes.AminoAcid as aa
+import classes.Titration as tit
 
 args = docopt(__doc__)
 
@@ -42,6 +43,9 @@ for titrationFile in listFileTitration :
 validatedResidues = [ residue for residue in residues.values() if residue.validate(len(sortedPath)) ]
 incompleteDataResidues = [residue for residue in residues.values() if not residue.validate(len(sortedPath))]
 print (validatedResidues[3].chemShiftIntensity)
+
+titrationObject = tit.Titration (residues, len(sortedPath))
+titrationObject.setHistogram (cutoff = 0.05)
 
 # After parsing : 
 # residues is dict with all AminoAcid
