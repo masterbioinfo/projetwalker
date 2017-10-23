@@ -90,50 +90,6 @@ def parseTitrationFile(titrationFile, residues=dict()):
 		sys.stderr.write("%s\n" % error)
 		exit(1)
 
-
-def calculateRelativesShifts(listChemicalShift):
-	"""This function takes in argument listChemicalShift list of all residus retained in the study.
-	She return the same list with all relatives chemicals shifts.
-	The function calculate for all residus and all N15 and H1 atoms :
-		relativeChemicalShift = chemicalShift([B protein] = i) - chemicalShift([B protein] = 0)"""
-	
-	i = 1
-	while i < len(listChemicalShift):
-		j = 0
-		while j < len(listChemicalShift[i]):
-			listChemicalShift[i][j]["chemicalShiftN"] = float(listChemicalShift[i][j]["chemicalShiftN"]) - float(listChemicalShift[0][j]["chemicalShiftN"])
-			listChemicalShift[i][j]["chemicalShiftH"] = float(listChemicalShift[i][j]["chemicalShiftH"]) - float(listChemicalShift[0][j]["chemicalShiftH"])
-			j += 1
-		i += 1
-	return listChemicalShift
-
-
-def deltaDeltaChemicalsShifts(listChemicalShift):
-	"""This function takes in argument listChemicalShift list of all relatives chemicals shifts.
-	She return an other list named deltaDeltaShifts who contains delta(residusChemicalsShifts).
-	The function calculate deltas of chemicals shifts for all residus :
-		delta(residusChemicalsShifts = sqrt((relativesHChemicalShifts) ** 2 + ((relativesNChemicalShifts)/5) ** 2)"""
-
-	i = 1
-	deltaDeltaShifts = list()
-	while i < len(listChemicalShift):
-		j = 0
-		titrationShift = list()
-		while j < len(listChemicalShift[i]):
-			deltaDeltaShift = {"residue": None,"deltaDeltaChemicalShift": None}
-
-			deltaDelta = sqrt((listChemicalShift[i][j]["chemicalShiftH"]**2)+((listChemicalShift[i][j]["chemicalShiftN"]/5)**2))
-
-			deltaDeltaShift ["residue"] = listChemicalShift[i][j]["residue"]
-			deltaDeltaShift ["deltaDeltaChemicalShift"] = deltaDelta
-
-			titrationShift.append(deltaDeltaShift)
-			j += 1
-		deltaDeltaShifts.append(titrationShift)
-		i += 1
-	return deltaDeltaShifts
-
-
 def cutoffSelection():
 	"""This function takes no argument, she return the new cutoff value (type : float).
 	The user can write a new cutoff value. If the cutoff is in acceptable values, the function return 
