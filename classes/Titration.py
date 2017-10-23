@@ -1,107 +1,144 @@
+#!/usr/bin/python3
 import random
 import matplotlib.pyplot as plt
 import numpy as num
 from math import *
-import re
-import sys
+import os, re, sys
 from classes.AminoAcid import AminoAcid
 
 class Titration (object):
 	"""
 	Class Titration.
-	Contains a list of aminoacid objects and provides methods for accessing each titration step datas.
+	Contains a list of aminoacid objects
+	Provides methods for accessing each titration step datas.
 	"""
 
-	def __init__(self, residues, steps):
-		self.residues = residues
-		self.complete = [ residue for residue in residues.values() if residue.validate(steps) ]
-		self.incomplete = [residue for residue in residues.values() if not residue.validate(steps)]
-		self.steps = steps
-		self.color = ()
-		self._intensities = None
+	def __init__(self, source):
+		"""
+		Load titration files, check their integrity
+		`source` is either a directory containing `.list` file, or is a list of `.list` files
+		Separate complete vs incomplete data
+		"""
 
-	
-	def positions (self, flag = 1):
-		if flag == 0:
-			target = self.residues
-		elif flag == 1:
-			target = self.complete
-		elif flag == 2:
-			target = self.incomplete
+		## FILE PATH PROCESSING
 
-		return [ residue.position for residue in target ]
+		# keep track of source data
+		self.source = source
+		# fetch all .list files in source dir
+		if os.path.isdir(source):
+			self.files = [ self.source + titrationFile for titrationFile in os.listdir(source) if ".list" in titrationFile ]
+		elif type(source) is list: # or use provided source as files
+			self.files = source
 
-	@property
-	def intensities (self):
-		if self._intensities is None:
-			self._intensities =[ [ residue.chemShiftIntensity[step] for residue in self.complete ] for step in range(self.steps)]
-		return self._intensities
+		# sort files by ascending titration number
+		self.files.sort(key=lambda path:self.validateFilePath(path))
+		# set number of titration steps including reference step 0
+		self.steps  = len(self.files)
+		# generate colors for each titration step
+		self.colors = plt.cm.get_cmap('hsv', self.steps*2)
 
-	
-	def deltaChemShifts (self, flag = 1):
-		if flag == 0:
-			target = self.residues
-		elif flag == 1:
-			target = self.complete
-		elif flag == 2:
-			target = self.incomplete
+		## FILE PARSING
+		# init residues {position:AminoAcid object}
+		self.residues = dict()
+		# and fill it by parsing files
+		for titrationFile in self.files:
+			self.parseTitrationFile(titrationFile)
+		# filter complete residues as list
+		self.complete = sorted([ residue for residue in self.residues.values() if residue.validate(self.steps) ], key=lambda a: a.position)
+		# incomplete residues
+		self.incomplete = set(self.residues) - set(self.complete)
+		print("Found %s residues with incomplete data" % len(self.incomplete), file=sys.stderr)
+		# Prepare (position, chem shift intensity) coordinates.
+		self.intensities = []
+		self.positions = [ residue.position for residue in self.complete ]
+		for step in range(self.steps - 1): # intensity is null for reference step
+			self.intensities.append( [ residue.chemShiftIntensity[step] for residue in self.complete ] )
+		self.deltaChemShift = [ residue.deltaChemShift for residue in self.complete ]
+		
+	def validateFilePath(self, filePath):
+		"""
+		Given a file path, checks if it has .list extension and if it is numbered after the titration step. 
+		Returns the titration step number if found, IOError is raised otherwise
+		"""
+		try: 
+			rePath = re.compile(r'(.+/)?(.+)(?P<step>\d+)\.list') # expected path format
+			matching = rePath.match(filePath) # attempt to match
+			if matching:
+				# retrieve titration step number
+				fileNumber = int(matching.group("step")) 
+				return fileNumber
+			else:
+				# found incorrect line format
+				raise IOError("Refusing to parse file %s : please check it is named like *[0-9]+.list" % path)
+		except IOError as err: 
+			sys.stderr.write("%s\n" % err )
+			exit(1)
 
-		return [ residue.deltaChemShift for residue in target ]
+	def parseTitrationFile(self, titrationFile):
+		"""
+		Titration file parser. 
+		Returns a new dict which keys are residues' position and values are AminoAcid objects.
+		If residues argument is provided, updates AminoAcid by adding parsed chemical shift values.
+		Throws ValueError if incorrect lines are encountered in file. 
+		"""
+		try :
+			with open(titrationFile, "r", encoding = "utf-8") as titration:
+				# expected line format
+				reLine = re.compile(r"^(?P<pos>\d+)N-H\s+(?P<csH>\d+\.\d+)\s+(?P<csN>\d+\.\d+)$") 
+				for lineNb, line in enumerate(titration) :
+					# check for empty lines and header lines
+					if line.strip() and not line.strip().startswith("Assignment"):
+						lineMatch = reLine.match(line.strip()) # attempt to match to expected format
+						if lineMatch: # parse line as dict 
+							chemShift = dict(zip(
+								("position", "chemShiftH", "chemShiftN"),
+								lineMatch.groups() )) 
+							if self.residues.get(chemShift["position"]): # update AminoAcid object in residues dict
+								self.residues[chemShift["position"]].addShift(**chemShift)
+							else: # create AminoAcid object in residues dict
+								self.residues[chemShift["position"]] = AminoAcid(**chemShift)
+						else:
+							raise ValueError("Could not parse file %s at line %s" % (titrationFile, lineNb))
+		except (IOError, ValueError) as error:
+			sys.stderr.write("%s\n" % error)
+			exit(1)
 
 	def __getitem__(self, step):
-		return (self.positions(), self.intensities[step], self.deltaChemShifts()[step])
+		return zip((self.positions, self.intensities[step], self.deltaChemShifts[step]))
 
-	def setHistogram (self, step = None, cutoff = None):
-		""" Prend en entrée une titration, l'étape à afficher en histo, le cutoff (pas encore utilisé).
+	def plotHistogram (self, step = None, cutOff = None):
+		""" 
 		Define all the options needed (step, cutoof) for the representation.
-		Call the getHistogram function to show corresponding histogram plots."""
-			
-		#print (intensitiesList)
-		cutoffList = []
-		for aa in self.positions() :
-			cutoffList.append (cutoff)
-
+		Call the getHistogram function to show corresponding histogram plots.
+		"""
+		plt.xticks(range(self.positions[0] - self.positions[0] % 5, self.positions[-1] + 10, 10))
 		if step is None: #if step is not precised, all the plots will be showed
-		
-			#necessary to put before the call to getHistogram because plt.show() stops the sript. 
-			#creates a list of cutoff needed to be traced on the plot point (x+1,y+1) after point (x,y)
-			for index in range (self.steps): #all the titration steps (the fi
-			
-			
+			for index in range (self.steps-1): # first titration step has no intensity values
+				# set subplot dimensions
 				plt.subplot(self.steps, 1, index+1)
-			
-
-				self.getHistogram (self.positions(), self.intensities[index], cutoffList, index + 1)
-				#getHistogram (residuNumberOverCutoff, shiftPerAaOverCutoff, cutoffList, listNumber)
-	
-		#case : step is mentionned
-		else: #checks the value of step
-			self.getHistogram (self.positions(), self.intensities[step], cutoffList, step + 1)
+				
+				# Set histograms scale using max intensity value
+				plt.ylim(0, num.round(num.amax(self.intensities) + 0.05, decimals=1))
+				self.setHistogram (index, cutOff)
+		# plot specific titration step
+		else:
+			self.setHistogram(step, cutOff)
 
 		plt.show()
 
-	def getHistogram (self, residuNumberList, shiftPerAa, cutoffList, titrationStep):
-		"""Takes a list of residu numbers and a list of their intensities previously calculated per titration step. Shows the corresponding plot.
+	def setHistogram (self, step, cutOff = None):
+		"""
+		Takes a list of residu numbers and a list of their intensities previously calculated per titration step. Shows the corresponding plot.
 		In this function remain only graph properties (color, size, abscissa, ordinates) and not any calculation"""
 
-		#ordinatesScale = num.arange(len(shiftPerAa)) #scale for ordinates axe : should be the max of intensity per titration (set arbitrary there)
-		colorList = ['orange', 'red', 'green', 'blue', 'purple', 'grey', 'pink', 'yellow', 'cyan', 'brown']
-		setColorBar = random.choice(colorList)
-		colorList.remove(setColorBar)
-		setColorPlot = random.choice(colorList)
-		print ('Res :', residuNumberList, 'Shift :',shiftPerAa)
-		xAxis = num.array(residuNumberList) #scale for absissa : its length is equal to list of residue length
-		shiftPerAa = num.array(shiftPerAa)
-		cutoffList = num.array(cutoffList)
-		plt.bar(xAxis, shiftPerAa, align = 'center', alpha = 1, color = setColorBar) #set the bar chart ( first arg is the scale for abscissa, alpha is the width of a bar)
-		plt.plot (xAxis, cutoffList, color = setColorPlot) #show the cutoff on every graph
-
-		#plt.xticks(residuNumberList, []) #set x ax (second argument prevent to print all residue numbers)
-		#print (intensitiesList[10])
+		colorBar = self.colors(step*2)
+		xAxis = num.array(self.positions)
+		yAxis = num.array(self.intensities[step])
+		plt.bar(xAxis, yAxis, align = 'center', alpha = 1, color = colorBar)
+		if cutOff:
+			cutOffList = num.array([cutOff] * len(self.positions))
+			plt.axhline(cutOff, color = "red", linewidth=0.5, linestyle='--') #show the cutoff on every graph
 		plt.ylabel('Intensity')
-		plt.xlabel('Amino Acid')
-		plt.ylim(0,1)
-		plt.title('Titration step '+str(titrationStep)) #set the title before calling the function because of 'listNumber'
-
-
-
+		plt.xlabel('Residue')
+		plt.title('Titration step %s' % step) 
+		

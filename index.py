@@ -3,7 +3,9 @@
 """	
 Shift2Me Project - Dating site for proteins !!!
 
-Usage: index.py <file.list> <file.list> ... [ -o <output_dir> ]
+Usage: 
+	index.py <file.list> <file.list> ... [ -o <output_dir> ]
+	index.py <dir>
 
 Options:
 	-o <output_dir>, --output-dir <output_dir>  Output generated files to <output_dir>.
@@ -25,43 +27,28 @@ import os
 import sys
 from docopt import docopt
 import classes.AminoAcid as aa
-import classes.Titration as tit
+from classes.Titration import Titration
 
 args = docopt(__doc__)
 
 #Enter experimentals files :
-listFileTitration = args["<file.list>"]
+if args["<file.list>"]:
+	titration = Titration(args["<file.list>"])
+elif args["<dir>"]:
+	titration = Titration(args["<dir>"])
 
-#Validate file path and sort them
-sortedPath = functions.sortPath(listFileTitration)
-
-# build AminoAcid object dictionnary
-residues = dict()
-for titrationFile in listFileTitration :
-	residues = functions.parseTitrationFile(titrationFile, residues)
-
-validatedResidues = [ residue for residue in residues.values() if residue.validate(len(sortedPath)) ]
-incompleteDataResidues = [residue for residue in residues.values() if not residue.validate(len(sortedPath))]
-print (validatedResidues[3].chemShiftIntensity)
-
-titrationObject = tit.Titration (residues, len(sortedPath))
-titrationObject.setHistogram (cutoff = 0.05)
-
-# After parsing : 
-# residues is dict with all AminoAcid
-# validatedResidues is dict with AminoAcid having complete data
-# incompleteDataResidues : residues with missing data
-
+titration.plotHistogram()
 
 #Cutoff selection by the user.
 oldCutoff = 0
 newCutoff = functions.cutoffSelection()
+titration.plotHistogram(cutOff=newCutoff)
 
 
 #Plot(s) selection by the user.
 #plotSelected = functions.plotSelection(deltaDeltaShifts)
 
-functions.setHistogram(validatedResidues,None, (newCutoff))
+#functions.setHistogram(validatedResidues,None, (newCutoff))
 
 
 
