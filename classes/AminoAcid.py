@@ -30,6 +30,10 @@ class AminoAcid(object):
 		"""
 		if self._deltaChemShiftH is None:
 			self._deltaChemShiftH = list()
+			j = 0
+			while j < len(self.chemShiftH):
+				self._deltaChemShiftH.append(self.chemShiftH[j] - self.chemShiftH[0])
+				j += 1
 		return self._deltaChemShiftH
 
 	@property
@@ -39,6 +43,10 @@ class AminoAcid(object):
 		"""
 		if self._deltaChemShiftN is None:
 			self._deltaChemShiftN = list()
+			j = 0
+			while j < len(self.chemShiftN):
+				self._deltaChemShiftN.append(self.chemShiftN[j] - self.chemShiftN[0])
+				j += 1
 		return self._deltaChemShiftN
 
 	@property
@@ -55,4 +63,8 @@ class AminoAcid(object):
 		"""
 		if self._chemShiftIntensity is None:
 			self._chemShiftIntensity = list()
+			i = 0
+			while i < len(self.deltaChemShiftH):
+				self._chemShiftIntensity.append(math.sqrt(self.deltaChemShiftH[i] ** 2 + (self.deltaChemShiftN[i]/5)**2 ))
+				i += 1
 		return self._chemShiftIntensity

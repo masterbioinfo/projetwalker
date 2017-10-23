@@ -81,26 +81,15 @@ while i < len(listChemicalShift):
 ###For each residus retained, each chemicals shifts are calculate in a relative form.
 #listChemicalShift = functions.calculateRelativesShifts(listChemicalShift)
 for residu in listResidus:
-	residu.deltaChemShiftH.append(residu.chemShiftH[0] - residu.chemShiftH[0])
-	residu.deltaChemShiftN.append(residu.chemShiftN[0] - residu.chemShiftN[0])
-	j = 1
-	while j < len(residu.chemShiftH):
-		residu.deltaChemShiftH.append(residu.chemShiftH[j] - residu.chemShiftH[0])
-		residu.deltaChemShiftN.append(residu.chemShiftN[j] - residu.chemShiftN[0])
-		j += 1
-	print(residu.deltaChemShiftH)
-	print(residu.deltaChemShiftN)
+	residu.deltaChemShiftH
+	residu.deltaChemShiftN
 
 
 ###For each residus retained, delta(ChemicalShift) is calculate.
 #deltaDeltaShifts = list()
-#deltaDeltaShifts = functions.deltaDeltaChemicalsShifts(listChemicalShift)	
+#deltaDeltaShifts = functions.deltaDeltaChemicalsShifts(listChemicalShift)
 for residu in listResidus:
-	i = 0
-	while i < len(residu.deltaChemShiftH):
-		residu.chemShiftIntensity.append(sqrt(residu.deltaChemShiftH[i] ** 2 + (residu.deltaChemShiftN[i]/5)**2 ))
-		i += 1
-	print(residu.chemShiftIntensity)
+	residu.chemShiftIntensity
 
 
 ###List of dictionnaries creation who contains plots numbers and cutoffs at format : plot: n, cutoff: c.
