@@ -41,7 +41,7 @@ for titrationFile in listFileTitration :
 
 validatedResidues = [ residue for residue in residues.values() if residue.validate(len(sortedPath)) ]
 incompleteDataResidues = [residue for residue in residues.values() if not residue.validate(len(sortedPath))]
-print (validatedResidues[4].chemShiftIntensity)
+print (validatedResidues[3].chemShiftIntensity)
 
 # After parsing : 
 # residues is dict with all AminoAcid
@@ -57,7 +57,7 @@ newCutoff = functions.cutoffSelection()
 #Plot(s) selection by the user.
 #plotSelected = functions.plotSelection(deltaDeltaShifts)
 
-functions.setHistogram(validatedResidues,None, (newCutoff+5))
+functions.setHistogram(validatedResidues,None, (newCutoff))
 
 
 

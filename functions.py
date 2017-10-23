@@ -202,8 +202,10 @@ def setHistogram (aaList, step = None, cutoff = None):
 	#residuNumberOverCutoff = []
 	#shiftPerAaOverCutoff = []
 	for aaObject in aaList:
+		print ('ok')
 		residuNumberList.append(int(aaObject.position))
-		intensitiesList.append(aaObject.chemShiftN)
+		intensitiesList.append(aaObject.chemShiftIntensity)
+		print (aaObject.chemShiftIntensity)
 			
 	#print (intensitiesList)
 	cutoffList = []
@@ -225,12 +227,18 @@ def setHistogram (aaList, step = None, cutoff = None):
 			
 			print ('\n\n\n', cutoffList)
 			print (residuNumberList)
+			print ('\n\n\n\n',round((len(intensitiesList[0])+1)/2), 'listNumber :', listNumber, 'intensitiesList =', len(intensitiesList[0]))
+			plt.subplot(round((len(intensitiesList[0])+1)), 1, listNumber)
 			
-			plt.subplot(round(len(intensitiesList[0])/2), 2, listNumber)
+			
 			getHistogram (residuNumberList, shiftPerAa, cutoffList, listNumber)
 			#getHistogram (residuNumberOverCutoff, shiftPerAaOverCutoff, cutoffList, listNumber)
-		
+		plt.subplots_adjust(left=None, bottom=None, right=None, top=None,
+                wspace=None, hspace=2)
+		plt.tight_layout()
+
 		plt.show()
+		
 
 		
 	#case : step is mentionned
@@ -253,7 +261,7 @@ def getHistogram (residuNumberList, shiftPerAa, cutoffList, listNumber):
 	In this function remain only graph properties (color, size, abscissa, ordinates) and not any calculation"""
 
 	#ordinatesScale = num.arange(len(shiftPerAa)) #scale for ordinates axe : should be the max of intensity per titration (set arbitrary there)
-	colorList = ['orange', 'red', 'green', 'blue', 'purple', 'grey', 'pink', 'yellow', 'cyan', 'brown']
+	colorList = ['orange', 'red', 'green', 'blue', 'purple', 'grey', 'pink', 'cyan', 'brown']
 	setColorBar = random.choice(colorList)
 	for index in range (0, len(colorList)):
 		if colorList[index] == setColorBar:
@@ -263,15 +271,16 @@ def getHistogram (residuNumberList, shiftPerAa, cutoffList, listNumber):
 	abscissaScale = residuNumberList #scale for absissa : its length is equal to list of residue length
 	shiftPerAa = num.array(shiftPerAa)
 	cutoffList = num.array(cutoffList)
-	plt.bar(abscissaScale, shiftPerAa, align = 'center', alpha = 1, color = setColorBar) #set the bar chart ( first arg is the scale for abscissa, alpha is the width of a bar)
+	plt.bar(abscissaScale, shiftPerAa, align = 'center', alpha = 0.5, color = setColorBar) #set the bar chart ( first arg is the scale for abscissa, alpha is the width of a bar)
 	plt.plot (abscissaScale, cutoffList, color = setColorPlot) #show the cutoff on every graph
 
 	#plt.xticks(residuNumberList, []) #set x ax (second argument prevent to print all residue numbers)
 	#print (intensitiesList[10])
 	plt.ylabel('Intensity')
 	plt.xlabel('Amino Acid')
-	plt.ylim(0,11)
+	plt.ylim(0,0.5)
 	plt.title('Delta Delta'+str(listNumber)) #set the title before calling the function because of 'listNumber'
+	
 
 
 
