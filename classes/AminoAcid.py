@@ -10,9 +10,9 @@ class AminoAcid(object):
 	"""
 
 	def __init__(self, **kwargs):
-		self.position = kwargs["position"]
-		self.chemShiftH = []
-		self.chemShiftN = []
+		self.position = kwargs["residue"]
+		self.chemShiftH = [float(kwargs["chemicalShiftH"])]
+		self.chemShiftN = [float(kwargs["chemicalShiftN"])]
 		self._deltaChemShiftH = None
 		self._deltaChemShiftN = None
 		self._chemShiftIntensity = None
@@ -29,7 +29,7 @@ class AminoAcid(object):
 		Calculates distance to the reference for each chemical shift only once for hydrogen.
 		"""
 		if self._deltaChemShiftH is None:
-			self._deltaChemShiftH = tuple([dH - self.chemShiftH[0] for dH in self.chemShiftH])
+			self._deltaChemShiftH = list()
 		return self._deltaChemShiftH
 
 	@property
@@ -38,7 +38,7 @@ class AminoAcid(object):
 		Calculates distance to the reference for each chemical shift only once for nitrogen.
 		"""
 		if self._deltaChemShiftN is None:
-			self._deltaChemShiftN = tuple([dN - self.chemShiftN[0] for dN in self.chemShiftN])
+			self._deltaChemShiftN = list()
 		return self._deltaChemShiftN
 
 	@property
@@ -54,5 +54,5 @@ class AminoAcid(object):
 		Calculate chemical shift intensity at each titration step from chemical shift values for hydrogen and nitrogen. 
 		"""
 		if self._chemShiftIntensity is None:
-			self._chemShiftIntensity = tuple([math.sqrt(ddH**2 + (ddN/5)**2) for (ddH, ddN) in zip(self.deltaChemShiftH,self.deltaChemShiftN)])
+			self._chemShiftIntensity = list()
 		return self._chemShiftIntensity

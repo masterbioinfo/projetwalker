@@ -18,6 +18,8 @@ Exemple :  ./index.py data/listes/listPP/*.list
 """
 
 
+from classes.AminoAcid import AminoAcid
+from math import *
 import methods
 import os
 import sys
@@ -40,7 +42,7 @@ goodFormats = methods.formatVerification(listFileTitration)
 
 
 ###Creation of file who takes only residus not retained in the study because all chemical shift aren't presents.
-residusForgetted = "{0}residus_not_retained.exlist".format(directoryIn["pathIn"])
+residusForgetted = "{0}residus_not_retained.txt".format(directoryIn["pathIn"])
 writeResidusNotRetained = open(residusForgetted, "w", encoding = "utf-8")	
 writeResidusNotRetained.close()
 
@@ -51,7 +53,7 @@ listChemicalShift = list()
 missingDatas = True
 for titrationFile in listFileTitration :
 	residusNotRetained = methods.parseTitrationFile(titrationFile, listChemicalShift, residusForgetted, missingDatas, residusNotRetained)
-	print(residusNotRetained)
+	
 
 
 ###Parsed each files to retained all residus with all chemicals shifts in a list.
@@ -59,23 +61,53 @@ listChemicalShift = list()
 missingDatas = False	
 for titrationFile in listFileTitration :
 	listChemicalShift = methods.parseTitrationFile(titrationFile, listChemicalShift, residusForgetted, missingDatas, residusNotRetained)
-print(listChemicalShift)
 
+
+#Objects residus initialisation.
+listResidus = list()
+for chemicalShift in listChemicalShift[0]:
+	residu = AminoAcid(**chemicalShift)
+	listResidus.append(residu)
+#Add chemShiftH and chemShiftN for each residu.
+i = 1 
+while i < len(listChemicalShift):
+	j = 0
+	while j < len(listChemicalShift[i]):
+		listResidus[j].chemShiftH.append(float(listChemicalShift[i][j]["chemicalShiftH"]))
+		listResidus[j].chemShiftN.append(float(listChemicalShift[i][j]["chemicalShiftN"]))
+		j += 1
+	i += 1
 
 ###For each residus retained, each chemicals shifts are calculate in a relative form.
-listChemicalShift = methods.calculateRelativesShifts(listChemicalShift)
+#listChemicalShift = methods.calculateRelativesShifts(listChemicalShift)
+for residu in listResidus:
+	residu.deltaChemShiftH.append(residu.chemShiftH[0] - residu.chemShiftH[0])
+	residu.deltaChemShiftN.append(residu.chemShiftN[0] - residu.chemShiftN[0])
+	j = 1
+	while j < len(residu.chemShiftH):
+		residu.deltaChemShiftH.append(residu.chemShiftH[j] - residu.chemShiftH[0])
+		residu.deltaChemShiftN.append(residu.chemShiftN[j] - residu.chemShiftN[0])
+		j += 1
+	print(residu.deltaChemShiftH)
+	print(residu.deltaChemShiftN)
 
 
 ###For each residus retained, delta(ChemicalShift) is calculate.
-deltaDeltaShifts = list()
-deltaDeltaShifts = methods.deltaDeltaChemicalsShifts(listChemicalShift)	
+#deltaDeltaShifts = list()
+#deltaDeltaShifts = methods.deltaDeltaChemicalsShifts(listChemicalShift)	
+for residu in listResidus:
+	i = 0
+	while i < len(residu.deltaChemShiftH):
+		residu.chemShiftIntensity.append(sqrt(residu.deltaChemShiftH[i] ** 2 + (residu.deltaChemShiftN[i]/5)**2 ))
+		i += 1
+	print(residu.chemShiftIntensity)
 
 
 ###List of dictionnaries creation who contains plots numbers and cutoffs at format : plot: n, cutoff: c.
 plotsAndCutoffs = list()
 
 i = 0
-while i < len(deltaDeltaShifts) :
+while i < len(listResidus[0].chemShiftIntensity) :
 	plotCutoffs = {"plot" : i, "cutoff" : None}
 	plotsAndCutoffs.append(plotCutoffs)
 	i += 1
@@ -91,16 +123,16 @@ plotsAndCutoffs = methods.plotSelection(plotsAndCutoffs, newCutoff)
 
 
 ###Save job in progress automatically.
-#saveMessage = methods.saveJob(directoryIn, listFileTitration, plotsAndCutoffs, deltaDeltaShifts)
-saveMessage = methods.jsonSaveJob(directoryIn, listFileTitration, plotsAndCutoffs, deltaDeltaShifts)
+saveMessage = methods.saveJob(directoryIn, listFileTitration, plotsAndCutoffs, listResidus)
+#saveMessage = methods.jsonSaveJob(directoryIn, listFileTitration, plotsAndCutoffs, deltaDeltaShift)
 print(saveMessage)
 
 
 ###Load job in progress automatically. The file loaded must be write in CLI.
 #fileLoad = args["<file.list>"]
-#directoryIn = methods.informationsFile(listFileTitration)
-#(listFileTitration, plotsAndCutoffs, deltaDeltaShifts, loadMessage) = methods.loadJob(directoryIn)
-(listFileTitration, plotsAndCutoffs, deltaDeltaShifts, loadMessage) = methods.jsonLoadJob(directoryIn)
+#directoryIn = methods.informationsFile(fileLoad)
+(listFileTitration, plotsAndCutoffs, listResidus, loadMessage) = methods.loadJob(directoryIn)
+#(listFileTitration, plotsAndCutoffs, deltaDeltaShifts, loadMessage) = methods.jsonLoadJob(directoryIn)
 print(loadMessage)
 
 

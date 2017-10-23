@@ -18,6 +18,7 @@ Authors : Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY and Rainier-Nu
 #Moduls used in methods.py.
 
 
+from classes.AminoAcid import AminoAcid
 import json
 from math import *
 import matplotlib.pyplot as plt
@@ -134,9 +135,9 @@ def parseTitrationFile(titrationFile, listChemicalShift, residusForgetted, missi
 					if chemicalShift[0] != "Assignment" and chemicalShift[0] != "" and ((chemicalShift[4] == "" or len(chemicalShift) < 10) or (chemicalShift[4] == "0.00000" or chemicalShift[10] == "0.000")):
 							listChemicalShiftParsed.append(chemicalShift[0])
 							aaNotRetained = "{0}\t{1}\n".format(titrationFile, chemicalShift[0]) 
-							fileAaNotRetained = open(residusForgetted, "a")
-							fileAaNotRetained.write(aaNotRetained + "\n")
-							fileAaNotRetained.close()
+							with open(residusForgetted, "a") as fileAaNotRetained:
+								fileAaNotRetained.write(aaNotRetained + "\n")
+								fileAaNotRetained.close()
 
 				#In a second time, we don't search residu without all chemicals shifts, we search residus with all informations.
 				elif missingDatas == False :
@@ -288,9 +289,6 @@ def jsonSaveJob(directoryIn, listFileTitration, plotsAndCutoffs, deltaDeltaShift
 		datasSave = [listFileTitration, plotsAndCutoffs, deltaDeltaShifts]
 		with open("{0}saveJob.json".format(directoryIn["pathIn"]), 'w') as saveJobFile:
 			saveJobFile.write(json.dumps(datasSave, indent=5))
-			#saveJobFile.write(json.dumps(listFileTitration, indent=5))
-			#saveJobFile.write(json.dumps(plotsAndCutoffs, indent=5))
-			#saveJobFile.write(json.dumps(deltaDeltaShifts, indent=5))
 		return "Job saves in {0}saveJob.json !".format(directoryIn["pathIn"])
 	except IOError as err:
 		sys.stderr.write("%s\n" % err)
@@ -316,11 +314,9 @@ def jsonLoadJob(directoryIn):
 def jsonSaveJob(directoryIn, listFileTitration, plotsAndCutoffs, deltaDeltaShifts):
     """ """
     try:
+        datas = [listFileTitration, plotsAndCutoffs, deltaDeltaShifts]
         with open("{0}saveJob.json".format(directoryIn["pathIn"]), 'w') as saveJobFile:
-            saveJobFile.write(json.dumps(listFileTitration, indent = 5)) 
-            saveJobFile.write(json.dumps(plotsAndCutoffs, indent = 5)) 
-            saveJobFile.write(json.dumps(deltaDeltaShifts, indent = 5)) 
-    
+            saveJobFile.write(json.dumps(datas, indent = 5)) 
         return "Job saves in {0}saveJob.exlist !".format(directoryIn["pathIn"]) 
     except IOError as err:
         sys.stderr.write("%s\n" % err)
@@ -334,28 +330,25 @@ def jsonLoadJob(directoryIn):
     try:
         with open("{0}saveJob.json".format(directoryIn["pathIn"]), 'r') as loadJobFile:
             datas = json.load(loadJobFile)
-           
-             
-    
-        #return "Job saves in {0}saveJob.exlist !".format(directoryIn["pathIn"]) 
+        return "Job saves in {0}saveJob.exlist !".format(directoryIn["pathIn"]) 
     except IOError as err:
         sys.stderr.write("%s\n" % err)
         exit(1)
 
 
-def saveJob(directoryIn, listFileTitration, plotsAndCutoffs, deltaDeltaShifts):
+def saveJob(directoryIn, listFileTitration, plotsAndCutoffs, listResidus):
 	"""The function can save the job. She takes diretoryIn dictionnary, listFileTitration list, 
 	plotsAndCutoffs list and deltaDeltaShifts list in arguments. She return a confirmation message.
 	If save cannot save objects in the file, she return an error message."""
 	
 	try:
-		with open("{0}saveJob.exlist".format(directoryIn["pathIn"]), 'ab') as saveJobFile:
+		with open("{0}saveJob.list".format(directoryIn["pathIn"]), 'ab') as saveJobFile:
 			my_pickler = pickle.Pickler(saveJobFile)
 			my_pickler.dump(listFileTitration)
 			my_pickler.dump(plotsAndCutoffs)
-			my_pickler.dump(deltaDeltaShifts)
+			my_pickler.dump(listResidus)
 	        
-		return "Job saves in {0}saveJob.exlist !".format(directoryIn["pathIn"])
+		return "Job saves in {0}saveJob.list !".format(directoryIn["pathIn"])
 	except IOError as err:
 		sys.stderr.write("%s\n" % err)
 		exit(1)
@@ -370,7 +363,7 @@ def loadJob(directoryIn):
 	elementsLoads = list()
 
 	try :	
-		with open("{0}saveJob.exlist".format(directoryIn["pathIn"]), 'rb') as loadJobFile:
+		with open("{0}saveJob.list".format(directoryIn["pathIn"]), 'rb') as loadJobFile:
 			my_depickler = pickle.Unpickler(loadJobFile)
 
 			listFileTitration = my_depickler.load()
@@ -379,10 +372,10 @@ def loadJob(directoryIn):
 			plotsAndCutoffs = my_depickler.load()
 			elementsLoads.append(plotsAndCutoffs)
 
-			deltaDeltaShifts = my_depickler.load()
-			elementsLoads.append(deltaDeltaShifts)
+			listResidus = my_depickler.load()
+			elementsLoads.append(listResidus)
 
-		loadMessage = "Job loads from {0}saveJob.exlist !".format(directoryIn["pathIn"])
+		loadMessage = "Job loads from {0}saveJob.list !".format(directoryIn["pathIn"])
 		elementsLoads.append(loadMessage)
 		return elementsLoads
 	except IOError as err:
