@@ -103,42 +103,46 @@ class Titration (object):
 			sys.stderr.write("%s\n" % error)
 			exit(1)
 
-	def __getitem__(self, step):
-		return zip((self.positions, self.intensities[step], self.deltaChemShifts[step]))
-
-	def plotHistogram (self, step = None, cutOff = None):
+	def plotHistogram (self, step = None, cutOff = None, scale=True):
 		""" 
 		Define all the options needed (step, cutoof) for the representation.
 		Call the getHistogram function to show corresponding histogram plots.
 		"""
-		plt.xticks(range(self.positions[0] - self.positions[0] % 5, self.positions[-1] + 10, 10))
 		if step is None: #if step is not precised, all the plots will be showed
-			for index in range (self.steps-1): # first titration step has no intensity values
-				# set subplot dimensions
-				plt.subplot(self.steps, 1, index+1)
-				
-				# Set histograms scale using max intensity value
-				plt.ylim(0, num.round(num.amax(self.intensities) + 0.05, decimals=1))
-				self.setHistogram (index, cutOff)
+			# split figure in `steps` rows
+			fig, axes = plt.subplots(nrows=self.steps-1, ncols=1, sharex=True, sharey=True, squeeze=True, subplot_kw=None, gridspec_kw=None)
+			fig.suptitle('Titration : steps 1 to %s' % self.steps) # set title
+			fig.text(0.04, 0.5, 'Chem Shift Intensity', va='center', rotation='vertical') # set common ylabel
+			for index, ax in enumerate(axes): # first titration step has no intensity values
+				if scale:
+					# Set histograms scale using max intensity value
+					ax.set_ylim(0, num.round(num.amax(self.intensities) + 0.05, decimals=1))
+				self.setHistogram (ax, index, cutOff)
 		# plot specific titration step
 		else:
-			self.setHistogram(step, cutOff)
-
+			fig = plt.figure()
+			main = fig.add_subplot(111)
+			self.setHistogram(main, step, cutOff)
+			main.set_title('Titration step %s' % step) 
+			plt.ylabel('Chem Shift Intensity')
+		plt.xlabel('Residue') # set common xlabel
+		# set plot ticks
+		plt.xticks(range(self.positions[0] - self.positions[0] % 5, self.positions[-1] + 10, 10))
 		plt.show()
 
-	def setHistogram (self, step, cutOff = None):
+	def setHistogram (self, ax, step, cutOff = None):
 		"""
 		Takes a list of residu numbers and a list of their intensities previously calculated per titration step. Shows the corresponding plot.
 		In this function remain only graph properties (color, size, abscissa, ordinates) and not any calculation"""
 
-		colorBar = self.colors(step*2)
+		#colorBar = self.colors(step*2)
 		xAxis = num.array(self.positions)
 		yAxis = num.array(self.intensities[step])
-		plt.bar(xAxis, yAxis, align = 'center', alpha = 1, color = colorBar)
-		if cutOff:
-			cutOffList = num.array([cutOff] * len(self.positions))
-			plt.axhline(cutOff, color = "red", linewidth=0.5, linestyle='--') #show the cutoff on every graph
-		plt.ylabel('Intensity')
-		plt.xlabel('Residue')
-		plt.title('Titration step %s' % step) 
+		barList = ax.bar(xAxis, yAxis, align = 'center', alpha = 1)
+		if cutOff: # show the cutoff on every graph
+			for bar in barList:
+				if bar.get_height() > cutOff:
+					bar.set_color('orange')
+			ax.axhline(cutOff, color = "red", linewidth=0.5, linestyle='--')
+		
 		
