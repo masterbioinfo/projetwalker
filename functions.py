@@ -1,8 +1,12 @@
 # -*- encoding: utf-8 -*-
 """
-Module functions, classes and methods use during Shift2Me works.
+Module functions uses during Shift2Me works.
 
-Authors : Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY and Rainier-Numa GEORGES for Dr. Olivier WALKER and Dr. Maggy HOLOGNE (ISA-UMR 5280 CNRS,5 Rue de la DOUA, 69100 Villeurbanne -FRANCE). This program is developped in Python 3.5.1, date of creation : 2017-10-13, last modification : 2017-10-16.
+Authors : Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY and Rainier-Numa GEORGES for Dr. Olivier WALKER and Dr. Maggy HOLOGNE 
+(ISA-UMR 5280 CNRS,5 Rue de la DOUA, 69100 Villeurbanne -FRANCE). 
+This program is developped in Python 3.5.1 on Ubuntu v16.04.3 LTS (UNIX core system). 
+Date of creation : 2017-10-13
+Last modification : 2017-10-24.
 """
 
 
@@ -15,7 +19,7 @@ Authors : Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY and Rainier-Nu
 
 ###############################################################################################
 
-#Moduls used in methods.py.
+#Moduls used in functions.py.
 
 
 from classes.AminoAcid import AminoAcid
@@ -38,6 +42,8 @@ import sys
 #All functions used during process are wrote here.
 
 
+
+###Functions files verifications.
 def informationsFile(listFileTitration):
 	"""The fonction takes the all path of the file. Then she return the path without the file's name (pathIn), 
 	the file's name(fileNameOpen), the file's extension (extensionIn) in the dictionary named "directory". 
@@ -50,7 +56,7 @@ def informationsFile(listFileTitration):
 			directory["extensionIn"] = fileInformations[1]	
 		
 			#If open file have ".list" extension :
-			if directory["extensionIn"] == "list" or directory["extensionIn"] == "exlist" :	
+			if directory["extensionIn"] == "list" or directory["extensionIn"] == "txt" :	
 				fileInformations = str(fileInformations[0]).split("/")
 				directory["fileNameOpen"] = fileInformations[-1]
 				i = 0
@@ -64,7 +70,7 @@ def informationsFile(listFileTitration):
 			
 			#If open file haven't ".list" extension :
 			else :
-				raise IOError("Le fichier {0} n'a pas d'extension '.list'".format(fileInformation))
+				raise IOError("Le fichier {0} n'a pas d'extension '.list' ou '.txt'.".format(fileInformation))
 
 		return directory
 	except IOError as err:
@@ -96,6 +102,10 @@ def formatVerification(listFileTitration):
 	except IOError as err:
 		sys.stderr.write("%s\n" % err)
 		exit(1)
+
+
+
+###Function parse files.
 
 def parseTitrationFile(titrationFile, listChemicalShift, residusForgetted, missingDatas, residusNotRetained):
 	"""This function takes in arguments: the file's path (titrationFile), the list who will contains all chemicals 
@@ -173,48 +183,30 @@ def parseTitrationFile(titrationFile, listChemicalShift, residusForgetted, missi
 		exit(1)
 
 
-def calculateRelativesShifts(listChemicalShift):
-	"""This function takes in argument listChemicalShift list of all residus retained in the study.
-	She return the same list with all relatives chemicals shifts.
-	The function calculate for all residus and all N15 and H1 atoms :
-		relativeChemicalShift = chemicalShift([B protein] = i) - chemicalShift([B protein] = 0)"""
-	
-	i = 1
+
+###Functions objects creation.
+
+def aminoAcideObjectsCreation(listChemicalShift):
+	""" """
+
+	listResidus = list()
+	for chemicalShift in listChemicalShift[0]:
+		residu = AminoAcid(**chemicalShift)
+		listResidus.append(residu)
+	#Add chemShiftH and chemShiftN for each residu.
+	i = 1 
 	while i < len(listChemicalShift):
 		j = 0
 		while j < len(listChemicalShift[i]):
-			listChemicalShift[i][j]["chemicalShiftN"] = float(listChemicalShift[i][j]["chemicalShiftN"]) - float(listChemicalShift[0][j]["chemicalShiftN"])
-			listChemicalShift[i][j]["chemicalShiftH"] = float(listChemicalShift[i][j]["chemicalShiftH"]) - float(listChemicalShift[0][j]["chemicalShiftH"])
+			listResidus[j].chemShiftH.append(float(listChemicalShift[i][j]["chemicalShiftH"]))
+			listResidus[j].chemShiftN.append(float(listChemicalShift[i][j]["chemicalShiftN"]))
 			j += 1
 		i += 1
-	return listChemicalShift
+	return listResidus
 
 
-def deltaDeltaChemicalsShifts(listChemicalShift):
-	"""This function takes in argument listChemicalShift list of all relatives chemicals shifts.
-	She return an other list named deltaDeltaShifts who contains delta(residusChemicalsShifts).
-	The function calculate deltas of chemicals shifts for all residus :
-		delta(residusChemicalsShifts = sqrt((relativesHChemicalShifts) ** 2 + ((relativesNChemicalShifts)/5) ** 2)"""
 
-	i = 1
-	deltaDeltaShifts = list()
-	while i < len(listChemicalShift):
-		j = 0
-		titrationShift = list()
-		while j < len(listChemicalShift[i]):
-			deltaDeltaShift = {"residue": None,"deltaDeltaChemicalShift": None}
-
-			deltaDelta = sqrt((listChemicalShift[i][j]["chemicalShiftH"]**2)+((listChemicalShift[i][j]["chemicalShiftN"]/5)**2))
-
-			deltaDeltaShift ["residue"] = listChemicalShift[i][j]["residue"]
-			deltaDeltaShift ["deltaDeltaChemicalShift"] = deltaDelta
-
-			titrationShift.append(deltaDeltaShift)
-			j += 1
-		deltaDeltaShifts.append(titrationShift)
-		i += 1
-	return deltaDeltaShifts
-
+###Fonctions program controls.
 
 def cutoffSelection():
 	"""This function takes no argument, she return the new cutoff value (type : float).
@@ -223,21 +215,29 @@ def cutoffSelection():
 	If the value entry isn't in acceptables values, the function return an error. 
 	If the value cannot be transform in float type, the function return an error."""	
 
-	newCutoff = input("What cutoff value do you want applied ?\n")
+	newCutoff = None
+	while newCutoff == None:
+		newCutoff = input("What cutoff value do you want applied ?\n")
 	
-	try :
-		newCutoff = float(newCutoff)
-		if newCutoff <= 2 and newCutoff >= 0:
-			print("New cutoff applied = {0}.".format(newCutoff))
-			return newCutoff
-		else:
+		try :
+			newCutoff = float(newCutoff)
+			if newCutoff <= 2 and newCutoff >= 0:
+				print("New cutoff applied = {0}.".format(newCutoff))
+				return newCutoff
+			elif newCutoff > 2 or newCutoff < 0:
+				raise ValueError
+			else:
+				raise TypeError 
+		except TypeError:
+			if plotSelected != float :
+				print("Cutoff value must be integer or decimal !")
+			newCutoff = None	
+		except ValueError:
 			if newCutoff > 2 :
-				raise ValueError ("Cutoff selected is too higher! It's must be lower or equal than 5 !") 
+				print("Cutoff selected is too higher! It's must be lower or equal than 5 !")
 			elif newCutoff < 0 :
-				raise ValueError ("Cutoff selected is too lower! It's must be higher or equal than 0 !") 
-	except TypeError:
-		if plotSelected != float :
-			print("Cutoff value must be integer or decimal !")
+				print("Cutoff selected is too lower! It's must be higher or equal than 0 !") 
+			newCutoff = None		
 
 
 def plotSelection(plotsAndCutoffs, newCutoff):
@@ -250,66 +250,43 @@ def plotSelection(plotsAndCutoffs, newCutoff):
 	They are an exception if the user write "all", or "All", or "ALL", in this case, the user
 	selected all plots."""
 	
-	plotSelected = input('Which plot do you want to select ? [default : all] \n')
+	plotSelected = None
+	while plotSelected == None :
+		plotSelected = input('Which plot do you want to select ? [default : all] \n')
 
-	try :
-		if plotSelected:
-			plotSelected = int(plotSelected)
+		try :
+			if plotSelected:
+				plotSelected = int(plotSelected)
 	
-			if plotSelected  <= len(plotsAndCutoffs) and plotSelected  >= 0:
-				plotsAndCutoffs[plotSelected]["cutoff"] = newCutoff
-				print("You have selectionned plot n°{0}.".format(plotSelected))
-				return plotsAndCutoffs
-			else:
-				if plotSelected > len(plotsAndCutoffs) :
+				if plotSelected  <= len(plotsAndCutoffs) and plotSelected  >= 0:
+					plotsAndCutoffs[plotSelected]["cutoff"] = newCutoff
+					print("You have selectionned plot n°{0}.".format(plotSelected))
+					return plotsAndCutoffs
+				else:
 					raise ValueError ("The plot choose cannot be selected !") 
-				elif plotSelected < 0 :
-					raise ValueError ("Plots numbers cannot be inderior of 0 !") 
-		else:
-			i = 0
-			while i < len(plotsAndCutoffs) :
-				plotsAndCutoffs[i]["cutoff"] = newCutoff
-				i += 1
-			print("You have selectionned all plots.")
+					 
+			else:
+				i = 0
+				while i < len(plotsAndCutoffs) :
+					plotsAndCutoffs[i]["cutoff"] = newCutoff
+					i += 1
+				print("You have selectionned all plots.")
 
-			return plotsAndCutoffs
-	except TypeError:
-		if plotSelected != int :
-			print("Plot selected must be integer !")
-	except ValueError:
-		if plotSelected != "all":
-			print('Enter "all" to selection all plots.')
-
-def jsonSaveJob(directoryIn, listFileTitration, plotsAndCutoffs, deltaDeltaShifts):
-	"""This function takes directoryIn and plotsAndCutoffs dictionnaries, plus listFileTitration
-	and deltaDeltaShifts lists. She allow to save listeFileTitration, plotsAndCutoffs and delatDeltaShifts
-	at json format. She return a confirmation message. In the other case, she return a message error."""
-
-	try:
-		datasSave = [listFileTitration, plotsAndCutoffs, deltaDeltaShifts]
-		with open("{0}saveJob.json".format(directoryIn["pathIn"]), 'w') as saveJobFile:
-			saveJobFile.write(json.dumps(datasSave, indent=5))
-		return "Job saves in {0}saveJob.json !".format(directoryIn["pathIn"])
-	except IOError as err:
-		sys.stderr.write("%s\n" % err)
-		exit(1)
+				return plotsAndCutoffs
+		except TypeError:
+			if plotSelected != int :
+				print("Plot selected must be integer !")
+			plotSelected = None
+		except ValueError:
+			if plotSelected > len(plotsAndCutoffs) :
+				print("The plot choose cannot be selected !") 
+			elif plotSelected < 0 :
+				print("Plots numbers cannot be inderior of 0 !")
+			plotSelected = None
 
 
-def jsonLoadJob(directoryIn):
-	"""This function takes directoryIn dictionnay in argument and return datasLoad list who contains
-	all element saved in the save file at json format : listeFileTitration, plotsAndCutoffs, 
-	deltaDeltaShifts. Plus, the function return a confirmation message.
-	In the other case, she return a message error."""
 
-	try:
-		with open("{0}saveJob.json".format(directoryIn["pathIn"]), 'r') as loadJobFile:
-			datasLoad = json.load(loadJobFile) 
-		loadMessage = "Job loads from {0}saveJob.json !".format(directoryIn["pathIn"])
-		datasLoad.append(loadMessage)
-		return datasLoad
-	except IOError as err:
-		sys.stderr.write("%s\n" % err)
-		exit(1)
+###Functions save and load current job.
 
 def jsonSaveJob(directoryIn, listFileTitration, plotsAndCutoffs, listResidus):
 	"""This function takes directoryIn and plotsAndCutoffs dictionnaries, plus listFileTitration
@@ -389,6 +366,9 @@ def loadJob(directoryIn):
 		sys.stderr.write("%s\n" % err)
 		exit(1)
 	
+
+
+###Functions plots generation.
 
 def histograms(deltaDeltaShifts, plotsAndCutoffs):
 	""" """
