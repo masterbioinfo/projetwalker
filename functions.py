@@ -1,14 +1,13 @@
 # -*- encoding: utf-8 -*-
-"""
-Module functions uses during Shift2Me works.
+
+"""Module functions uses during Shift2Me works.
 
 Authors : Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY and Rainier-Numa GEORGES for Dr. Olivier WALKER and Dr. Maggy HOLOGNE 
 (ISA-UMR 5280 CNRS,5 Rue de la DOUA, 69100 Villeurbanne -FRANCE). 
 This program is developped in Python 3.5.1, Anaconda v5.0.0, JuPyter v5.2.0, MatPlotLib v2.1.0, 
 on Ubuntu v16.04.3 LTS (UNIX core system). 
 Date of creation : 2017-10-13
-Last modification : 2017-10-24.
-"""
+Last modification : 2017-10-24."""
 
 
 
@@ -338,7 +337,9 @@ def residuSelection(listResidus):
 	"""This function allow to selection a residu. She takes listResidus in argument and return residuSelected.
 	If all residus are selected, by default, residuSelected point to listResidus. If a residu is selected,
 	residuSelected point to the selected residu."""
-	
+
+	residuSelected = list()
+
 	#Display all residus in the study.
 	print("Residus in the study :\n")
 
@@ -355,32 +356,46 @@ def residuSelection(listResidus):
 		j += 10
 	print("\nThey are {0} residus in the study.\n".format(i))
 		
-	#The user can select a residu.
-	residuSelected = input("Please select a residu. [default: all residus selected]\n")
-	residuSelected = str(residuSelected)
-	residuSelected = residuSelected.rstrip("N-H")
-	residuSelected = residuSelected + "N-H"
+	#The user can select one or more residu(s).
+	nbOfResidusSelected = 0
+	while nbOfResidusSelected < 1 or nbOfResidusSelected > len(listResidus) :
+		nbOfResidusSelected = input("How many residus would you want select ?\n")
+		nbOfResidusSelected  = int(nbOfResidusSelected)
+		if nbOfResidusSelected < 1 or nbOfResidusSelected > len(listResidus) :
+			print("You can selection a number of residus between 1 and {0}.".format(len(listResidus)))
+		elif nbOfResidusSelected >= 1 or nbOfResidusSelected <= len(listResidus) :
+			print("You want to selection {0} residus.\n".format(nbOfResidusSelected))
+
+	quantityOfResidusSelected = 1
+	residusTotal = nbOfResidusSelected 
+	while nbOfResidusSelected != 0 :
+		residuSelection = input("Please select a residu. [default: all residus selected]\n")
+		residuSelection = str(residuSelection)
+		residuSelection = residuSelection.rstrip("N-H")
+		residuSelection = residuSelection + "N-H"
 	
-	if residuSelected == "N-H":
-		residuSelected = listResidus
-		print("All residus are selected.")
-	elif residuSelected != "" and residuSelected in residuInStudy :
-		print(residuSelected)
-		i = 0
-		while i <len(listResidus):
-			if residuSelected == listResidus[i].position :
-				residuSelected = listResidus[i]		
-				print("Residu number {0} selected !".format(listResidus[i].position))		
-			i += 1
-	elif residuSelected not in residuInStudy :
-		print("This residu is not in the study.")
+		if residuSelection == "N-H":
+			residuSelected = listResidus
+			print("All residus are selected.")
+			nbOfResidusSelected = 0
+		elif residuSelection != "" and residuSelection in residuInStudy :
+			i = 0
+			while i <len(listResidus):
+				if residuSelection == listResidus[i].position :
+					residuSelected.append(listResidus[i])		
+					print("{0}/{1} - Residu number {0} are selected !".format(quantityOfResidusSelected, residusTotal, listResidus[i].position))	
+					quantityOfResidusSelected += 1	
+				i += 1
+			nbOfResidusSelected -= 1
+		elif residuSelection not in residuInStudy :
+			print("This residu is not in the study.")
 	
 	return residuSelected
 
 
 ###Functions save and load current job.
 
-def saveAsk(directoryIn, listFileTitration, plotsAndCutoffs, listResidus):
+def saveAsk(directoryIn, datasToBeSave):
 	"""This function ask to the user if he want save is current job. She takes directoryIn dictionnary,
 	listeFileTitration list, plotsAndCutoffs list and listResidu list of objects, in argument. She return
 	"True" if the function has work well.
@@ -395,8 +410,8 @@ def saveAsk(directoryIn, listFileTitration, plotsAndCutoffs, listResidus):
 			
 			if saveJobAsk == "yes":
 				###Save job in progress automatically.
-				saveMessage = saveJob(directoryIn, listFileTitration, plotsAndCutoffs, listResidus)
-				#saveMessage = jsonSaveJob(directoryIn, listFileTitration, plotsAndCutoffs, listResidus)
+				saveMessage = saveJob(directoryIn, datasToBeSave)
+				#saveMessage = jsonSaveJob(directoryIn, datasToBeSave)
 				print(saveMessage)
 			elif saveJobAsk == "no" :
 				print("The current job don't be save.")
@@ -441,7 +456,7 @@ def loadAsk():
 		pass
 
 
-def saveJob(directoryIn, listFileTitration, plotsAndCutoffs, listResidus):
+def saveJob(directoryIn, datasToBeSave):
 	"""The function can save the job. She takes diretoryIn dictionnary, listFileTitration list, 
 	plotsAndCutoffs list and deltaDeltaShifts list in arguments. She return a confirmation message.
 	If save cannot save objects in the file, she return an error message."""
@@ -449,9 +464,10 @@ def saveJob(directoryIn, listFileTitration, plotsAndCutoffs, listResidus):
 	try:
 		with open("{0}saveJob.txt".format(directoryIn["pathIn"]), 'ab') as saveJobFile:
 			my_pickler = pickle.Pickler(saveJobFile)
-			my_pickler.dump(listFileTitration)
-			my_pickler.dump(plotsAndCutoffs)
-			my_pickler.dump(listResidus)
+			my_pickler.dump(datasToBeSave[0])
+			my_pickler.dump(datasToBeSave[1])
+			my_pickler.dump(datasToBeSave[2])
+			my_pickler.dump(datasToBeSave[3])
 		return "Job saves in {0}saveJob.txt !".format(directoryIn["pathIn"])
 
 	except IOError as err:

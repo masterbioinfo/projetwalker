@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+
 # -*- encoding: utf-8 -*-
 
 """Shift2Me Project - Dating site for proteins !!!
@@ -17,8 +18,7 @@ Last modification : 2017-10-24.
 
 Usage: index.py <file.list> <file.list> ...
 
-Exemple :  ./index.py data/listes/listPP/*.list
-"""
+Exemple :  ./index.py data/listes/listPP/*.list"""
 
 
 ###############################################################################################
@@ -117,7 +117,6 @@ elif directoryIn["extensionIn"] == "txt" and len(listFileTitration) == 2 :
 	try :
 		###Load the last job automatically. The file loaded must be write in CLI.
 		(listFileTitration, plotsAndCutoffs, listResidus, loadMessage) = functions.loadJob(directoryIn)
-		#(listFileTitration, plotsAndCutoffs, listResidus, loadMessage) = functions.jsonLoadJob(directoryIn)
 		print(loadMessage)
 	except IOError as err:
 			sys.stderr.write("%s\n" % err)
@@ -125,17 +124,25 @@ elif directoryIn["extensionIn"] == "txt" and len(listFileTitration) == 2 :
 
 
 ###Operating phase:
+print("\nWelcolme to Shift2Me - The only dating site for proteins !!!")
+
+##Initialization session parameters:
 #The program continues to work while "quit" = False.
 quit = False
 #All commands support by the program, the number before call the same commands than the string indicate after : number_command(i), command(i).
-order = ["1", "2Dmap", "2", "cutoff", "3", "help", "4", "histogram", "5", "load", "6", "quit", "7", "save", "8", "select residu"]
+order = ["1", "2Dmap", "2", "cutoff", "3", "", "help", "4", "histogram", "5", "load", "6", "quit", "7", "save", "8", "select residu"]
+#If we don't load a file who contains an older job, listResidu select all AminoAcid object by default:
+#Else listResidu is load from the file who contains the older job.
+if directoryIn["extensionIn"] == "list":
+	residuSelected = listResidus
+
 
 while quit == False:
 	
 	#Select a command by is number or is proper name.
 	selectOrder = None
 	while selectOrder not in order:
-		selectOrder = input("Please, enter a command. (default: 'help')\n")
+		selectOrder = input("\nPlease, enter a command. (default: 'help')\n")
 		selectOrder = str (selectOrder)
 		selectOrder.lower()
 
@@ -173,17 +180,19 @@ while quit == False:
 	elif selectOrder == "quit" or selectOrder == "6" :
 		#Quit the program and save the current job.
 		quit = functions.quitProgram()
-		saveCurrentJob = functions.saveAsk(directoryIn, listFileTitration, plotsAndCutoffs, listResidus)
+		datasToBeSave = (listFileTitration, plotsAndCutoffs, listResidus, residuSelected)
+		saveCurrentJob = functions.saveAsk(directoryIn, datasToBeSave)
 
 	elif selectOrder == "save" or selectOrder == "7":
 		#Save the current job.
-		saveCurrentJob = functions.saveAsk(directoryIn, listFileTitration, plotsAndCutoffs, listResidus)
+		datasToBeSave = (listFileTitration, plotsAndCutoffs, listResidus, residuSelected)
+		saveCurrentJob = functions.saveAsk(directoryIn, datasToBeSave)
 
 	elif selectOrder == "select residu" or selectOrder == "8" :
 		#Select a residu to explore him. All residus can be selected too.
 		residuSelected = functions.residuSelection(listResidus)
 
 
-#Goodbye message.
-print("See you soon on Sheeft2Me !!! ;-)")
+###Goodbye message.
+print("\n\nSee you soon on Sheeft2Me !!! ;-)")
 
