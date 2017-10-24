@@ -4,7 +4,8 @@ Module classes uses during Shift2Me works.
 
 Authors : Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY and Rainier-Numa GEORGES for Dr. Olivier WALKER and Dr. Maggy HOLOGNE 
 (ISA-UMR 5280 CNRS,5 Rue de la DOUA, 69100 Villeurbanne -FRANCE). 
-This program is developped in Python 3.5.1 on Ubuntu v16.04.3 LTS (UNIX core system). 
+This program is developped in Python 3.5.1, Anaconda v5.0.0, JuPyter v5.2.0, MatPlotLib v2.1.0, 
+on Ubuntu v16.04.3 LTS (UNIX core system).
 Date of creation : 2017-10-13
 Last modification : 2017-10-24.
 """
@@ -58,7 +59,7 @@ class AminoAcid(object):
 	@property
 	def deltaChemShiftH(self):
 		"""
-		Calculates distance to the reference for each chemical shift only once for hydrogen.
+		Calculates distance to the reference for each chemical shift only for hydrogen.
 		"""
 		if self._deltaChemShiftH is None:
 			self._deltaChemShiftH = list()
@@ -71,7 +72,7 @@ class AminoAcid(object):
 	@property
 	def deltaChemShiftN(self):
 		"""
-		Calculates distance to the reference for each chemical shift only once for nitrogen.
+		Calculates distance to the reference for each chemical shift only for nitrogen.
 		"""
 		if self._deltaChemShiftN is None:
 			self._deltaChemShiftN = list()

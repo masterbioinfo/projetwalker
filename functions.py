@@ -4,7 +4,8 @@ Module functions uses during Shift2Me works.
 
 Authors : Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY and Rainier-Numa GEORGES for Dr. Olivier WALKER and Dr. Maggy HOLOGNE 
 (ISA-UMR 5280 CNRS,5 Rue de la DOUA, 69100 Villeurbanne -FRANCE). 
-This program is developped in Python 3.5.1 on Ubuntu v16.04.3 LTS (UNIX core system). 
+This program is developped in Python 3.5.1, Anaconda v5.0.0, JuPyter v5.2.0, MatPlotLib v2.1.0, 
+on Ubuntu v16.04.3 LTS (UNIX core system). 
 Date of creation : 2017-10-13
 Last modification : 2017-10-24.
 """
@@ -47,7 +48,7 @@ import sys
 def informationsFile(listFileTitration):
 	"""The fonction takes the all path of the file. Then she return the path without the file's name (pathIn), 
 	the file's name(fileNameOpen), the file's extension (extensionIn) in the dictionary named "directory". 
-	Also, she test if the file name is ".list" or "exlist". If it's not the case, she return an error."""
+	Also, she test if the file name is ".list" or "txt". If it's not the case, she return an error."""
 
 	try:
 		for fileInformations in listFileTitration:
@@ -55,7 +56,7 @@ def informationsFile(listFileTitration):
 			fileInformations = fileInformations.split(".")
 			directory["extensionIn"] = fileInformations[1]	
 		
-			#If open file have ".list" extension :
+			#If openFile have ".list" or ".txt" extension :
 			if directory["extensionIn"] == "list" or directory["extensionIn"] == "txt" :	
 				fileInformations = str(fileInformations[0]).split("/")
 				directory["fileNameOpen"] = fileInformations[-1]
@@ -68,7 +69,7 @@ def informationsFile(listFileTitration):
 					i += 1 
 				directory["pathIn"] = path
 			
-			#If open file haven't ".list" extension :
+			#If open file haven't ".list"or ".txt" extension :
 			else :
 				raise IOError("Le fichier {0} n'a pas d'extension '.list' ou '.txt'.".format(fileInformation))
 
@@ -79,7 +80,7 @@ def informationsFile(listFileTitration):
 
 def formatVerification(listFileTitration):
 	"""The fonction takes the list who contained all files's paths. She test all files. If a file ".list" is in the good format,
-	she return True. In other case, she return an error with the file's name. To do that, the file tested must be open, his first 
+	she return True. In other case, she return an error with the file's name. To do that, the file tested must be open, her first 
 	three lines are parsed and then tested on seven marks."""
 
 	try:
@@ -113,10 +114,10 @@ def parseTitrationFile(titrationFile, listChemicalShift, residusForgetted, missi
 		the variable missingDatas, and the list of all residus not retained in the study because they don't
 		have all chemicals shifts (residusNotRetained).
 
-	In a first time, the file past in argument, is open and parsed line after line.
+	In a first time, the file passed in argument, is open and parsed line after line.
 	In a second time, if missingDatas = True, so we search all resdus without all chemicals shifts (one missing). If the line
 		tested reveals one chemical shift is missing, then this residus is write in the not retained residus's file and
-		in residusNotRetained list. In the other case, nothing his write and we pass to next line of the file parsed.
+		in residusNotRetained list. In the other case, nothing his write and we pass to next the line of the file parsed.
 	In a third time, if missingDatas = False, we want takes only residus who have all chemicals shifts in all files parsed.
 		First of all, we write the line parsed in listChemicalShiftParsed list, then we test if this last residus is write
 		in residusNotRetained list. If he's write on this list, we deleted this residu. In the other case, we keep this 
@@ -151,7 +152,7 @@ def parseTitrationFile(titrationFile, listChemicalShift, residusForgetted, missi
 
 				#In a second time, we don't search residu without all chemicals shifts, we search residus with all informations.
 				elif missingDatas == False :
-					#Line in the headers don't retained.
+					#Line in the header aren't retained.
 					if chemicalShift[0] == "Assignment" or chemicalShift[0] == "" :
 						pass
 					#Residus without all chemicals shifts are not retained.
@@ -172,7 +173,7 @@ def parseTitrationFile(titrationFile, listChemicalShift, residusForgetted, missi
 							
 					#If other line, not planned in the file, are presents the program print a message error.
 					else :
-						raise ValueError ("A line in {0} isn't in support format (.list).".format(titrationFile))
+						raise ValueError
 
 		listChemicalShift.append(listChemicalShiftParsed)
 
@@ -181,19 +182,23 @@ def parseTitrationFile(titrationFile, listChemicalShift, residusForgetted, missi
 	except IOError as err:
 		sys.stderr.write("%s\n" % err)
 		exit(1)
-
+	except ValueError :
+		print("A line in {0} isn't in support format (.list).".format(titrationFile))
 
 
 ###Functions objects creation.
 
 def aminoAcideObjectsCreation(listChemicalShift):
-	""" """
+	"""This function takes listChemicalShiftinargument (list) and return listResidu (list).
+	It allow to create AminoAcid object with all informations contains in listChemicalShift.
+	Each object are create with a position argument, a list of all chemicals shifts of the residu's
+	hydrogen, another list of all chemicals shifts of the residu's nitrogen."""
 
 	listResidus = list()
 	for chemicalShift in listChemicalShift[0]:
 		residu = AminoAcid(**chemicalShift)
 		listResidus.append(residu)
-	#Add chemShiftH and chemShiftN for each residu.
+	#Add all chemShiftH and chemShiftN for each residu.
 	i = 1 
 	while i < len(listChemicalShift):
 		j = 0
@@ -208,13 +213,36 @@ def aminoAcideObjectsCreation(listChemicalShift):
 
 ###Fonctions program controls.
 
-def cutoffSelection():
-	"""This function takes no argument, she return the new cutoff value (type : float).
+def helpOrder():
+	"""This functions displays all commands support by the program."""
+	
+	print("Enter this key word or number to select an order:\n")
+	print('1 - Show NMR "2Dmap" globale or not if you select a residu before.')
+	print('2 - Select a "cutoff" and aplly its on a plot or all plots.')
+	print('3 - Select "help" to show all commands support by Shift2Me.')
+	print('4 - Select "histogram" to show all titrations histograms (one histogram per titration).')
+	print('5 - Select "load" to load the last job saved.')
+	print('6 - Select a "quit" to quit Shift2Me (you can save before quit the program of course).')
+	print('7 - Select a "save" to save the current job.')
+	print('8 - Select a "select residu" to select a residu to explore him.\n')
+
+	return True
+
+
+def cutoffSelection(plotsAndCutoffs):
+	"""This function takes plotsAndCutoffs list in argument, she return the new cutoff value (type : float).
 	The user can write a new cutoff value. If the cutoff is in acceptable values, the function return 
 	the new cutoff value. 
 	If the value entry isn't in acceptables values, the function return an error. 
 	If the value cannot be transform in float type, the function return an error."""	
-
+	
+	#Display all currents plots and their cutoffs.
+	i = 0
+	while i < len(plotsAndCutoffs):
+		print("Plot {0} have {1} ppm in cutoff.".format(plotsAndCutoffs[i]["plot"], plotsAndCutoffs[i]["cutoff"]))	
+		i += 1
+	
+	#Select a new cutoff.
 	newCutoff = None
 	while newCutoff == None:
 		newCutoff = input("What cutoff value do you want applied ?\n")
@@ -241,14 +269,13 @@ def cutoffSelection():
 
 
 def plotSelection(plotsAndCutoffs, newCutoff):
-	"""This function takes plotsAndCutoffs list in argument, she return the selected plot (type : int).The user 
-	can choose the selected plot. Then the function return plotsAndCutoffs list with a the affiliation between
-	plot(s) selectionned and cutoff selectionned previously.
+	"""This function takes plotsAndCutoffs list and newCutoff float in argument, she return the selected plot 
+	(type : int).The user can choose the selected plot. Then the function return plotsAndCutoffs list with the 
+	new affiliation between plot(s) selectionned and cutoff selectionned previously.
 	If the plot is in 0 and the plotsAndCutoffs list length, the function return the selected plot. 
-	If the value entry isn't in acceptables values, the function return an error. If the value cannot 
-	be transform in integer type, the function return an error. 
-	They are an exception if the user write "all", or "All", or "ALL", in this case, the user
-	selected all plots."""
+	If the value entry isn't in acceptables values, the function return an error. 
+	If the value cannot be transform in integer type, the function return an error. 
+	By default, all plots are selected."""
 	
 	plotSelected = None
 	while plotSelected == None :
@@ -285,39 +312,133 @@ def plotSelection(plotsAndCutoffs, newCutoff):
 			plotSelected = None
 
 
+def quitProgram():
+	"""This function allow to quit the program. She takes no argument and return "quit" value. """
+
+	quitMessage = None
+	while quitMessage != "yes" and quitMessage != "no": 
+		quitMessage = input("Do you want quit this program ? (yes/no)\n")
+		try :
+			quitMessage = str(quitMessage)
+			quitMessage.lower()
+
+			if quitMessage == "yes":
+				quit = True
+			elif quitMessage == "no":	
+				quit = False
+			else:
+				raise ValueError		
+		except ValueError:
+			print('Please, would you indicate if you want quit Shift2Me ("yes") or not ("no").')
+
+	return quit
+
+
+def residuSelection(listResidus):
+	"""This function allow to selection a residu. She takes listResidus in argument and return residuSelected.
+	If all residus are selected, by default, residuSelected point to listResidus. If a residu is selected,
+	residuSelected point to the selected residu."""
+	
+	#Display all residus in the study.
+	print("Residus in the study :\n")
+
+	i = 0
+	residuInStudy = list()
+	while i <len(listResidus):
+		residuInStudy.append(listResidus[i].position)
+		i += 1
+	j = 0
+
+	while j < len(residuInStudy):
+		print("{0} : n° residu start line.".format(j))	
+		print(residuInStudy[j : j+10])
+		j += 10
+	print("\nThey are {0} residus in the study.\n".format(i))
+		
+	#The user can select a residu.
+	residuSelected = input("Please select a residu. [default: all residus selected]\n")
+	residuSelected = str(residuSelected)
+	residuSelected = residuSelected.rstrip("N-H")
+	residuSelected = residuSelected + "N-H"
+	
+	if residuSelected == "N-H":
+		residuSelected = listResidus
+		print("All residus are selected.")
+	elif residuSelected != "" and residuSelected in residuInStudy :
+		print(residuSelected)
+		i = 0
+		while i <len(listResidus):
+			if residuSelected == listResidus[i].position :
+				residuSelected = listResidus[i]		
+				print("Residu number {0} selected !".format(listResidus[i].position))		
+			i += 1
+	elif residuSelected not in residuInStudy :
+		print("This residu is not in the study.")
+	
+	return residuSelected
+
 
 ###Functions save and load current job.
 
-def jsonSaveJob(directoryIn, listFileTitration, plotsAndCutoffs, listResidus):
-	"""This function takes directoryIn and plotsAndCutoffs dictionnaries, plus listFileTitration
-	and deltaDeltaShifts lists. She allow to save listeFileTitration, plotsAndCutoffs and delatDeltaShifts
-	at json format. She return a confirmation message. In the other case, she return a message error."""
+def saveAsk(directoryIn, listFileTitration, plotsAndCutoffs, listResidus):
+	"""This function ask to the user if he want save is current job. She takes directoryIn dictionnary,
+	listeFileTitration list, plotsAndCutoffs list and listResidu list of objects, in argument. She return
+	"True" if the function has work well.
+	If the user want save is current job, it call saveJob function."""
 
-	try:
-		datasSave = [listFileTitration, plotsAndCutoffs, listResidus]
-		with open("{0}saveJob.json".format(directoryIn["pathIn"]), 'w') as saveJobFile:
-			saveJobFile.write(json.dumps(datasSave, indent=5))
-		return "Job saves in {0}saveJob.json !".format(directoryIn["pathIn"])
+	saveJobAsk = None
+	while saveJobAsk != "yes" and saveJobAsk != "no":
+		saveJobAsk = input("Do you want save your job ? (yes/no)\n")
+		try:
+			saveJobAsk = str(saveJobAsk)
+			saveJobAsk.lower()
+			
+			if saveJobAsk == "yes":
+				###Save job in progress automatically.
+				saveMessage = saveJob(directoryIn, listFileTitration, plotsAndCutoffs, listResidus)
+				#saveMessage = jsonSaveJob(directoryIn, listFileTitration, plotsAndCutoffs, listResidus)
+				print(saveMessage)
+			elif saveJobAsk == "no" :
+				print("The current job don't be save.")
+			else :
+				raise ValueError
+		except ValueError:
+			print('Please, would you indicate if you want save your current job ("yes") or not ("no").')
+			saveJobAsk = None
+	return True
+
+
+def loadAsk():
+	"""This function ask to the user if he want load is last job. She takes no argument in argument. 
+	She return the list of all elements load from the load file.
+	This function can be call after the program is launched."""
+	
+	loadJobAsk = None
+	loadJobAsk = input("Please, indicate a file to load.\n")
+	loadJobAsk = str(loadJobAsk)
+
+	elementsLoads = list()
+
+	try :	
+		with open(loadJobAsk, 'rb') as loadJobFile:
+			my_depickler = pickle.Unpickler(loadJobFile)
+
+			listFileTitration = my_depickler.load()
+			elementsLoads.append(listFileTitration)
+
+			plotsAndCutoffs = my_depickler.load()
+			elementsLoads.append(plotsAndCutoffs)
+
+			listResidus = my_depickler.load()
+			elementsLoads.append(listResidus)
+
+		loadMessage = "Job loads from {0}!".format(loadJobAsk)
+		elementsLoads.append(loadMessage)
+		return elementsLoads
+
 	except IOError as err:
 		sys.stderr.write("%s\n" % err)
-		exit(1)
-
-
-def jsonLoadJob(directoryIn):
-	"""This function takes directoryIn dictionnay in argument and return datasLoad list who contains
-	all element saved in the save file at json format : listeFileTitration, plotsAndCutoffs, 
-	deltaDeltaShifts. Plus, the function return a confirmation message.
-	In the other case, she return a message error."""
-
-	try:
-		with open("{0}saveJob.json".format(directoryIn["pathIn"]), 'r') as loadJobFile:
-			datasLoad = json.load(loadJobFile) 
-		loadMessage = "Job loads from {0}saveJob.json !".format(directoryIn["pathIn"])
-		datasLoad.append(loadMessage)
-		return datasLoad
-	except IOError as err:
-		sys.stderr.write("%s\n" % err)
-		exit(1)
+		pass
 
 
 def saveJob(directoryIn, listFileTitration, plotsAndCutoffs, listResidus):
@@ -331,18 +452,34 @@ def saveJob(directoryIn, listFileTitration, plotsAndCutoffs, listResidus):
 			my_pickler.dump(listFileTitration)
 			my_pickler.dump(plotsAndCutoffs)
 			my_pickler.dump(listResidus)
-	        
 		return "Job saves in {0}saveJob.txt !".format(directoryIn["pathIn"])
+
 	except IOError as err:
 		sys.stderr.write("%s\n" % err)
 		exit(1)
-	
+
+
+def jsonSaveJob(directoryIn, listFileTitration, plotsAndCutoffs, listResidus):
+	"""This function takes directoryIn and plotsAndCutoffs dictionnaries, plus listFileTitration
+	and deltaDeltaShifts lists. She allow to save listeFileTitration, plotsAndCutoffs and delatDeltaShifts
+	at json format. She return a confirmation message. In the other case, she return a message error."""
+
+	try:
+		datasSave = [listFileTitration, plotsAndCutoffs, listResidus]
+		with open("{0}saveJob.json".format(directoryIn["pathIn"]), 'w') as saveJobFile:
+			saveJobFile.write(json.dumps(datasSave, indent=5))
+		return "Job saves in {0}saveJob.json !".format(directoryIn["pathIn"])
+
+	except IOError as err:
+		sys.stderr.write("%s\n" % err)
+		exit(1)
 
 
 def loadJob(directoryIn):
 	"""The function can load the last job save. She takes directoryIn dictionnary in argument. She
-	return elemntsLoads list. This list contains objects loaded from the save file: listFileTitration 
-	list, plotsAndCutoffs list and deltaDeltaShifts list."""
+	return elementsLoads list. This list contains objects loaded from the save file: listFileTitration 
+	list, plotsAndCutoffs list and deltaDeltaShifts list.
+	This function can be called when the program start in CLI only !"""
 	
 	elementsLoads = list()
 
@@ -365,7 +502,24 @@ def loadJob(directoryIn):
 	except IOError as err:
 		sys.stderr.write("%s\n" % err)
 		exit(1)
-	
+
+
+def jsonLoadJob(directoryIn):
+	"""This function takes directoryIn dictionnay in argument and return datasLoad list who contains
+	all element saved in the save file at json format : listeFileTitration, plotsAndCutoffs, 
+	deltaDeltaShifts. Plus, the function return a confirmation message.
+	In the other case, she return a message error.
+	This function can be called when the program start in CLI only !"""
+
+	try:
+		with open("{0}saveJob.json".format(directoryIn["pathIn"]), 'r') as loadJobFile:
+			datasLoad = json.load(loadJobFile) 
+		loadMessage = "Job loads from {0}saveJob.json !".format(directoryIn["pathIn"])
+		datasLoad.append(loadMessage)
+		return datasLoad
+	except IOError as err:
+		sys.stderr.write("%s\n" % err)
+		exit(1)	
 
 
 ###Functions plots generation.
