@@ -20,8 +20,7 @@ Authors : Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY, Rainier-Numa 
 """
 Exemple :  ./index.py data/listes/listPP/*.list
 """
-list =[1,2,3]
-print (list[-2:-1])
+
 import functions
 import os
 import sys
@@ -49,7 +48,7 @@ newCutoff = functions.cutoffSelection()
 titration.plotHistogram(cutOff=newCutoff)
 titration.plotHistogram(6,cutOff=newCutoff)
 
-titration.extractResidues(cutOff = newCutoff, targetFile = 'given_in_arg.txt', stepBegin = 10, stepEnd = 16	)
+titration.extractResidues(cutOff = newCutoff, targetFile = 'given_in_arg.txt', stepBegin = 7, stepEnd = 8	)
 
 #Plot(s) selection by the user.
 #plotSelected = functions.plotSelection(deltaDeltaShifts)

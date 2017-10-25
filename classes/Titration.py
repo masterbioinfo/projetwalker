@@ -202,10 +202,14 @@ class Titration (object):
 			elif stepBegin == 'default' or stepEnd == 'default':
 				stepBegin = int(self.steps-1)
 				stepEnd = int(self.steps-1)
-			elif stepEnd > (self.steps-1):
-				stepEnd = self.steps-1
 			elif type(stepBegin) != int or type(stepEnd) != int:
 					raise TypeError ("Enter an integer between 1 and", self.steps-1)
+			else:
+				if stepEnd > (self.steps-1):
+					stepEnd = self.steps-1
+				if stepBegin > (self.steps-1):
+					stepBegin = self.steps-1
+			
 
 			#Extraction stage
 			if stepBegin <= 0 or stepEnd <= 0:
