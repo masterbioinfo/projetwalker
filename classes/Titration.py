@@ -26,7 +26,7 @@ class Titration (object):
 		self.source = source
 		# fetch all .list files in source dir
 		if os.path.isdir(source):
-			self.files = [ self.source + titrationFile for titrationFile in os.listdir(source) if ".list" in titrationFile ]
+			self.files = [ os.path.join(self.source, titrationFile) for titrationFile in os.listdir(source) if ".list" in titrationFile ]
 		elif type(source) is list: # or use provided source as files
 			self.files = source
 
