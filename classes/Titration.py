@@ -186,25 +186,52 @@ class Titration (object):
 		plt.show()
 
 
-	def extractResidues (self, cutOff = 0, targetFile = 'extracted_residues.txt', stepBegin = -1, stepEnd = 100):
+	def extractResidues (self, cutOff = 0, targetFile = 'extracted_residues.txt', stepBegin = 'default', stepEnd = 'default'):
 		"""
-		Enables the extraction of residues whose intensity is superior or equal to the cutoff (by default equal to 0).
-		Takes attiuts of Titration object, optinal cutOff and targetFile.
+		Enables the extraction of residues whose intensity at the last step (default) is superior or equal to the cutoff (by default equal to 0).
+		Takes attiuts of Titration object, optinal cutOff, targetFile, titration step to begin with (stepBegin) and to end with (stepEnd).
+		Both stepBegin and stepEnd represent an interval with included limits. 
+		For example: stepBegin = 1, stepEnd = 2 means from step 1 (included) to step 2 (included).
 		Create and write in a file (extracted_residues.txt by default) the positions of residues as well as their intensity for each titration
-		"""
-		titrationList = []
-		[ titrationList.append("Titration " + str(index)) for index in range (1, self.steps) ] #list to be written in the new file
-		if stepBegin == 'all' or stepEnd == 'all':
-			stepBegin = 0
-			stepEnd = self.steps
-		if cutOff == 0: #cutoff not mentionned
-				print('All residues will be extracted')
-		#Write the header at first
-		with open(targetFile, 'w') as f:
-			f.write ("Residue" + "\t" + "\t".join(titrationList) + "\n")
-			f.close()
-		#Then write the content
-		with open(targetFile, 'a') as f:
-			[ f.write(str(residue.position) + "\t" + "\t".join(map(str,residue.chemShiftIntensity)) + "\n") for residue in self.complete for intensity in residue.chemShiftIntensity[(stepBegin):stepEnd] if intensity >= cutOff]
-			f.close()
-		print ("Residues saved in the file : " + str(targetFile))
+		"""		
+		try:
+			#First stage of argument conformity checking
+			if stepBegin == 'all' or stepEnd == 'all':
+				stepBegin = 1
+				stepEnd = self.steps-1
+			elif stepBegin == 'default' or stepEnd == 'default':
+				stepBegin = int(self.steps-1)
+				stepEnd = int(self.steps-1)
+			elif stepEnd > (self.steps-1):
+				stepEnd = self.steps-1
+			elif type(stepBegin) != int or type(stepEnd) != int:
+					raise TypeError ("Enter an integer between 1 and", self.steps-1)
+
+			#Extraction stage
+			if stepBegin <= 0 or stepEnd <= 0:
+				raise ValueError ("Titration steps begin with 1 and end with", self.steps-1 )
+			else :
+				print ("Extracting residues using intenisties provided from step", stepBegin, "to step", stepEnd, "\n")
+				titrationList = []
+				[ titrationList.append("Titration " + str(index)) for index in range (1, self.steps) ] #list to be written in the new file
+				if cutOff == 0: #cutoff not mentionned
+						print("All residues will be extracted")
+				#Write the header at first
+				with open(targetFile, 'w') as f:
+					f.write ("Residue" + "\t" + "\t".join(titrationList) + "\n")
+				f.close()
+				#Then write the content
+				residuesToForget = []
+				with open(targetFile, 'a') as f:
+					for residue in self.complete:
+						for intensity in residue.chemShiftIntensity[stepBegin-1:stepEnd]:
+							if intensity >= cutOff and residue.position not in residuesToForget:
+								# join separates a list of strings into elements separates by "\t" (in this case)
+								# map converts each element of a list into a string (in this case)
+								f.write(str(residue.position) + "\t" + "\t".join(map(str,residue.chemShiftIntensity)) + "\n")
+								residuesToForget.append(residue.position)  
+				f.close()
+				print ("Residues saved in the file : " + str(targetFile) + "\n")
+		except (ValueError, TypeError) as error:
+			sys.stderr.write("%s\n" % error)
+			exit(1)
