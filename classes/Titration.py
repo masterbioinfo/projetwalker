@@ -64,7 +64,7 @@ class Titration (object):
 		Returns the titration step number if found, IOError is raised otherwise
 		"""
 		try: 
-			rePath = re.compile(r'(.+/)?(.+)(?P<step>\d+)\.list') # expected path format
+			rePath = re.compile(r'(.+/)?(.*[^\d]+)(?P<step>[0-9]+)\.list') # expected path format
 			matching = rePath.match(filePath) # attempt to match
 			if matching:
 				# retrieve titration step number parsed from file name
