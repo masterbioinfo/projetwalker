@@ -35,7 +35,7 @@ class Titration (object):
 		# set number of titration steps including reference step 0
 		self.steps  = len(self.files)
 		# generate colors for each titration step
-		self.colors = plt.cm.get_cmap('hsv', self.steps*2)
+		self.colors = plt.cm.get_cmap('hsv', self.steps)
 
 		## FILE PARSING
 		# init residues {position:AminoAcid object}
@@ -46,14 +46,17 @@ class Titration (object):
 		# filter complete residues as list
 		self.complete = sorted([ residue for residue in self.residues.values() if residue.validate(self.steps) ], key=lambda a: a.position)
 		# incomplete residues
-		self.incomplete = set(self.residues) - set(self.complete)
+		self.incomplete = set(self.residues.values()) - set(self.complete)
 		print("Found %s residues with incomplete data" % len(self.incomplete), file=sys.stderr)
-		# Prepare (position, chem shift intensity) coordinates.
+		# Prepare (position, chem shift intensity) coordinates for histogram plot
 		self.intensities = []
-		self.positions = [ residue.position for residue in self.complete ]
+		self.positions = []
+		self.deltaChemShift = []
 		for step in range(self.steps - 1): # intensity is null for reference step
 			self.intensities.append( [ residue.chemShiftIntensity[step] for residue in self.complete ] )
-		self.deltaChemShift = [ residue.deltaChemShift for residue in self.complete ]
+		for residue in self.complete:
+			self.positions.append(residue.position)
+			self.deltaChemShift.append(residue.deltaChemShift)
 		
 	def validateFilePath(self, filePath):
 		"""
@@ -108,19 +111,20 @@ class Titration (object):
 		Define all the options needed (step, cutoof) for the representation.
 		Call the getHistogram function to show corresponding histogram plots.
 		"""
+
+		fig = plt.figure()
+
 		if step is None: #if step is not precised, all the plots will be showed
 			# split figure in `steps` rows
-			fig, axes = plt.subplots(nrows=self.steps-1, ncols=1, sharex=True, sharey=True, squeeze=True, subplot_kw=None, gridspec_kw=None)
-			fig.suptitle('Titration : steps 1 to %s' % self.steps) # set title
+			axes = fig.subplots(nrows=self.steps-1, ncols=1, sharex=True, sharey=True, squeeze=True)
+			fig.suptitle('Titration : steps 1 to %s' % (self.steps-1)) # set title
 			fig.text(0.04, 0.5, 'Chem Shift Intensity', va='center', rotation='vertical') # set common ylabel
 			for index, ax in enumerate(axes): # first titration step has no intensity values
-				if scale:
-					# Set histograms scale using max intensity value
+				if scale: # Set histograms scale using max intensity value
 					ax.set_ylim(0, num.round(num.amax(self.intensities) + 0.05, decimals=1))
 				self.setHistogram (ax, index, cutOff)
-		# plot specific titration step
-		else:
-			fig = plt.figure()
+		
+		else: # plot specific titration step
 			main = fig.add_subplot(111)
 			self.setHistogram(main, step, cutOff)
 			main.set_title('Titration step %s' % step) 
@@ -132,17 +136,52 @@ class Titration (object):
 
 	def setHistogram (self, ax, step, cutOff = None):
 		"""
-		Takes a list of residu numbers and a list of their intensities previously calculated per titration step. Shows the corresponding plot.
-		In this function remain only graph properties (color, size, abscissa, ordinates) and not any calculation"""
+		Takes a list of residu numbers and a list of their intensities previously calculated per titration step. 
+		Shows the corresponding plot.
+		In this function remain only graph properties (color, size, abscissa, ordinates) and not any calculation
+		"""
 
 		#colorBar = self.colors(step*2)
 		xAxis = num.array(self.positions)
 		yAxis = num.array(self.intensities[step])
 		barList = ax.bar(xAxis, yAxis, align = 'center', alpha = 1)
 		if cutOff: # show the cutoff on every graph
+			self.cutOffLine = ax.axhline(cutOff, color = "red", linewidth=0.5, linestyle='--')
 			for bar in barList:
-				if bar.get_height() > cutOff:
+				if bar.get_height() > cutOff: # show high intensity residues
 					bar.set_color('orange')
-			ax.axhline(cutOff, color = "red", linewidth=0.5, linestyle='--')
+				else:
+					bar.set_color(None)
+			
+			
 		
+	def plotChemShifts(self, residues=None, split = False):
+		"""
+		Plot measured chemical shifts for each residue as a 2D map (chemShiftH, chemShiftN).
+		Each color is assigned to a titration step
+		"""
+		residueSet = residues or self.complete
+		fig = plt.figure()
+		fig.suptitle('2D map of chemical shifts') # set title
+		if split:
+			axes = fig.subplots(nrows=ceil(sqrt(len(residueSet))), ncols=floor(sqrt(len(residueSet))), sharex=False, sharey=False, squeeze=True, subplot_kw=None, gridspec_kw=None)
+			fig.text(0.04, 0.5, 'N Chemical Shift', va='center', rotation='vertical') # set common ylabel
+			fig.text(0.5, 0.04, 'H Chemical Shift', ha='center') # set common xlabel
+
+			for index, ax in enumerate(axes.flat):
+				if index < len(residueSet):
+					im = ax.scatter(residueSet[index].chemShiftH, residueSet[index].chemShiftN, facecolors='none', cmap=self.colors, c = range(self.steps), alpha=0.2)
+					ax.set_title("Residue %s " % residueSet[index].position)
+					#plt.setp(ax.get_xticklabels(), rotation=45, horizontalalignment='right')
+				else:
+					ax.remove() # remove extra subplots
+			fig.tight_layout()
+			fig.subplots_adjust(left=0.15, top=0.85, right=0.85,bottom=0.15)
+			cbar_ax = fig.add_axes([0.90, 0.15, 0.02, 0.7])
+			fig.colorbar(mappable=im, cax=cbar_ax).set_label("Titration steps")
+		else:
+			for residue in residueSet : 
+				im=plt.scatter(residue.chemShiftH, residue.chemShiftN, facecolors='none', cmap=self.colors, c = range(self.steps), alpha=0.2)
+			plt.colorbar().set_label("Titration steps")
 		
+		plt.show()
