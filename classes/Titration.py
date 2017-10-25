@@ -184,3 +184,27 @@ class Titration (object):
 			plt.colorbar().set_label("Titration steps")
 		
 		plt.show()
+
+
+	def extractResidues (self, cutOff = 0, targetFile = 'extracted_residues.txt', stepBegin = -1, stepEnd = 100):
+		"""
+		Enables the extraction of residues whose intensity is superior or equal to the cutoff (by default equal to 0).
+		Takes attiuts of Titration object, optinal cutOff and targetFile.
+		Create and write in a file (extracted_residues.txt by default) the positions of residues as well as their intensity for each titration
+		"""
+		titrationList = []
+		[ titrationList.append("Titration " + str(index)) for index in range (1, self.steps) ] #list to be written in the new file
+		if stepBegin == 'all' or stepEnd == 'all':
+			stepBegin = 0
+			stepEnd = self.steps
+		if cutOff == 0: #cutoff not mentionned
+				print('All residues will be extracted')
+		#Write the header at first
+		with open(targetFile, 'w') as f:
+			f.write ("Residue" + "\t" + "\t".join(titrationList) + "\n")
+			f.close()
+		#Then write the content
+		with open(targetFile, 'a') as f:
+			[ f.write(str(residue.position) + "\t" + "\t".join(map(str,residue.chemShiftIntensity)) + "\n") for residue in self.complete for intensity in residue.chemShiftIntensity[(stepBegin):stepEnd] if intensity >= cutOff]
+			f.close()
+		print ("Residues saved in the file : " + str(targetFile))

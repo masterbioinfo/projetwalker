@@ -21,7 +21,6 @@ Authors : Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY, Rainier-Numa 
 Exemple :  ./index.py data/listes/listPP/*.list
 """
 
-
 import functions
 import os
 import sys
@@ -37,6 +36,7 @@ if args["<file.list>"]:
 elif args["<dir>"]:
 	titration = Titration(args["<dir>"])
 
+
 titration.plotChemShifts(titration.complete[0:10],split=True)
 titration.plotChemShifts(split=False)
 titration.plotHistogram(6)
@@ -47,6 +47,7 @@ newCutoff = functions.cutoffSelection()
 titration.plotHistogram(cutOff=newCutoff)
 titration.plotHistogram(6,cutOff=newCutoff)
 
+titration.extractResidues(cutOff = 0, targetFile = 'okok.txt')
 
 #Plot(s) selection by the user.
 #plotSelected = functions.plotSelection(deltaDeltaShifts)
