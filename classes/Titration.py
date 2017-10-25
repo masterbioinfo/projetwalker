@@ -57,7 +57,20 @@ class Titration (object):
 		for residue in self.complete:
 			self.positions.append(residue.position)
 			self.deltaChemShift.append(residue.deltaChemShift)
+
+		## INIT PLOTS
+		self.cutOff = None
+		self.cutOffLine = None
+		self.cutOffColor = 'red'
 		
+	def setCutOff(cutOff, color = None):
+		"""
+		Set cutoff value to be displayed on histograms and used to filter residues
+		"""
+		self.cutOff = float(cutOff)
+		color = color or self.cutOffColor
+		self.cutOffLine = plt.axhline(y=cutOff, color = self.color, linewidth=0.5, linestyle='--', figure=None)
+
 	def validateFilePath(self, filePath):
 		"""
 		Given a file path, checks if it has .list extension and if it is numbered after the titration step. 
@@ -158,9 +171,10 @@ class Titration (object):
 	def plotChemShifts(self, residues=None, split = False):
 		"""
 		Plot measured chemical shifts for each residue as a 2D map (chemShiftH, chemShiftN).
-		Each color is assigned to a titration step
+		Each color is assigned to a titration step.
+		If using `split` option, each residue is plotted in its own subplot.
 		"""
-		residueSet = residues or self.complete
+		residueSet = residues or self.complete # using complete residues by default
 		fig = plt.figure()
 		fig.suptitle('2D map of chemical shifts') # set title
 		if split:

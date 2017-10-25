@@ -43,7 +43,7 @@ titration.plotHistogram(6)
 
 #Cutoff selection by the user.
 oldCutoff = 0
-newCutoff = functions.cutoffSelection()
+newCutoff = titration.setCutOff(0.1)
 titration.plotHistogram(cutOff=newCutoff)
 titration.plotHistogram(6,cutOff=newCutoff)
 
