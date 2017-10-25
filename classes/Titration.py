@@ -67,9 +67,8 @@ class Titration (object):
 			rePath = re.compile(r'(.+/)?(.+)(?P<step>\d+)\.list') # expected path format
 			matching = rePath.match(filePath) # attempt to match
 			if matching:
-				# retrieve titration step number
-				fileNumber = int(matching.group("step")) 
-				return fileNumber
+				# retrieve titration step number parsed from file name
+				return int(matching.group("step")) 
 			else:
 				# found incorrect line format
 				raise IOError("Refusing to parse file %s : please check it is named like *[0-9]+.list" % path)
