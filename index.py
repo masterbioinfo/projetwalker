@@ -37,12 +37,15 @@ if args["<file.list>"]:
 elif args["<dir>"]:
 	titration = Titration(args["<dir>"])
 
-titration.plotHistogram()
+titration.plotChemShifts(titration.complete[0:10],split=True)
+titration.plotChemShifts(split=False)
+titration.plotHistogram(6)
 
 #Cutoff selection by the user.
 oldCutoff = 0
 newCutoff = functions.cutoffSelection()
 titration.plotHistogram(cutOff=newCutoff)
+titration.plotHistogram(6,cutOff=newCutoff)
 
 
 #Plot(s) selection by the user.
