@@ -112,7 +112,7 @@ if directoryIn["extensionIn"] == "list" and len(listFileTitration) >= 1:
 		exit(1)
 
 
-###Load file who contains the last job:
+###Load file who contains the last job (pkl):
 elif directoryIn["extensionIn"] == "txt" and len(listFileTitration) == 2 :
 	try :
 		###Load the last job automatically. The file loaded must be write in CLI.

@@ -383,7 +383,7 @@ def residuSelection(listResidus):
 			while i <len(listResidus):
 				if residuSelection == listResidus[i].position :
 					residuSelected.append(listResidus[i])		
-					print("{0}/{1} - Residu number {0} are selected !".format(quantityOfResidusSelected, residusTotal, listResidus[i].position))	
+					print("{0}/{1} - Residu number {2} are selected !".format(quantityOfResidusSelected, residusTotal, listResidus[i].position))	
 					quantityOfResidusSelected += 1	
 				i += 1
 			nbOfResidusSelected -= 1
