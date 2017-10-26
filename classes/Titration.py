@@ -6,6 +6,16 @@ from math import *
 import os, re, sys
 from classes.AminoAcid import AminoAcid
 
+
+def saveGraph (name, format = 'png'):
+	"""Saves graphs with a specific name for each figure. Default format is png but can be changed into pdf, ps, eps and svg.
+	Creates a repository named 'results' to store all figures.
+	"""
+	if not os.path.exists("results/"):
+		os.makedirs("results/")
+	print ("New figure saved at", "results/" + name + "." + format + "\n")
+	return plt.savefig("results/" + name + "." + format, format = format)
+
 class Titration (object):
 	"""
 	Class Titration.
@@ -105,7 +115,7 @@ class Titration (object):
 			sys.stderr.write("%s\n" % error)
 			exit(1)
 
-	def plotHistogram (self, step = None, cutOff = None, scale=True):
+	def plotHistogram (self, step = None, cutOff = None, scale=True, save = True):
 		""" 
 		Define all the options needed (step, cutoof) for the representation.
 		Call the getHistogram function to show corresponding histogram plots.
@@ -131,6 +141,8 @@ class Titration (object):
 		plt.xlabel('Residue') # set common xlabel
 		# set plot ticks
 		plt.xticks(range(self.positions[0] - self.positions[0] % 5, self.positions[-1] + 10, 10))
+		if save:
+			saveGraph(name = "cutOff_" + str(cutOff) +"_step_" + str(step) + "_hist", format = 'svg')
 		plt.show()
 
 	def setHistogram (self, ax, step, cutOff = None):
@@ -154,7 +166,7 @@ class Titration (object):
 			
 			
 		
-	def plotChemShifts(self, residues=None, split = False):
+	def plotChemShifts(self, residues=None, split = False, save = True):
 		"""
 		Plot measured chemical shifts for each residue as a 2D map (chemShiftH, chemShiftN).
 		Each color is assigned to a titration step
@@ -182,11 +194,12 @@ class Titration (object):
 			for residue in residueSet : 
 				im=plt.scatter(residue.chemShiftH, residue.chemShiftN, facecolors='none', cmap=self.colors, c = range(self.steps), alpha=0.2)
 			plt.colorbar().set_label("Titration steps")
-		
+		if save: #
+			saveGraph("residues_" + str(residueSet[0].position) + "to" + str(residueSet[-1].position) + "_plot", format = 'svg')
 		plt.show()
 
 
-	def extractResidues (self, cutOff = 0, targetFile = 'extracted_residues.txt', stepBegin = 'default', stepEnd = 'default'):
+	def extractResidues (self, cutOff = 0, targetFile = 'extracted_residues.txt', stepBegin = 'last', stepEnd = 'last'):
 		"""
 		Enables the extraction of residues whose intensity at the last step (default) is superior or equal to the cutoff (by default equal to 0).
 		Takes attiuts of Titration object, optinal cutOff, targetFile, titration step to begin with (stepBegin) and to end with (stepEnd).
@@ -199,7 +212,7 @@ class Titration (object):
 			if stepBegin == 'all' or stepEnd == 'all':
 				stepBegin = 1
 				stepEnd = self.steps-1
-			elif stepBegin == 'default' or stepEnd == 'default':
+			elif stepBegin == 'last' or stepEnd == 'last':
 				stepBegin = int(self.steps-1)
 				stepEnd = int(self.steps-1)
 			elif type(stepBegin) != int or type(stepEnd) != int:
@@ -210,7 +223,6 @@ class Titration (object):
 				if stepBegin > (self.steps-1):
 					stepBegin = self.steps-1
 			
-
 			#Extraction stage
 			if stepBegin <= 0 or stepEnd <= 0:
 				raise ValueError ("Titration steps begin with 1 and end with", self.steps-1 )
