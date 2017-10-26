@@ -194,8 +194,12 @@ class Titration (object):
 			for residue in residueSet : 
 				im=plt.scatter(residue.chemShiftH, residue.chemShiftN, facecolors='none', cmap=self.colors, c = range(self.steps), alpha=0.2)
 			plt.colorbar().set_label("Titration steps")
-		if save: #
-			saveGraph("residues_" + str(residueSet[0].position) + "to" + str(residueSet[-1].position) + "_plot", format = 'svg')
+		if save:
+			if split:
+				saveGraph("residues_" + "-".join([ str(residue.position) for residue in residueSet ]) + "_plot", format = 'svg')
+			else:
+				saveGraph("residues_" + str(residueSet[0].position) + "to" + str(residueSet[-1].position) + "_plot", format = 'svg')
+
 		plt.show()
 
 
@@ -206,6 +210,7 @@ class Titration (object):
 		Both stepBegin and stepEnd represent an interval with included limits. 
 		For example: stepBegin = 1, stepEnd = 2 means from step 1 (included) to step 2 (included).
 		Create and write in a file (extracted_residues.txt by default) the positions of residues as well as their intensity for each titration
+		Returns a list of residues potentially involved in interaction (can be given as an argument to plotChemShifts())
 		"""		
 		try:
 			#First stage of argument conformity checking
@@ -237,17 +242,18 @@ class Titration (object):
 					f.write ("Residue" + "\t" + "\t".join(titrationList) + "\n")
 				f.close()
 				#Then write the content
-				residuesToForget = []
+				interactionResidues = []
 				with open(targetFile, 'a') as f:
 					for residue in self.complete:
 						for intensity in residue.chemShiftIntensity[stepBegin-1:stepEnd]:
-							if intensity >= cutOff and residue.position not in residuesToForget:
+							if intensity >= cutOff and residue not in interactionResidues:
 								# join separates a list of strings into elements separates by "\t" (in this case)
 								# map converts each element of a list into a string (in this case)
 								f.write(str(residue.position) + "\t" + "\t".join(map(str,residue.chemShiftIntensity)) + "\n")
-								residuesToForget.append(residue.position)  
+								interactionResidues.append(residue)  
 				f.close()
 				print ("Residues saved in the file : " + str(targetFile) + "\n")
+				return interactionResidues
 		except (ValueError, TypeError) as error:
 			sys.stderr.write("%s\n" % error)
 			exit(1)
