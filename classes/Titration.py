@@ -8,7 +8,7 @@ from math import *
 import os, re, sys
 from classes.AminoAcid import AminoAcid
 from classes.MultiDraggableCursor import CutOffCursor
-from classes.Plot import MultiHist
+from classes.Plot import Hist, MultiHist
 class Titration (object):
 	"""
 	Class Titration.
@@ -63,7 +63,8 @@ class Titration (object):
 		self.cutOff = None
 		self.positionTicks =range(self.positions[0] - self.positions[0] % 5, self.positions[-1] + 10, 10)
 		self.stackedHist=MultiHist(self.positions,self.intensities)
-		self.hist = None
+		self.hist = dict()
+		"""
 		self.hist = plt.figure()
 		histAx = self.hist.add_subplot(111)
 		histAx.set_xlabel('Residue') # set common xlabel
@@ -83,7 +84,7 @@ class Titration (object):
 
 	def setCutOff(self, cutOff):
 		self.cursor.setCutOff(cutOff)
-
+		"""
 	def validateFilePath(self, filePath):
 		"""
 		Given a file path, checks if it has .list extension and if it is numbered after the titration step. 
@@ -141,16 +142,20 @@ class Titration (object):
 				self.stackedHist.setCutOff(cutOff)
 			self.stackedHist.show()
 		else: # plot specific titration step
-			if self.hist is None:
-				self.hist = plt.figure()
-				histAx = self.hist.add_subplot(111)
-				histAx.set_xlabel('Residue') # set common xlabel
-				histAx.set_ylabel('Chem Shift Intensity')
-				histAx.set_xticks(self.positionTicks)
-			ax = self.hist.axes[0]
-			self.setHistogram(ax, step, cutOff)
-			ax.set_title('Titration step %s' % step)
-			self.hist.show()
+			"""
+				if self.hist is None:
+					self.hist = plt.figure()
+					histAx = self.hist.add_subplot(111)
+					histAx.set_xlabel('Residue') # set common xlabel
+					histAx.set_ylabel('Chem Shift Intensity')
+					histAx.set_xticks(self.positionTicks)
+				ax = self.hist.axes[0]
+				self.setHistogram(ax, step, cutOff)
+				ax.set_title('Titration step %s' % step)
+			"""
+			if not self.hist.get(step):
+				self.hist[step] = Hist(self.positions, self.intensities[step])
+			self.hist[step].show()
 
 	def setHistogram (self, ax, step, cutOff = None):
 		"""

@@ -10,9 +10,39 @@ class BaseHist(object):
 	def __init__(self, xAxis, yAxis):
 		self.figure = plt.figure()
 		self.bars = []
+		self.selected = dict()
+		self.background = [] 
 		self.closed=False
 		self.cutOff=None
+		self.positionTicks=range(xAxis[0] - xAxis[0] % 5, xAxis[-1]+10, 10)
+		self.xAxis, self.yAxis = xAxis, yAxis
+		self.setupAxes()
+		self.ylabel=self.figure.text(0.04, 0.5, 'Chem Shift Intensity', 
+									va='center', rotation='vertical') # set common ylabel
+		self.xlabel = self.figure.axes[-1].set_xlabel('Residue') # set common xlabel
+		self.figure.suptitle('Titration : steps 1 to %s' % len(yAxis) )# set title
+		
+		
+		self.figure.canvas.draw()
+	
+		self.cutOff = None
+		self.cursor = CutOffCursor(self.figure.canvas, self.figure.axes, 
+									color='r', linestyle='--', lw=0.5, 
+									horizOn=True, vertOn=False )
+		self.cursor.on_changed(self.cutOffListener)
+		
+	def setupAxes(self, yAxis):
+		pass
 
+	def cutOffListener(self, cutOff):
+		self.updateCutOff(cutOff)
+
+	def updateCutOff(self, cutOff):
+		self.cutOff = cutOff
+		self.draw()
+
+	def setCutOff(self, cutOff):
+		self.cursor.setCutOff(cutOff)
 
 	def draw(self):
 		plt.ioff()
@@ -41,38 +71,28 @@ class BaseHist(object):
 
 
 class MultiHist(BaseHist):
-	def __init__(self, xAxis, yAxis):
-		super().__init__(xAxis, yAxis)
-		self.figure.subplots(nrows=len(yAxis), ncols=1, 
-								sharex=True, sharey=True, squeeze=True)
-		self.ylabel=self.figure.text(0.04, 0.5, 'Chem Shift Intensity', 
-							va='center', rotation='vertical') # set common ylabel
-		self.xlabel = self.figure.axes[-1].set_xlabel('Residue') # set common xlabel
-		self.figure.suptitle('Titration : steps 1 to %s' % len(yAxis) )# set title
-		self.positionTicks =range(xAxis[0] - xAxis[0] % 5, xAxis[-1]+10, 10)
-		self.selected = dict()
-		self.background = [] 
+	def __init__(self, xAxis, yMatrix):
+		super().__init__(xAxis, yMatrix)
+
+	def setupAxes(self):
+		self.figure.subplots(nrows=len(self.yAxis), ncols=1, 
+							sharex=True, sharey=True, squeeze=True)
 		for index, ax in enumerate(self.figure.axes):
-			
 			ax.set_xticks(self.positionTicks)
-			maxVal = num.amax(yAxis)
+			maxVal = num.amax(self.yAxis)
 			ax.set_ylim(0, num.round(maxVal + maxVal*0.1, decimals=1))
 			self.background.append(self.figure.canvas.copy_from_bbox(ax.bbox))
-			self.bars.append(ax.bar(xAxis, yAxis[index], align = 'center', alpha = 1))
-		self.figure.canvas.draw()
+			self.bars.append(ax.bar(self.xAxis, self.yAxis[index], align = 'center', alpha = 1))
 	
-		self.cutOff = None
-		self.cursor = CutOffCursor(self.figure.canvas, self.figure.axes, 
-									color='r', linestyle='--', lw=0.5, 
-									horizOn=True, vertOn=False )
-		self.cursor.on_changed(self.cutOffListener)
-		
-	def cutOffListener(self, cutOff):
-		self.updateCutOff(cutOff)
+class Hist(BaseHist):
+	def __init__(self, xAxis, yAxis):
+		super().__init__(xAxis, yAxis)
 
-	def updateCutOff(self, cutOff):
-		self.cutOff = cutOff
-		self.draw()
-
-	def setCutOff(self, cutOff):
-		self.cursor.setCutOff(cutOff)
+	def setupAxes(self):
+		self.figure.subplots(nrows=1, ncols=1, squeeze=True)
+		ax = self.figure.axes[0]
+		ax.set_xticks(self.positionTicks)
+		maxVal = num.amax(self.yAxis)
+		ax.set_ylim(0, num.round(maxVal + maxVal*0.1, decimals=1))
+		self.background.append(self.figure.canvas.copy_from_bbox(ax.bbox))
+		self.bars.append(ax.bar(self.xAxis, self.yAxis, align = 'center', alpha = 1))
