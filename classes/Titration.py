@@ -1,10 +1,13 @@
 #!/usr/bin/python3
 import random
 import matplotlib.pyplot as plt
+from matplotlib.widgets import MultiCursor, Slider
+from pylab import *
 import numpy as num
 from math import *
 import os, re, sys
 from classes.AminoAcid import AminoAcid
+from classes.MultiDraggableCursor import CutOffCursor
 
 class Titration (object):
 	"""
@@ -21,7 +24,6 @@ class Titration (object):
 		"""
 
 		## FILE PATH PROCESSING
-
 		# keep track of source data
 		self.source = source
 		# fetch all .list files in source dir
@@ -43,13 +45,13 @@ class Titration (object):
 		# and fill it by parsing files
 		for titrationFile in self.files:
 			self.parseTitrationFile(titrationFile)
-		# filter complete residues as list
+		# filter complete residues as list and sort them by positions
 		self.complete = sorted([ residue for residue in self.residues.values() if residue.validate(self.steps) ], key=lambda a: a.position)
 		# incomplete residues
 		self.incomplete = set(self.residues.values()) - set(self.complete)
 		print("Found %s residues with incomplete data" % len(self.incomplete), file=sys.stderr)
 		# Prepare (position, chem shift intensity) coordinates for histogram plot
-		self.intensities = []
+		self.intensities = [] # 2D array, by titration step then residu position
 		self.positions = []
 		self.deltaChemShift = []
 		for step in range(self.steps - 1): # intensity is null for reference step
@@ -57,7 +59,40 @@ class Titration (object):
 		for residue in self.complete:
 			self.positions.append(residue.position)
 			self.deltaChemShift.append(residue.deltaChemShift)
-		
+		## PLOTTING
+		self.cutOff = None
+		self.positionTicks =range(self.positions[0] - self.positions[0] % 5, self.positions[-1] + 10, 10)
+		self.stackedHist=None
+		self.stackedHist = plt.figure()
+		self.stackedHist.subplots(nrows=self.steps-1, ncols=1, sharex=True, sharey=True, squeeze=True)
+		self.stackedHist.text(0.04, 0.5, 'Chem Shift Intensity', va='center', rotation='vertical') # set common ylabel
+		self.stackedHist.suptitle('Titration : steps 1 to %s' % (self.steps-1)) # set title
+		self.stackedHist.axes[-1].set_xlabel('Residue') # set common xlabel
+		for ax in self.stackedHist.axes:
+			ax.set_xticks(self.positionTicks)
+			ax.set_ylim(0, num.round(num.amax(self.intensities) + 0.05, decimals=1))
+		self.hist = None
+		self.hist = plt.figure()
+		histAx = self.hist.add_subplot(111)
+		histAx.set_xlabel('Residue') # set common xlabel
+		histAx.set_ylabel('Chem Shift Intensity')
+		histAx.set_xticks(self.positionTicks)
+		self.multiCursor = CutOffCursor(self.stackedHist.canvas, self.stackedHist.axes, color='r', lw=0.5, horizOn=True, vertOn=False )
+		self.multiCursor.on_changed(self.cutOffListener)
+		self.cursor = CutOffCursor(self.hist.canvas, self.hist.axes, color='r', lw=0.5, horizOn=True, vertOn=False )
+		self.cursor.on_changed(self.cutOffListener)
+		#self.slider = Slider(self.hist.axes[0], "Cut Off", 0, num.amax(self.intensities))
+
+	def cutOffListener(self, cutOff):
+		self.updateCutOff(cutOff)
+
+	def updateCutOff(self, cutOff):
+		self.cutOff = cutOff
+		print(self.cutOff)
+
+	def setCutOff(self, cutOff):
+		self.cursor.setCutOff(cutOff)
+
 	def validateFilePath(self, filePath):
 		"""
 		Given a file path, checks if it has .list extension and if it is numbered after the titration step. 
@@ -110,28 +145,32 @@ class Titration (object):
 		Define all the options needed (step, cutoof) for the representation.
 		Call the getHistogram function to show corresponding histogram plots.
 		"""
-
-		fig = plt.figure()
-
 		if step is None: #if step is not precised, all the plots will be showed
-			# split figure in `steps` rows
-			axes = fig.subplots(nrows=self.steps-1, ncols=1, sharex=True, sharey=True, squeeze=True)
-			fig.suptitle('Titration : steps 1 to %s' % (self.steps-1)) # set title
-			fig.text(0.04, 0.5, 'Chem Shift Intensity', va='center', rotation='vertical') # set common ylabel
-			for index, ax in enumerate(axes): # first titration step has no intensity values
-				if scale: # Set histograms scale using max intensity value
+			if self.stackedHist is None or self.stackedHist.canvas.manager.window is None:
+				self.stackedHist = plt.figure()
+				self.stackedHist.subplots(nrows=self.steps-1, ncols=1, sharex=True, sharey=True, squeeze=True)
+				self.stackedHist.text(0.04, 0.5, 'Chem Shift Intensity', va='center', rotation='vertical') # set common ylabel
+				self.stackedHist.suptitle('Titration : steps 1 to %s' % (self.steps-1)) # set title
+				self.stackedHist.axes[-1].set_xlabel('Residue') # set common xlabel
+				for ax in self.stackedHist.axes:
+					ax.set_xticks(self.positionTicks)
 					ax.set_ylim(0, num.round(num.amax(self.intensities) + 0.05, decimals=1))
+					# split figure in `steps` rows
+			for index, ax in enumerate(self.stackedHist.axes): # first titration step has no intensity values
+				ax.set_ylim(auto=scale)
 				self.setHistogram (ax, index, cutOff)
-		
+			self.stackedHist.show()
 		else: # plot specific titration step
-			main = fig.add_subplot(111)
-			self.setHistogram(main, step, cutOff)
-			main.set_title('Titration step %s' % step) 
-			plt.ylabel('Chem Shift Intensity')
-		plt.xlabel('Residue') # set common xlabel
-		# set plot ticks
-		plt.xticks(range(self.positions[0] - self.positions[0] % 5, self.positions[-1] + 10, 10))
-		plt.show()
+			if self.hist is None:
+				self.hist = plt.figure()
+				histAx = self.hist.add_subplot(111)
+				histAx.set_xlabel('Residue') # set common xlabel
+				histAx.set_ylabel('Chem Shift Intensity')
+				histAx.set_xticks(self.positionTicks)
+			ax = self.hist.axes[0]
+			self.setHistogram(ax, step, cutOff)
+			ax.set_title('Titration step %s' % step)
+			self.hist.show()
 
 	def setHistogram (self, ax, step, cutOff = None):
 		"""
@@ -145,7 +184,7 @@ class Titration (object):
 		yAxis = num.array(self.intensities[step])
 		barList = ax.bar(xAxis, yAxis, align = 'center', alpha = 1)
 		if cutOff: # show the cutoff on every graph
-			self.cutOffLine = ax.axhline(cutOff, color = "red", linewidth=0.5, linestyle='--')
+			ax.axhline(cutOff, color = "red", linewidth=0.5, linestyle='--')
 			for bar in barList:
 				if bar.get_height() > cutOff: # show high intensity residues
 					bar.set_color('orange')
@@ -184,58 +223,3 @@ class Titration (object):
 			plt.colorbar().set_label("Titration steps")
 		
 		plt.show()
-
-
-	def extractResidues (self, cutOff = 0, targetFile = 'extracted_residues.txt', stepBegin = 'default', stepEnd = 'default'):
-		"""
-		Enables the extraction of residues whose intensity at the last step (default) is superior or equal to the cutoff (by default equal to 0).
-		Takes attiuts of Titration object, optinal cutOff, targetFile, titration step to begin with (stepBegin) and to end with (stepEnd).
-		Both stepBegin and stepEnd represent an interval with included limits. 
-		For example: stepBegin = 1, stepEnd = 2 means from step 1 (included) to step 2 (included).
-		Create and write in a file (extracted_residues.txt by default) the positions of residues as well as their intensity for each titration
-		"""		
-		try:
-			#First stage of argument conformity checking
-			if stepBegin == 'all' or stepEnd == 'all':
-				stepBegin = 1
-				stepEnd = self.steps-1
-			elif stepBegin == 'default' or stepEnd == 'default':
-				stepBegin = int(self.steps-1)
-				stepEnd = int(self.steps-1)
-			elif type(stepBegin) != int or type(stepEnd) != int:
-					raise TypeError ("Enter an integer between 1 and", self.steps-1)
-			else:
-				if stepEnd > (self.steps-1):
-					stepEnd = self.steps-1
-				if stepBegin > (self.steps-1):
-					stepBegin = self.steps-1
-			
-
-			#Extraction stage
-			if stepBegin <= 0 or stepEnd <= 0:
-				raise ValueError ("Titration steps begin with 1 and end with", self.steps-1 )
-			else :
-				print ("Extracting residues using intenisties provided from step", stepBegin, "to step", stepEnd, "\n")
-				titrationList = []
-				[ titrationList.append("Titration " + str(index)) for index in range (1, self.steps) ] #list to be written in the new file
-				if cutOff == 0: #cutoff not mentionned
-						print("All residues will be extracted")
-				#Write the header at first
-				with open(targetFile, 'w') as f:
-					f.write ("Residue" + "\t" + "\t".join(titrationList) + "\n")
-				f.close()
-				#Then write the content
-				residuesToForget = []
-				with open(targetFile, 'a') as f:
-					for residue in self.complete:
-						for intensity in residue.chemShiftIntensity[stepBegin-1:stepEnd]:
-							if intensity >= cutOff and residue.position not in residuesToForget:
-								# join separates a list of strings into elements separates by "\t" (in this case)
-								# map converts each element of a list into a string (in this case)
-								f.write(str(residue.position) + "\t" + "\t".join(map(str,residue.chemShiftIntensity)) + "\n")
-								residuesToForget.append(residue.position)  
-				f.close()
-				print ("Residues saved in the file : " + str(targetFile) + "\n")
-		except (ValueError, TypeError) as error:
-			sys.stderr.write("%s\n" % error)
-			exit(1)
