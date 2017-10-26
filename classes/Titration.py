@@ -1,11 +1,14 @@
 #!/usr/bin/python3
 import random
 import matplotlib.pyplot as plt
+from matplotlib.widgets import MultiCursor, Slider
+from pylab import *
 import numpy as num
 from math import *
 import os, re, sys
 from classes.AminoAcid import AminoAcid
-
+from classes.MultiDraggableCursor import CutOffCursor
+from classes.Plot import MultiHist
 class Titration (object):
 	"""
 	Class Titration.
@@ -21,7 +24,6 @@ class Titration (object):
 		"""
 
 		## FILE PATH PROCESSING
-
 		# keep track of source data
 		self.source = source
 		# fetch all .list files in source dir
@@ -43,13 +45,13 @@ class Titration (object):
 		# and fill it by parsing files
 		for titrationFile in self.files:
 			self.parseTitrationFile(titrationFile)
-		# filter complete residues as list
+		# filter complete residues as list and sort them by positions
 		self.complete = sorted([ residue for residue in self.residues.values() if residue.validate(self.steps) ], key=lambda a: a.position)
 		# incomplete residues
 		self.incomplete = set(self.residues.values()) - set(self.complete)
 		print("Found %s residues with incomplete data" % len(self.incomplete), file=sys.stderr)
 		# Prepare (position, chem shift intensity) coordinates for histogram plot
-		self.intensities = []
+		self.intensities = [] # 2D array, by titration step then residu position
 		self.positions = []
 		self.deltaChemShift = []
 		for step in range(self.steps - 1): # intensity is null for reference step
@@ -57,7 +59,31 @@ class Titration (object):
 		for residue in self.complete:
 			self.positions.append(residue.position)
 			self.deltaChemShift.append(residue.deltaChemShift)
-		
+		## PLOTTING
+		self.cutOff = None
+		self.positionTicks =range(self.positions[0] - self.positions[0] % 5, self.positions[-1] + 10, 10)
+		self.stackedHist=MultiHist(self.positions,self.intensities)
+		self.hist = None
+		self.hist = plt.figure()
+		histAx = self.hist.add_subplot(111)
+		histAx.set_xlabel('Residue') # set common xlabel
+		histAx.set_ylabel('Chem Shift Intensity')
+		histAx.set_xticks(self.positionTicks)
+		self.cursor = CutOffCursor(self.hist.canvas, self.hist.axes, 
+									color='r', lw=0.5, horizOn=True, vertOn=False )
+		self.cursor.on_changed(self.cutOffListener)
+		#self.slider = Slider(self.hist.axes[0], "Cut Off", 0, num.amax(self.intensities))
+
+	def cutOffListener(self, cutOff):
+		self.updateCutOff(cutOff)
+
+	def updateCutOff(self, cutOff):
+		self.cutOff = cutOff
+		print(self.cutOff)
+
+	def setCutOff(self, cutOff):
+		self.cursor.setCutOff(cutOff)
+
 	def validateFilePath(self, filePath):
 		"""
 		Given a file path, checks if it has .list extension and if it is numbered after the titration step. 
@@ -110,28 +136,21 @@ class Titration (object):
 		Define all the options needed (step, cutoof) for the representation.
 		Call the getHistogram function to show corresponding histogram plots.
 		"""
-
-		fig = plt.figure()
-
 		if step is None: #if step is not precised, all the plots will be showed
-			# split figure in `steps` rows
-			axes = fig.subplots(nrows=self.steps-1, ncols=1, sharex=True, sharey=True, squeeze=True)
-			fig.suptitle('Titration : steps 1 to %s' % (self.steps-1)) # set title
-			fig.text(0.04, 0.5, 'Chem Shift Intensity', va='center', rotation='vertical') # set common ylabel
-			for index, ax in enumerate(axes): # first titration step has no intensity values
-				if scale: # Set histograms scale using max intensity value
-					ax.set_ylim(0, num.round(num.amax(self.intensities) + 0.05, decimals=1))
-				self.setHistogram (ax, index, cutOff)
-		
+			if cutOff:
+				self.stackedHist.setCutOff(cutOff)
+			self.stackedHist.show()
 		else: # plot specific titration step
-			main = fig.add_subplot(111)
-			self.setHistogram(main, step, cutOff)
-			main.set_title('Titration step %s' % step) 
-			plt.ylabel('Chem Shift Intensity')
-		plt.xlabel('Residue') # set common xlabel
-		# set plot ticks
-		plt.xticks(range(self.positions[0] - self.positions[0] % 5, self.positions[-1] + 10, 10))
-		plt.show()
+			if self.hist is None:
+				self.hist = plt.figure()
+				histAx = self.hist.add_subplot(111)
+				histAx.set_xlabel('Residue') # set common xlabel
+				histAx.set_ylabel('Chem Shift Intensity')
+				histAx.set_xticks(self.positionTicks)
+			ax = self.hist.axes[0]
+			self.setHistogram(ax, step, cutOff)
+			ax.set_title('Titration step %s' % step)
+			self.hist.show()
 
 	def setHistogram (self, ax, step, cutOff = None):
 		"""
@@ -145,7 +164,7 @@ class Titration (object):
 		yAxis = num.array(self.intensities[step])
 		barList = ax.bar(xAxis, yAxis, align = 'center', alpha = 1)
 		if cutOff: # show the cutoff on every graph
-			self.cutOffLine = ax.axhline(cutOff, color = "red", linewidth=0.5, linestyle='--')
+			ax.axhline(cutOff, color = "red", linewidth=0.5, linestyle='--')
 			for bar in barList:
 				if bar.get_height() > cutOff: # show high intensity residues
 					bar.set_color('orange')

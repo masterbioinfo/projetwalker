@@ -28,6 +28,7 @@ import sys
 from docopt import docopt
 import classes.AminoAcid as aa
 from classes.Titration import Titration
+from matplotlib import pyplot as plt
 
 args = docopt(__doc__)
 
@@ -37,16 +38,16 @@ if args["<file.list>"]:
 elif args["<dir>"]:
 	titration = Titration(args["<dir>"])
 
-titration.plotChemShifts(titration.complete[0:10],split=True)
-titration.plotChemShifts(split=False)
-titration.plotHistogram(6)
-
+titration.plotHistogram()
+titration.plotHistogram(1)
+"""titration.plotChemShifts(titration.complete[0:10],split=True)
+titration.plotChemShifts(split=False)"""
 #Cutoff selection by the user.
+plt.ion()
 oldCutoff = 0
 newCutoff = functions.cutoffSelection()
 titration.plotHistogram(cutOff=newCutoff)
-titration.plotHistogram(6,cutOff=newCutoff)
-
+newCutoff = functions.cutoffSelection()
 
 #Plot(s) selection by the user.
 #plotSelected = functions.plotSelection(deltaDeltaShifts)
