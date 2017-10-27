@@ -31,12 +31,14 @@ from classes.Titration import Titration
 args = docopt(__doc__)
 
 #Enter experimentals files :
+
 if args["<file.list>"]:
 	titration = Titration(args["<file.list>"])
 elif args["<dir>"]:
 	titration = Titration(args["<dir>"])
 
-titration.plotChemShifts(titration.complete[0:3],split=True, save = False)
+print (titration.complete[0:13])
+titration.plotChemShifts(titration.complete[0:13],split=True, save = False)
 titration.plotChemShifts(split=False, save = True)
 titration.plotHistogram(6, save =  False)
 
