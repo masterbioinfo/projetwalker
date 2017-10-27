@@ -140,27 +140,6 @@ class Titration (object):
 			if not self.hist.get(step):
 				self.hist[step] = Hist(self.positions, self.intensities[step], step=step)
 			self.hist[step].show()
-
-
-	def setHistogram (self, ax, step, cutOff = None):
-		"""
-		Takes a list of residu numbers and a list of their intensities previously calculated per titration step. 
-		Shows the corresponding plot.
-		In this function remain only graph properties (color, size, abscissa, ordinates) and not any calculation
-		"""
-
-		#colorBar = self.colors(step*2)
-		xAxis = num.array(self.positions)
-		yAxis = num.array(self.intensities[step])
-		barList = ax.bar(xAxis, yAxis, align = 'center', alpha = 1)
-		if cutOff: # show the cutoff on every graph
-			ax.axhline(cutOff, color = "red", linewidth=0.5, linestyle='--')
-			for bar in barList:
-				if bar.get_height() > cutOff: # show high intensity residues
-					bar.set_color('orange')
-				else:
-					bar.set_color(None)
-			
 			
 	def plotChemShifts(self, residues=None, split = False):
 		"""

@@ -47,9 +47,9 @@ titration.plotChemShifts(split=False)"""
 #Cutoff selection by the user.
 plt.ion()
 oldCutoff = 0
-newCutoff = float(input("select cut off :"))
+newCutoff = float(input("select cut off :\n"))
 titration.plotHistogram(cutOff=newCutoff)
-newCutoff = float(input("select cut off :"))
+newCutoff = float(input("select cut off :\n"))
 exit(1)
 #newCutoff = functions.cutoffSelection()
 
