@@ -23,7 +23,6 @@ Last modification : 2017-10-24."""
 
 
 from classes.AminoAcid import AminoAcid
-import json
 from math import *
 import matplotlib.pyplot as plt
 import numpy as num
@@ -228,7 +227,16 @@ def helpOrder():
 	return True
 
 
-def cutoffSelection(plotsAndCutoffs):
+def showCutoff(plotsAndCutoffs):
+	""" """
+    
+	i = 0
+	while i < len(plotsAndCutoffs):
+		print("Plot {0} have {1} ppm in cutoff.".format(plotsAndCutoffs[i]["plot"], plotsAndCutoffs[i]["cutoff"]))	
+		i += 1
+	print('To use cutoff function, you must indicate the command, the cutoff selected and the plot affected by the new cutoff (ex: "cutoff 0.5 4").')
+    
+def cutoffSelection(plotsAndCutoffs, selectOrder):
 	"""This function takes plotsAndCutoffs list in argument, she return the new cutoff value (type : float).
 	The user can write a new cutoff value. If the cutoff is in acceptable values, the function return 
 	the new cutoff value. 
@@ -236,38 +244,35 @@ def cutoffSelection(plotsAndCutoffs):
 	If the value cannot be transform in float type, the function return an error."""	
 	
 	#Display all currents plots and their cutoffs.
-	i = 0
-	while i < len(plotsAndCutoffs):
-		print("Plot {0} have {1} ppm in cutoff.".format(plotsAndCutoffs[i]["plot"], plotsAndCutoffs[i]["cutoff"]))	
-		i += 1
+	
 	
 	#Select a new cutoff.
-	newCutoff = None
-	while newCutoff == None:
-		newCutoff = input("What cutoff value do you want applied ?\n")
+	#newCutoff = None
+	#while newCutoff == None:
+	#	newCutoff = input("What cutoff value do you want applied ?\n")
 	
-		try :
-			newCutoff = float(newCutoff)
-			if newCutoff <= 2 and newCutoff >= 0:
-				print("New cutoff applied = {0}.".format(newCutoff))
-				return newCutoff
-			elif newCutoff > 2 or newCutoff < 0:
-				raise ValueError
-			else:
-				raise TypeError 
-		except TypeError:
-			if plotSelected != float :
-				print("Cutoff value must be integer or decimal !")
-			newCutoff = None	
-		except ValueError:
-			if newCutoff > 2 :
-				print("Cutoff selected is too higher! It's must be lower or equal than 5 !")
-			elif newCutoff < 0 :
-				print("Cutoff selected is too lower! It's must be higher or equal than 0 !") 
-			newCutoff = None		
+	try :
+		newCutoff = float(selectOrder[1])
+		if newCutoff <= 2 and newCutoff >= 0:
+			print("New cutoff applied = {0}.".format(newCutoff))
+			return newCutoff
+		elif newCutoff > 2 or newCutoff < 0:
+			raise ValueError
+		else:
+			raise TypeError 
+	except TypeError:
+		if plotSelected != float :
+			print("Cutoff value must be integer or decimal !")
+		newCutoff = None	
+	except ValueError:
+		if newCutoff > 2 :
+			print("Cutoff selected is too higher! It's must be lower or equal than 5 !")
+		elif newCutoff < 0 :
+			print("Cutoff selected is too lower! It's must be higher or equal than 0 !") 
+		newCutoff = None
 
 
-def plotSelection(plotsAndCutoffs, newCutoff):
+def plotSelection(plotsAndCutoffs, newCutoff, selectOrder):
 	"""This function takes plotsAndCutoffs list and newCutoff float in argument, she return the selected plot 
 	(type : int).The user can choose the selected plot. Then the function return plotsAndCutoffs list with the 
 	new affiliation between plot(s) selectionned and cutoff selectionned previously.
@@ -276,39 +281,41 @@ def plotSelection(plotsAndCutoffs, newCutoff):
 	If the value cannot be transform in integer type, the function return an error. 
 	By default, all plots are selected."""
 	
-	plotSelected = None
-	while plotSelected == None :
-		plotSelected = input('Which plot do you want to select ? [default : all] \n')
 
-		try :
-			if plotSelected:
-				plotSelected = int(plotSelected)
-	
-				if plotSelected  <= len(plotsAndCutoffs) and plotSelected  >= 0:
-					plotsAndCutoffs[plotSelected]["cutoff"] = newCutoff
-					print("You have selectionned plot n°{0}.".format(plotSelected))
-					return plotsAndCutoffs
-				else:
-					raise ValueError ("The plot choose cannot be selected !") 
-					 
-			else:
-				i = 0
-				while i < len(plotsAndCutoffs) :
-					plotsAndCutoffs[i]["cutoff"] = newCutoff
-					i += 1
-				print("You have selectionned all plots.")
+	try :
+		plotSelected = str(selectOrder[2])
+		plotselected = plotSelected.lower()
+		
+		if plotSelected != "all":
+			plotSelected = int(plotSelected)
 
+			if plotSelected  <= len(plotsAndCutoffs) and plotSelected  >= 0:
+				plotsAndCutoffs[plotSelected]["cutoff"] = newCutoff
+				print("You have selectionned plot n°{0}.".format(plotSelected))
 				return plotsAndCutoffs
-		except TypeError:
-			if plotSelected != int :
-				print("Plot selected must be integer !")
-			plotSelected = None
-		except ValueError:
-			if plotSelected > len(plotsAndCutoffs) :
-				print("The plot choose cannot be selected !") 
-			elif plotSelected < 0 :
-				print("Plots numbers cannot be inderior of 0 !")
-			plotSelected = None
+			else:
+				raise ValueError ("The plot choose cannot be selected !") 
+				
+		elif plotSelected == "all":
+			i = 0
+			while i < len(plotsAndCutoffs) :
+				plotsAndCutoffs[i]["cutoff"] = newCutoff
+				i += 1
+			print("You have selectionned all plots.")
+		else :
+			print("Plot cannot be choosen.")
+
+			return plotsAndCutoffs
+	except TypeError:
+		if plotSelected != int :
+			print("Plot selected must be integer !")
+		plotSelected = None
+	except ValueError:
+		if plotSelected > len(plotsAndCutoffs) :
+			print("The plot choose cannot be selected !") 
+		elif plotSelected < 0 :
+			print("Plots numbers cannot be inderior of 0 !")
+		plotSelected = None
 
 
 def quitProgram():
@@ -475,21 +482,6 @@ def saveJob(directoryIn, datasToBeSave):
 		exit(1)
 
 
-def jsonSaveJob(directoryIn, listFileTitration, plotsAndCutoffs, listResidus):
-	"""This function takes directoryIn and plotsAndCutoffs dictionnaries, plus listFileTitration
-	and deltaDeltaShifts lists. She allow to save listeFileTitration, plotsAndCutoffs and delatDeltaShifts
-	at json format. She return a confirmation message. In the other case, she return a message error."""
-
-	try:
-		datasSave = [listFileTitration, plotsAndCutoffs, listResidus]
-		with open("{0}saveJob.json".format(directoryIn["pathIn"]), 'w') as saveJobFile:
-			saveJobFile.write(json.dumps(datasSave, indent=5))
-		return "Job saves in {0}saveJob.json !".format(directoryIn["pathIn"])
-
-	except IOError as err:
-		sys.stderr.write("%s\n" % err)
-		exit(1)
-
 
 def loadJob(directoryIn):
 	"""The function can load the last job save. She takes directoryIn dictionnary in argument. She
@@ -518,24 +510,6 @@ def loadJob(directoryIn):
 	except IOError as err:
 		sys.stderr.write("%s\n" % err)
 		exit(1)
-
-
-def jsonLoadJob(directoryIn):
-	"""This function takes directoryIn dictionnay in argument and return datasLoad list who contains
-	all element saved in the save file at json format : listeFileTitration, plotsAndCutoffs, 
-	deltaDeltaShifts. Plus, the function return a confirmation message.
-	In the other case, she return a message error.
-	This function can be called when the program start in CLI only !"""
-
-	try:
-		with open("{0}saveJob.json".format(directoryIn["pathIn"]), 'r') as loadJobFile:
-			datasLoad = json.load(loadJobFile) 
-		loadMessage = "Job loads from {0}saveJob.json !".format(directoryIn["pathIn"])
-		datasLoad.append(loadMessage)
-		return datasLoad
-	except IOError as err:
-		sys.stderr.write("%s\n" % err)
-		exit(1)	
 
 
 ###Functions plots generation.

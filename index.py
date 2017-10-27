@@ -140,55 +140,60 @@ if directoryIn["extensionIn"] == "list":
 while quit == False:
 	
 	#Select a command by is number or is proper name.
-	selectOrder = None
-	while selectOrder not in order:
-		selectOrder = input("\nPlease, enter a command. (default: 'help')\n")
-		selectOrder = str (selectOrder)
+	selectOrder = list(" ")
+	while selectOrder[0] not in order:
+		selectOrder[0] = input("\nPlease, enter a command. (default: 'help')\n")
+		selectOrder = str (selectOrder[0])
 		selectOrder.lower()
+		selectOrder = selectOrder.split(" ")
 
-		if selectOrder in order:
+		if selectOrder[0] in order:
 			pass
 		else :
-			print('This is not valid order. Pease refere to "help" section to see all valids commands.')
+			print('This is not valid order. Please refere to "help" section to see all valids commands.')
 					
-	
-	if selectOrder == "2Dmap" or selectOrder == "1" :
+	if selectOrder[0] == "2Dmap" or selectOrder == "1" :
 		#Show 2Dmap.
 		pass
 
-	elif selectOrder == "cutoff" or selectOrder == "2" :
+	elif selectOrder[0] == "cutoff" or selectOrder == "2" :
 		#The user selction a residu.
-		newCutoff = functions.cutoffSelection(plotsAndCutoffs)
-		#Plot(s) selectionned by the user and affiliate cutoff selectionned with plot selectionned.
-		plotsAndCutoffs = functions.plotSelection(plotsAndCutoffs, newCutoff)
+		if len(selectOrder) == 1 :
+			functions.showCutoff(plotsAndCutoffs)
+		elif len(selectOrder) == 3 :
+			newCutoff = functions.cutoffSelection(plotsAndCutoffs, selectOrder)
+			#Plot(s) selectionned by the user and affiliate cutoff selectionned with plot selectionned.
+			plotsAndCutoffs = functions.plotSelection(plotsAndCutoffs, newCutoff, selectOrder)
+		else :
+			print('With command "cutoff", tou must indicate the new cutoff and a plot affected by cutoff ("all" for all plots). (ex: "cutoff 0.5 4")!')
 	
-	elif selectOrder == "help" or selectOrder == "" or selectOrder == "3" :
+	elif selectOrder[0] == "help" or selectOrder == "" or selectOrder == "3" :
 		#Help commands.
 		functions.helpOrder()
 
-	elif selectOrder == "histogram" or selectOrder == "4" :
+	elif selectOrder[0] == "histogram" or selectOrder == "4" :
 		#Show histograms.
 		#graphic = functions.histograms(deltaDeltaShifts, plotsAndCutoffs)
 		#print(graphic)
 		pass
 
-	elif selectOrder == "load" or selectOrder == "5" :
+	elif selectOrder[0] == "load" or selectOrder == "5" :
 		#Load older job.
 		(listFileTitration, plotsAndCutoffs, listResidus, loadMessage) = functions.loadAsk()
 		print(loadMessage)
 
-	elif selectOrder == "quit" or selectOrder == "6" :
+	elif selectOrder[0] == "quit" or selectOrder == "6" :
 		#Quit the program and save the current job.
 		quit = functions.quitProgram()
 		datasToBeSave = (listFileTitration, plotsAndCutoffs, listResidus, residuSelected)
 		saveCurrentJob = functions.saveAsk(directoryIn, datasToBeSave)
 
-	elif selectOrder == "save" or selectOrder == "7":
+	elif selectOrder[0] == "save" or selectOrder == "7":
 		#Save the current job.
 		datasToBeSave = (listFileTitration, plotsAndCutoffs, listResidus, residuSelected)
 		saveCurrentJob = functions.saveAsk(directoryIn, datasToBeSave)
 
-	elif selectOrder == "select residu" or selectOrder == "8" :
+	elif selectOrder[0] == "select residu" or selectOrder == "8" :
 		#Select a residu to explore him. All residus can be selected too.
 		residuSelected = functions.residuSelection(listResidus)
 
