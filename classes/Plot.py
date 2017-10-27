@@ -21,7 +21,7 @@ class BaseHist(object):
 		self.ylabel=self.figure.text(0.04, 0.5, 'Chem Shift Intensity', 
 									va='center', rotation='vertical') # set common ylabel
 		self.xlabel = self.figure.axes[-1].set_xlabel('Residue') # set common xlabel
-		self.figure.suptitle('Titration : steps 1 to %s' % len(yAxis) )# set title
+		
 		# Allow us to reopen figure after it's closed
 		self.initCloseEvent()
 		# Init widgets and connect it
@@ -92,7 +92,7 @@ class BaseHist(object):
 class MultiHist(BaseHist):
 	def __init__(self, xAxis, yMatrix):
 		super().__init__(xAxis, yMatrix)
-
+		self.figure.suptitle('Titration : steps 1 to %s' % len(yMatrix) )# set title
 	def setupAxes(self):
 		self.figure.subplots(nrows=len(self.yAxis), ncols=1, 
 							sharex=True, sharey=True, squeeze=True)
@@ -102,10 +102,12 @@ class MultiHist(BaseHist):
 			ax.set_ylim(0, num.round(maxVal + maxVal*0.1, decimals=1))
 			self.background.append(self.figure.canvas.copy_from_bbox(ax.bbox))
 			self.bars.append(ax.bar(self.xAxis, self.yAxis[index], align = 'center', alpha = 1))
-	
+		
 class Hist(BaseHist):
-	def __init__(self, xAxis, yAxis):
+	def __init__(self, xAxis, yAxis, step=None):
 		super().__init__(xAxis, yAxis)
+		if step:
+			self.figure.suptitle('Titration step %s' % step )# set title
 
 	def setupAxes(self):
 		self.figure.subplots(nrows=1, ncols=1, squeeze=True)

@@ -138,7 +138,7 @@ class Titration (object):
 				pass#self.stackedHist.setCutOff(cutOff)
 		else: # plot specific titration step
 			if not self.hist.get(step):
-				self.hist[step] = Hist(self.positions, self.intensities[step])
+				self.hist[step] = Hist(self.positions, self.intensities[step], step=step)
 			self.hist[step].show()
 
 
