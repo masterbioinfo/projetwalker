@@ -189,7 +189,7 @@ class Titration (object):
 		fig = plt.figure()
 		fig.suptitle('2D map of chemical shifts') # set title
 		if split:
-			axes = fig.subplots(nrows=ceil(sqrt(len(residueSet))), ncols=floor(sqrt(len(residueSet))), sharex=False, sharey=False, squeeze=True, subplot_kw=None, gridspec_kw=None)
+			axes = fig.subplots(nrows=ceil(sqrt(len(residueSet))), ncols=round(sqrt(len(residueSet))), sharex=False, sharey=False, squeeze=True, subplot_kw=None, gridspec_kw=None)
 			fig.text(0.04, 0.5, 'N Chemical Shift', va='center', rotation='vertical') # set common ylabel
 			fig.text(0.5, 0.04, 'H Chemical Shift', ha='center') # set common xlabel
 
