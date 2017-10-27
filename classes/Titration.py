@@ -1,14 +1,22 @@
 #!/usr/bin/python3
-import random
 import matplotlib.pyplot as plt
-from matplotlib.widgets import MultiCursor, Slider
-from pylab import *
+
 import numpy as num
 from math import *
 import os, re, sys
 from classes.AminoAcid import AminoAcid
 from classes.MultiDraggableCursor import CutOffCursor
 from classes.Plot import Hist, MultiHist
+
+def saveGraph (name, format = 'png'):
+	"""Saves graphs with a specific name for each figure. Default format is png but can be changed into pdf, ps, eps and svg.
+	Creates a repository named 'results' to store all figures.
+	"""
+	if not os.path.exists("results/"):
+		os.makedirs("results/")
+	print ("New figure saved at", "results/" + name + "." + format + "\n")
+	return plt.savefig("results/" + name + "." + format, format = format)
+
 class Titration (object):
 	"""
 	Class Titration.
@@ -24,13 +32,14 @@ class Titration (object):
 		"""
 
 		## FILE PATH PROCESSING
+
 		# keep track of source data
 		self.source = source
 		# fetch all .list files in source dir
-		if os.path.isdir(source):
-			self.files = [ os.path.join(self.source, titrationFile) for titrationFile in os.listdir(source) if ".list" in titrationFile ]
-		elif type(source) is list: # or use provided source as files
+		if type(source) is list: # or use provided source as files
 			self.files = source
+		elif os.path.isdir(source):
+			self.files = [ os.path.join(self.source, titrationFile) for titrationFile in os.listdir(source) if ".list" in titrationFile ]
 
 		# sort files by ascending titration number
 		self.files.sort(key=lambda path:self.validateFilePath(path))
@@ -181,13 +190,14 @@ class Titration (object):
 	def plotChemShifts(self, residues=None, split = False):
 		"""
 		Plot measured chemical shifts for each residue as a 2D map (chemShiftH, chemShiftN).
-		Each color is assigned to a titration step
+		Each color is assigned to a titration step.
+		If using `split` option, each residue is plotted in its own subplot.
 		"""
-		residueSet = residues or self.complete
+		residueSet = residues or self.complete # using complete residues by default
 		fig = plt.figure()
 		fig.suptitle('2D map of chemical shifts') # set title
 		if split:
-			axes = fig.subplots(nrows=ceil(sqrt(len(residueSet))), ncols=floor(sqrt(len(residueSet))), sharex=False, sharey=False, squeeze=True, subplot_kw=None, gridspec_kw=None)
+			axes = fig.subplots(nrows=ceil(sqrt(len(residueSet))), ncols=round(sqrt(len(residueSet))), sharex=False, sharey=False, squeeze=True, subplot_kw=None, gridspec_kw=None)
 			fig.text(0.04, 0.5, 'N Chemical Shift', va='center', rotation='vertical') # set common ylabel
 			fig.text(0.5, 0.04, 'H Chemical Shift', ha='center') # set common xlabel
 
@@ -208,3 +218,59 @@ class Titration (object):
 			plt.colorbar().set_label("Titration steps")
 		
 		plt.show()
+
+
+	def extractResidues (self, cutOff = 0, targetFile = 'extracted_residues.txt', stepBegin = 'last', stepEnd = 'last'):
+		"""
+		Enables the extraction of residues whose intensity at the last step (default) is superior or equal to the cutoff (by default equal to 0).
+		Takes attiuts of Titration object, optinal cutOff, targetFile, titration step to begin with (stepBegin) and to end with (stepEnd).
+		Both stepBegin and stepEnd represent an interval with included limits. 
+		For example: stepBegin = 1, stepEnd = 2 means from step 1 (included) to step 2 (included).
+		Create and write in a file (extracted_residues.txt by default) the positions of residues as well as their intensity for each titration
+		Returns a list of residues potentially involved in interaction (can be given as an argument to plotChemShifts())
+		"""		
+		try:
+			#First stage of argument conformity checking
+			if stepBegin == 'all' or stepEnd == 'all':
+				stepBegin = 1
+				stepEnd = self.steps-1
+			elif stepBegin == 'last' or stepEnd == 'last':
+				stepBegin = int(self.steps-1)
+				stepEnd = int(self.steps-1)
+			elif type(stepBegin) != int or type(stepEnd) != int:
+					raise TypeError ("Enter an integer between 1 and", self.steps-1)
+			else:
+				if stepEnd > (self.steps-1):
+					stepEnd = self.steps-1
+				if stepBegin > (self.steps-1):
+					stepBegin = self.steps-1
+			
+			#Extraction stage
+			if stepBegin <= 0 or stepEnd <= 0:
+				raise ValueError ("Titration steps begin with 1 and end with", self.steps-1 )
+			else :
+				print ("Extracting residues using intenisties provided from step", stepBegin, "to step", stepEnd, "\n")
+				titrationList = []
+				[ titrationList.append("Titration " + str(index)) for index in range (1, self.steps) ] #list to be written in the new file
+				if cutOff == 0: #cutoff not mentionned
+						print("All residues will be extracted")
+				#Write the header at first
+				with open(targetFile, 'w') as f:
+					f.write ("Residue" + "\t" + "\t".join(titrationList) + "\n")
+				f.close()
+				#Then write the content
+				interactionResidues = []
+				with open(targetFile, 'a') as f:
+					for residue in self.complete:
+						for intensity in residue.chemShiftIntensity[stepBegin-1:stepEnd]:
+							if intensity >= cutOff and residue not in interactionResidues:
+								# join separates a list of strings into elements separates by "\t" (in this case)
+								# map converts each element of a list into a string (in this case)
+								f.write(str(residue.position) + "\t" + "\t".join(map(str,residue.chemShiftIntensity)) + "\n")
+								interactionResidues.append(residue)  
+				f.close()
+				print ("Residues saved in the file : " + str(targetFile) + "\n")
+				return interactionResidues
+		except (ValueError, TypeError) as error:
+			sys.stderr.write("%s\n" % error)
+			exit(1)

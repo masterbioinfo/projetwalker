@@ -1,4 +1,36 @@
+# -*- encoding: utf-8 -*-
+
+"""Module classes uses during Shift2Me works.
+
+Authors : Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY and Rainier-Numa GEORGES for Dr. Olivier WALKER and Dr. Maggy HOLOGNE 
+(ISA-UMR 5280 CNRS,5 Rue de la DOUA, 69100 Villeurbanne -FRANCE). 
+This program is developped in Python 3.5.1, Anaconda v5.0.0, JuPyter v5.2.0, MatPlotLib v2.1.0, 
+on Ubuntu v16.04.3 LTS (UNIX core system).
+Date of creation : 2017-10-13
+Last modification : 2017-10-24."""
+
+###############################################################################################
+
+
+					### Moduls ###
+
+
+###############################################################################################
+
+#Moduls used in AminoAcid.py.
+
+
 import math
+
+
+###############################################################################################
+
+
+					### Classes ###
+
+
+###############################################################################################
+
 
 class AminoAcid(object):
 	"""
@@ -85,4 +117,3 @@ class AminoAcid(object):
 		if self._chemShiftIntensity is None:
 			self._chemShiftIntensity = tuple([math.sqrt(ddH**2 + (ddN/5)**2) for (ddH, ddN) in self.deltaChemShift])
 		return self._chemShiftIntensity
-

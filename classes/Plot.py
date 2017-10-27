@@ -27,7 +27,7 @@ class BaseHist(object):
 	
 		self.cutOff = None
 		self.cursor = CutOffCursor(self.figure.canvas, self.figure.axes, 
-									color='r', linestyle='--', lw=0.5, 
+									color='r', linestyle='--', lw=0.8, 
 									horizOn=True, vertOn=False )
 		self.cursor.on_changed(self.cutOffListener)
 		
@@ -39,6 +39,7 @@ class BaseHist(object):
 
 	def updateCutOff(self, cutOff):
 		self.cutOff = cutOff
+		print("CutOff change : %s" % self.cutOff)
 		self.draw()
 
 	def setCutOff(self, cutOff):
