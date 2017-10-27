@@ -6,6 +6,16 @@ from math import *
 import os, re, sys
 from classes.AminoAcid import AminoAcid
 
+
+def saveGraph (name, format = 'png'):
+	"""Saves graphs with a specific name for each figure. Default format is png but can be changed into pdf, ps, eps and svg.
+	Creates a repository named 'results' to store all figures.
+	"""
+	if not os.path.exists("results/"):
+		os.makedirs("results/")
+	print ("New figure saved at", "results/" + name + "." + format + "\n")
+	return plt.savefig("results/" + name + "." + format, format = format)
+
 class Titration (object):
 	"""
 	Class Titration.
@@ -26,7 +36,7 @@ class Titration (object):
 		self.source = source
 		# fetch all .list files in source dir
 		if os.path.isdir(source):
-			self.files = [ self.source + titrationFile for titrationFile in os.listdir(source) if ".list" in titrationFile ]
+			self.files = [ os.path.join(self.source, titrationFile) for titrationFile in os.listdir(source) if ".list" in titrationFile ]
 		elif type(source) is list: # or use provided source as files
 			self.files = source
 
@@ -77,12 +87,11 @@ class Titration (object):
 		Returns the titration step number if found, IOError is raised otherwise
 		"""
 		try: 
-			rePath = re.compile(r'(.+/)?(.+)(?P<step>\d+)\.list') # expected path format
+			rePath = re.compile(r'(.+/)?(.*[^\d]+)(?P<step>[0-9]+)\.list') # expected path format
 			matching = rePath.match(filePath) # attempt to match
 			if matching:
-				# retrieve titration step number
-				fileNumber = int(matching.group("step")) 
-				return fileNumber
+				# retrieve titration step number parsed from file name
+				return int(matching.group("step")) 
 			else:
 				# found incorrect line format
 				raise IOError("Refusing to parse file %s : please check it is named like *[0-9]+.list" % path)
@@ -119,7 +128,7 @@ class Titration (object):
 			sys.stderr.write("%s\n" % error)
 			exit(1)
 
-	def plotHistogram (self, step = None, cutOff = None, scale=True):
+	def plotHistogram (self, step = None, cutOff = None, scale=True, save = True):
 		""" 
 		Define all the options needed (step, cutoof) for the representation.
 		Call the getHistogram function to show corresponding histogram plots.
@@ -145,6 +154,8 @@ class Titration (object):
 		plt.xlabel('Residue') # set common xlabel
 		# set plot ticks
 		plt.xticks(range(self.positions[0] - self.positions[0] % 5, self.positions[-1] + 10, 10))
+		if save:
+			saveGraph(name = "cutOff_" + str(cutOff) +"_step_" + str(step) + "_hist", format = 'svg')
 		plt.show()
 
 	def setHistogram (self, ax, step, cutOff = None):
@@ -168,7 +179,7 @@ class Titration (object):
 			
 			
 		
-	def plotChemShifts(self, residues=None, split = False):
+	def plotChemShifts(self, residues=None, split = False, save = True):
 		"""
 		Plot measured chemical shifts for each residue as a 2D map (chemShiftH, chemShiftN).
 		Each color is assigned to a titration step.
@@ -197,5 +208,66 @@ class Titration (object):
 			for residue in residueSet : 
 				im=plt.scatter(residue.chemShiftH, residue.chemShiftN, facecolors='none', cmap=self.colors, c = range(self.steps), alpha=0.2)
 			plt.colorbar().set_label("Titration steps")
-		
+		if save:
+			if split:
+				saveGraph("residues_" + "-".join([ str(residue.position) for residue in residueSet ]) + "_plot", format = 'svg')
+			else:
+				saveGraph("residues_" + str(residueSet[0].position) + "to" + str(residueSet[-1].position) + "_plot", format = 'svg')
+
 		plt.show()
+
+
+	def extractResidues (self, cutOff = 0, targetFile = 'extracted_residues.txt', stepBegin = 'last', stepEnd = 'last'):
+		"""
+		Enables the extraction of residues whose intensity at the last step (default) is superior or equal to the cutoff (by default equal to 0).
+		Takes attiuts of Titration object, optinal cutOff, targetFile, titration step to begin with (stepBegin) and to end with (stepEnd).
+		Both stepBegin and stepEnd represent an interval with included limits. 
+		For example: stepBegin = 1, stepEnd = 2 means from step 1 (included) to step 2 (included).
+		Create and write in a file (extracted_residues.txt by default) the positions of residues as well as their intensity for each titration
+		Returns a list of residues potentially involved in interaction (can be given as an argument to plotChemShifts())
+		"""		
+		try:
+			#First stage of argument conformity checking
+			if stepBegin == 'all' or stepEnd == 'all':
+				stepBegin = 1
+				stepEnd = self.steps-1
+			elif stepBegin == 'last' or stepEnd == 'last':
+				stepBegin = int(self.steps-1)
+				stepEnd = int(self.steps-1)
+			elif type(stepBegin) != int or type(stepEnd) != int:
+					raise TypeError ("Enter an integer between 1 and", self.steps-1)
+			else:
+				if stepEnd > (self.steps-1):
+					stepEnd = self.steps-1
+				if stepBegin > (self.steps-1):
+					stepBegin = self.steps-1
+			
+			#Extraction stage
+			if stepBegin <= 0 or stepEnd <= 0:
+				raise ValueError ("Titration steps begin with 1 and end with", self.steps-1 )
+			else :
+				print ("Extracting residues using intenisties provided from step", stepBegin, "to step", stepEnd, "\n")
+				titrationList = []
+				[ titrationList.append("Titration " + str(index)) for index in range (1, self.steps) ] #list to be written in the new file
+				if cutOff == 0: #cutoff not mentionned
+						print("All residues will be extracted")
+				#Write the header at first
+				with open(targetFile, 'w') as f:
+					f.write ("Residue" + "\t" + "\t".join(titrationList) + "\n")
+				f.close()
+				#Then write the content
+				interactionResidues = []
+				with open(targetFile, 'a') as f:
+					for residue in self.complete:
+						for intensity in residue.chemShiftIntensity[stepBegin-1:stepEnd]:
+							if intensity >= cutOff and residue not in interactionResidues:
+								# join separates a list of strings into elements separates by "\t" (in this case)
+								# map converts each element of a list into a string (in this case)
+								f.write(str(residue.position) + "\t" + "\t".join(map(str,residue.chemShiftIntensity)) + "\n")
+								interactionResidues.append(residue)  
+				f.close()
+				print ("Residues saved in the file : " + str(targetFile) + "\n")
+				return interactionResidues
+		except (ValueError, TypeError) as error:
+			sys.stderr.write("%s\n" % error)
+			exit(1)

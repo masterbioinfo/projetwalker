@@ -37,16 +37,19 @@ if args["<file.list>"]:
 elif args["<dir>"]:
 	titration = Titration(args["<dir>"])
 
-titration.plotChemShifts(titration.complete[0:10],split=True)
-titration.plotChemShifts(split=False)
-titration.plotHistogram(6)
+titration.plotChemShifts(titration.complete[0:3],split=True, save = False)
+titration.plotChemShifts(split=False, save = True)
+titration.plotHistogram(6, save =  False)
 
 #Cutoff selection by the user.
 oldCutoff = 0
-newCutoff = titration.setCutOff(0.1)
-titration.plotHistogram(cutOff=newCutoff)
-titration.plotHistogram(6,cutOff=newCutoff)
+newCutoff = functions.cutoffSelection()
+titration.plotHistogram(cutOff=newCutoff, save = True)
+titration.plotHistogram(0,cutOff=newCutoff, save = True)
 
+
+interactionResidues = titration.extractResidues(cutOff = newCutoff, targetFile = 'given_in_arg.txt', stepBegin = 'all')
+titration.plotChemShifts(interactionResidues, split = True, save = True)
 
 #Plot(s) selection by the user.
 #plotSelected = functions.plotSelection(deltaDeltaShifts)
