@@ -17,20 +17,30 @@ class BaseHist(object):
 		self.positionTicks=range(xAxis[0] - xAxis[0] % 5, xAxis[-1]+10, 10)
 		self.xAxis, self.yAxis = xAxis, yAxis
 		self.setupAxes()
+
 		self.ylabel=self.figure.text(0.04, 0.5, 'Chem Shift Intensity', 
 									va='center', rotation='vertical') # set common ylabel
 		self.xlabel = self.figure.axes[-1].set_xlabel('Residue') # set common xlabel
 		self.figure.suptitle('Titration : steps 1 to %s' % len(yAxis) )# set title
+		# Allow us to reopen figure after it's closed
+		self.initCloseEvent()
+		# Init widgets and connect it
+		self.initCursor()
 		
-		
-		self.figure.canvas.draw()
-	
-		self.cutOff = None
+	def initCursor(self):
 		self.cursor = CutOffCursor(self.figure.canvas, self.figure.axes, 
 									color='r', linestyle='--', lw=0.8, 
 									horizOn=True, vertOn=False )
 		self.cursor.on_changed(self.cutOffListener)
-		
+		if self.cutOff:
+			self.setCutOff(self.cutOff)
+
+	def initCloseEvent(self):
+		self.figure.canvas.mpl_connect('close_event', self.handle_close)
+
+	def handle_close(self, event):
+		self.closed=True
+
 	def setupAxes(self, yAxis):
 		pass
 
@@ -68,7 +78,15 @@ class BaseHist(object):
 		plt.ion()
 
 	def show(self):
-		self.figure.show()
+		if self.closed:
+			newFig = plt.figure()
+			newManager = newFig.canvas.manager 
+			newManager.canvas.figure = self.figure
+			self.figure.set_canvas(newManager.canvas)
+			self.initCloseEvent()
+			self.initCursor()
+		else:
+			self.figure.show()
 
 
 class MultiHist(BaseHist):
