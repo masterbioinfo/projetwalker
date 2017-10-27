@@ -133,13 +133,14 @@ class Titration (object):
 		Call the getHistogram function to show corresponding histogram plots.
 		"""
 		if step is None: #if step is not precised, all the plots will be showed
-			self.stackedHist.show()
-			if cutOff:
-				pass#self.stackedHist.setCutOff(cutOff)
+			targetHist = self.stackedHist
 		else: # plot specific titration step
 			if not self.hist.get(step):
 				self.hist[step] = Hist(self.positions, self.intensities[step], step=step)
-			self.hist[step].show()
+			targetHist = self.hist[step]
+		targetHist.show()
+		if cutOff:
+			targetHist.setCutOff(cutOff)
 			
 	def plotChemShifts(self, residues=None, split = False):
 		"""
