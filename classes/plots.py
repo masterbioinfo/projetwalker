@@ -2,13 +2,31 @@
 
 import matplotlib.pyplot as plt
 from matplotlib.widgets import MultiCursor, Slider
-from classes.MultiDraggableCursor import CutOffCursor
+from classes.widgets import CutOffCursor
 import itertools
 import numpy as num
+from math import *
 
-class BaseHist(object):
-	def __init__(self, xAxis, yAxis):
+class ReincarnateFigureMixin(object):
+	def show(self):
+		if self.closed:
+			newFig = plt.figure()
+			newManager = newFig.canvas.manager 
+			newManager.canvas.figure = self.figure
+			self.figure.set_canvas(newManager.canvas)
+			self.initCloseEvent()
+			self.initCursor()
+		else:
+			self.figure.show()
+
+class BaseFigure(object):
+	def __init__(self):
 		self.figure = plt.figure()
+
+
+class BaseHist(BaseFigure, ReincarnateFigureMixin):
+	def __init__(self, xAxis, yAxis):
+		super().__init__()
 		self.bars = []
 		self.selected = dict()
 		self.background = [] 
@@ -76,17 +94,6 @@ class BaseHist(object):
 			#self.figure.canvas.blit(ax.bbox)
 		self.figure.canvas.draw()
 		plt.ion()
-
-	def show(self):
-		if self.closed:
-			newFig = plt.figure()
-			newManager = newFig.canvas.manager 
-			newManager.canvas.figure = self.figure
-			self.figure.set_canvas(newManager.canvas)
-			self.initCloseEvent()
-			self.initCursor()
-		else:
-			self.figure.show()
 
 
 class MultiHist(BaseHist):

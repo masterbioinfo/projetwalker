@@ -1,12 +1,12 @@
 #!/usr/bin/python3
 import matplotlib.pyplot as plt
-
+from matplotlib.ticker import FormatStrFormatter
 import numpy as num
 from math import *
 import os, re, sys
 from classes.AminoAcid import AminoAcid
-from classes.MultiDraggableCursor import CutOffCursor
-from classes.Plot import Hist, MultiHist
+from classes.widgets import CutOffCursor
+from classes.plots import Hist, MultiHist
 
 def saveGraph (name, format = 'png'):
 	"""Saves graphs with a specific name for each figure. Default format is png but can be changed into pdf, ps, eps and svg.
@@ -35,6 +35,7 @@ class Titration (object):
 
 		# keep track of source data
 		self.source = source
+		
 		# fetch all .list files in source dir
 		if type(source) is list: # or use provided source as files
 			self.files = source
@@ -43,36 +44,49 @@ class Titration (object):
 
 		# sort files by ascending titration number
 		self.files.sort(key=lambda path:self.validateFilePath(path))
+		
 		# set number of titration steps including reference step 0
 		self.steps  = len(self.files)
+		
 		# generate colors for each titration step
 		self.colors = plt.cm.get_cmap('hsv', self.steps)
 
 		## FILE PARSING
+
 		# init residues {position:AminoAcid object}
 		self.residues = dict()
+		
 		# and fill it by parsing files
 		for titrationFile in self.files:
+			print("Loading file %s" % titrationFile, file=sys.stderr)
 			self.parseTitrationFile(titrationFile)
+		
 		# filter complete residues as list and sort them by positions
 		self.complete = sorted([ residue for residue in self.residues.values() if residue.validate(self.steps) ], key=lambda a: a.position)
+		
 		# incomplete residues
 		self.incomplete = set(self.residues.values()) - set(self.complete)
-		print("Found %s residues with incomplete data" % len(self.incomplete), file=sys.stderr)
+		print("Found %s residues out of %s with incomplete data" % (len(self.incomplete), len(self.complete)), file=sys.stderr)
+		
 		# Prepare (position, chem shift intensity) coordinates for histogram plot
 		self.intensities = [] # 2D array, by titration step then residu position
 		self.positions = []
 		self.deltaChemShift = []
+
 		for step in range(self.steps - 1): # intensity is null for reference step
 			self.intensities.append( [ residue.chemShiftIntensity[step] for residue in self.complete ] )
 		for residue in self.complete:
 			self.positions.append(residue.position)
 			self.deltaChemShift.append(residue.deltaChemShift)
+
 		## PLOTTING
+
 		self.cutOff = None
 		self.positionTicks =range(self.positions[0] - self.positions[0] % 5, self.positions[-1] + 10, 10)
 		self.stackedHist=MultiHist(self.positions,self.intensities)
 		self.hist = dict()
+
+
 
 	def setCutOff(self, cutOff):
 		for hist in self.hist.values():
@@ -106,22 +120,36 @@ class Titration (object):
 		"""
 		try :
 			with open(titrationFile, "r", encoding = "utf-8") as titration:
+
 				# expected line format
+				
 				reLine = re.compile(r"^(?P<pos>\d+)N-H\s+(?P<csH>\d+\.\d+)\s+(?P<csN>\d+\.\d+)$") 
+				reLineIgnore = re.compile(r"^\d.*")
+
 				for lineNb, line in enumerate(titration) :
-					# check for empty lines and header lines
-					if line.strip() and not line.strip().startswith("Assignment"):
-						lineMatch = reLine.match(line.strip()) # attempt to match to expected format
-						if lineMatch: # parse line as dict 
-							chemShift = dict(zip(
-								("position", "chemShiftH", "chemShiftN"),
-								lineMatch.groups() )) 
-							if self.residues.get(chemShift["position"]): # update AminoAcid object in residues dict
+					line = line.strip()
+					
+					# check for ignoring empty lines and header lines
+					if reLineIgnore.match(line):
+						
+						# attempt to match to expected format
+						lineMatch = reLine.match(line) 
+						if lineMatch: # parse as dict
+							chemShift = dict(zip(("position", "chemShiftH", "chemShiftN"),
+													lineMatch.groups() )) 
+							
+							# add or update residue
+							if self.residues.get(chemShift["position"]): 
+								# update AminoAcid object in residues dict
 								self.residues[chemShift["position"]].addShift(**chemShift)
-							else: # create AminoAcid object in residues dict
+							else: 
+								# create AminoAcid object in residues dict
 								self.residues[chemShift["position"]] = AminoAcid(**chemShift)
+
 						else:
+							# non parsable, non ignorable line
 							raise ValueError("Could not parse file %s at line %s" % (titrationFile, lineNb))
+
 		except (IOError, ValueError) as error:
 			sys.stderr.write("%s\n" % error)
 			exit(1)
@@ -141,38 +169,63 @@ class Titration (object):
 		targetHist.show()
 		if cutOff:
 			targetHist.setCutOff(cutOff)
-			
+
+
+
 	def plotChemShifts(self, residues=None, split = False):
 		"""
-		Plot measured chemical shifts for each residue as a 2D map (chemShiftH, chemShiftN).
+		Plot measured chemical shifts for each residue as a scatter plot of (chemShiftH, chemShiftN).
 		Each color is assigned to a titration step.
+		`residue` argument should be an iterable of AminoAcid objects.
 		If using `split` option, each residue is plotted in its own subplot.
 		"""
 		residueSet = residues or self.complete # using complete residues by default
 		fig = plt.figure()
-		fig.suptitle('2D map of chemical shifts') # set title
+		
+		# set title
+		fig.suptitle('2D map of chemical shifts')
+		
 		if split:
-			axes = fig.subplots(nrows=ceil(sqrt(len(residueSet))), ncols=round(sqrt(len(residueSet))), sharex=False, sharey=False, squeeze=True, subplot_kw=None, gridspec_kw=None)
-			fig.text(0.04, 0.5, 'N Chemical Shift', va='center', rotation='vertical') # set common ylabel
-			fig.text(0.5, 0.04, 'H Chemical Shift', ha='center') # set common xlabel
+			# create an array of cells with squared shape
+			axes = fig.subplots(nrows=ceil(sqrt(len(residueSet))), 
+								ncols=round(sqrt(len(residueSet))), 
+								sharex=False, sharey=False, squeeze=True)
+			
+			# set common xlabel and ylabel
+			fig.text(0.5, 0.04, 'H Chemical Shift', ha='center') 
+			fig.text(0.04, 0.5, 'N Chemical Shift', va='center', 
+					rotation='vertical') 
 
+			# iterate over each created cell
 			for index, ax in enumerate(axes.flat):
 				if index < len(residueSet):
-					im = ax.scatter(residueSet[index].chemShiftH, residueSet[index].chemShiftN, facecolors='none', cmap=self.colors, c = range(self.steps), alpha=0.2)
+					# Trace chem shifts for current residu in new graph cell
+					im = ax.scatter(residueSet[index].chemShiftH, residueSet[index].chemShiftN, 
+									facecolors='none', cmap=self.colors, c = range(self.steps), 
+									alpha=0.2)
 					ax.set_title("Residue %s " % residueSet[index].position)
-					#plt.setp(ax.get_xticklabels(), rotation=45, horizontalalignment='right')
+					ax.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
 				else:
 					ax.remove() # remove extra subplots
+
+			# display them nicely
 			fig.tight_layout()
-			fig.subplots_adjust(left=0.15, top=0.85, right=0.85,bottom=0.15)
+
+			# Add colorbar legend for titration steps using last plot cell data
+			fig.subplots_adjust(left=0.15, top=0.85, 
+								right=0.85,bottom=0.15) # make room for legend
 			cbar_ax = fig.add_axes([0.90, 0.15, 0.02, 0.7])
 			fig.colorbar(mappable=im, cax=cbar_ax).set_label("Titration steps")
+
 		else:
 			for residue in residueSet : 
+				# Trace global chem shifts map
 				im=plt.scatter(residue.chemShiftH, residue.chemShiftN, facecolors='none', cmap=self.colors, c = range(self.steps), alpha=0.2)
+			
+			# Add colorbar legend for titration steps
 			plt.colorbar().set_label("Titration steps")
 		
-		plt.show()
+		fig.show()
 
 
 	def extractResidues (self, cutOff = 0, targetFile = 'extracted_residues.txt', stepBegin = 'last', stepEnd = 'last'):

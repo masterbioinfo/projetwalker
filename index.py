@@ -42,8 +42,8 @@ elif args["<dir>"]:
 
 titration.plotHistogram()
 titration.plotHistogram(1)
-"""titration.plotChemShifts(titration.complete[0:10],split=True)
-titration.plotChemShifts(split=False)"""
+titration.plotChemShifts(titration.complete[0:10],split=True)
+titration.plotChemShifts(split=False)
 #Cutoff selection by the user.
 plt.ion()
 oldCutoff = 0
