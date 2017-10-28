@@ -8,16 +8,33 @@ import numpy as num
 from math import *
 
 class ReincarnateFigureMixin(object):
-	def show(self):
+	"""
+	Simple class mix-in, allowing to show matplotlib figure again
+	after its window was closed. 
+	"""
+	def __init__(self):
+		self.closed=False
+		self.initCloseEvent()
+
+	def show(self, callback=None):
 		if self.closed:
 			newFig = plt.figure()
 			newManager = newFig.canvas.manager 
 			newManager.canvas.figure = self.figure
 			self.figure.set_canvas(newManager.canvas)
 			self.initCloseEvent()
-			self.initCursor()
+			if callback:
+				callback()
 		else:
 			self.figure.show()
+	
+	def initCloseEvent(self):
+		self.figure.canvas.mpl_connect('close_event', self.handle_close)
+
+	def handle_close(self, event):
+		self.closed=True
+
+
 
 class BaseFigure(object):
 	def __init__(self):
@@ -27,10 +44,11 @@ class BaseFigure(object):
 class BaseHist(BaseFigure, ReincarnateFigureMixin):
 	def __init__(self, xAxis, yAxis):
 		super().__init__()
+		ReincarnateFigureMixin.__init__(self)
 		self.bars = []
 		self.selected = dict()
 		self.background = [] 
-		self.closed=False
+		
 		self.cutOff=None
 		self.positionTicks=range(xAxis[0] - xAxis[0] % 5, xAxis[-1]+10, 10)
 		self.xAxis, self.yAxis = xAxis, yAxis
@@ -53,11 +71,9 @@ class BaseHist(BaseFigure, ReincarnateFigureMixin):
 		if self.cutOff:
 			self.setCutOff(self.cutOff)
 
-	def initCloseEvent(self):
-		self.figure.canvas.mpl_connect('close_event', self.handle_close)
-
-	def handle_close(self, event):
-		self.closed=True
+	def show(self, callback=None):
+		callback = callback or self.initCursor
+		super().show(callback)
 
 	def setupAxes(self, yAxis):
 		pass

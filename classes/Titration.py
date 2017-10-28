@@ -1,15 +1,31 @@
 #!/usr/bin/python3
+
+"""
+Titration class module
+
+Titration allows manipulating chemical shift data measured with 2D NMR
+Input is a set of `.list` tabular files with one residue per line, e.g output of Sparky
+It calculates chemical shift variation at each titration step using the first step as reference.
+They are transformed into a single 'intensity' value, associated to a residue. 
+The class provides matplotlib wrapping functions, allowing to display the data from the analysis, 
+as well as setting an cut off to filter residues having high intensity values.
+"""
+
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
+
 import numpy as num
 from math import *
 import os, re, sys
+
 from classes.AminoAcid import AminoAcid
 from classes.widgets import CutOffCursor
 from classes.plots import Hist, MultiHist
 
+
 def saveGraph (name, format = 'png'):
-	"""Saves graphs with a specific name for each figure. Default format is png but can be changed into pdf, ps, eps and svg.
+	"""Saves graphs with a specific name for each figure. 
+	Default format is png but can be changed into pdf, ps, eps and svg.
 	Creates a repository named 'results' to store all figures.
 	"""
 	if not os.path.exists("results/"):
@@ -87,11 +103,11 @@ class Titration (object):
 		self.hist = dict()
 
 
-
 	def setCutOff(self, cutOff):
 		for hist in self.hist.values():
 			self.hist.setCutOff(cutOff)
 		self.stackedHist.setCutOff(cutOff)
+
 
 	def validateFilePath(self, filePath):
 		"""
