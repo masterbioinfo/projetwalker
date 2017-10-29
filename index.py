@@ -10,7 +10,7 @@ Usage:
 Options:
 	-o <output_dir>, --output-dir <output_dir>  Output generated files to <output_dir>.
 
-This program can calculate chimicals shifts of 15N and 1H during a portein protein interaction in fonction of titation of the secondary protein. 
+This program can calculate chemicals shifts of 15N and 1H during a portein protein interaction in fonction of titation of the secondary protein. 
 He generate plots to show chemicals shifts for each titration of the secondary protein. You can fix a cutoff to appreciate residus involved in protein protein interaction. 
 You can see all chemical shift of interest 2D maps (N15/1H) too.
 
@@ -21,16 +21,19 @@ on Ubuntu v16.04.3 LTS (UNIX core system).
 Date of creation : 2017-10-13.
 Last modification : 2017-10-24.
 
-Exemple :  ./index.py data/listes/listPP/*.list"""
+Exemple :  ./index.py data/listes/listPP/*.list
+"""
 
 
 import functions
+import readline
 import os
 import sys
 from docopt import docopt
 import classes.AminoAcid as aa
 from classes.Titration import Titration
 from matplotlib import pyplot as plt
+from classes.completer import Completer
 
 args = docopt(__doc__)
 
@@ -39,15 +42,23 @@ if args["<file.list>"]:
 	titration = Titration(args["<file.list>"])
 elif args["<dir>"]:
 	titration = Titration(args["<dir>"])
-
+"""
 titration.plotHistogram()
 titration.plotHistogram(1)
+"""
+"""
 titration.plotChemShifts(titration.complete[0:10],split=True)
 titration.plotChemShifts(split=False)
+"""
 #Cutoff selection by the user.
 plt.ion()
-oldCutoff = 0
-newCutoff = float(input("select cut off :\n"))
+comp = Completer()
+# we want to treat '/' as part of a word, so override the delimiters
+readline.set_completer_delims(' \t\n;')
+readline.parse_and_bind("tab: complete")
+readline.set_completer(comp.complete)
+input("Enter cmd:\n")
+exit(1)
 titration.plotHistogram(cutOff=newCutoff)
 newCutoff = float(input("select cut off :\n"))
 exit(1)
