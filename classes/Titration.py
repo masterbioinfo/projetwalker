@@ -47,6 +47,9 @@ class Titration (object):
 		Separate complete vs incomplete data
 		"""
 
+		# Placeholder for naming saved titrations
+		self.name = None
+
 		## FILE PATH PROCESSING
 
 		# keep track of source data
