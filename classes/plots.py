@@ -15,18 +15,6 @@ class ReincarnateFigureMixin(object):
 	def __init__(self):
 		self.closed=False
 		self.initCloseEvent()
-
-	def show(self, callback=None):
-		if self.closed:
-			newFig = plt.figure()
-			newManager = newFig.canvas.manager 
-			newManager.canvas.figure = self.figure
-			self.figure.set_canvas(newManager.canvas)
-			self.initCloseEvent()
-			if callback:
-				callback()
-		else:
-			self.figure.show()
 	
 	def initCloseEvent(self):
 		self.figure.canvas.mpl_connect('close_event', self.handle_close)
@@ -34,6 +22,22 @@ class ReincarnateFigureMixin(object):
 	def handle_close(self, event):
 		self.closed=True
 
+	def show(self, callback=None):
+		"""
+		Set up a new window to display a closed figure.
+		"""
+		if self.closed:
+			# create dummy figure and steal its canvas
+			newFig = plt.figure()
+			newManager = newFig.canvas.manager 
+			newManager.canvas.figure = self.figure
+			self.figure.set_canvas(newManager.canvas)
+			# reinit
+			self.initCloseEvent()
+			if callback:
+				callback()
+		else:
+			self.figure.show()
 
 
 class BaseFigure(object):
@@ -42,6 +46,11 @@ class BaseFigure(object):
 
 
 class BaseHist(BaseFigure, ReincarnateFigureMixin):
+	"""
+	Base histogram class, providing interface to a matplotlib figure.
+	ReincarnateFigureMixin parent class allows figure to be open after
+	it was closed.
+	"""
 	def __init__(self, xAxis, yAxis):
 		super().__init__()
 		ReincarnateFigureMixin.__init__(self)
@@ -50,20 +59,25 @@ class BaseHist(BaseFigure, ReincarnateFigureMixin):
 		self.background = [] 
 		
 		self.cutOff=None
+		# Tick every 10
 		self.positionTicks=range(xAxis[0] - xAxis[0] % 5, xAxis[-1]+10, 10)
 		self.xAxis, self.yAxis = xAxis, yAxis
+
+		# Init subplots and plotting data.
+		# Must be redefined in child classes
 		self.setupAxes()
 
+		# set xy labels
+		self.xlabel = self.figure.axes[-1].set_xlabel('Residue') 
 		self.ylabel=self.figure.text(0.04, 0.5, 'Chem Shift Intensity', 
-									va='center', rotation='vertical') # set common ylabel
-		self.xlabel = self.figure.axes[-1].set_xlabel('Residue') # set common xlabel
-		
-		# Allow us to reopen figure after it's closed
-		self.initCloseEvent()
-		# Init widgets and connect it
+									va='center', rotation='vertical') 
+		# Init cursor widget and connect it
 		self.initCursor()
 		
 	def initCursor(self):
+		"""
+		Init cursor widget and connect it to self.cutOffListener
+		"""
 		self.cursor = CutOffCursor(self.figure.canvas, self.figure.axes, 
 									color='r', linestyle='--', lw=0.8, 
 									horizOn=True, vertOn=False )
@@ -72,24 +86,43 @@ class BaseHist(BaseFigure, ReincarnateFigureMixin):
 			self.setCutOff(self.cutOff)
 
 	def show(self, callback=None):
+		# Init cursor when reopening figure in a new window
 		callback = callback or self.initCursor
 		super().show(callback)
 
 	def setupAxes(self, yAxis):
+		"""
+		Should define subplots in figure as well as plotting data.
+		Must be replaced in child classes.
+		"""
 		pass
 
 	def cutOffListener(self, cutOff):
+		"""
+		Listener method to be connected to cursor widget
+		"""
 		self.updateCutOff(cutOff)
 
 	def updateCutOff(self, cutOff):
+		"""
+		Sets new cut-off, and trigger draw for coloring bars
+		"""
 		self.cutOff = cutOff
 		print("CutOff change : %s" % self.cutOff)
 		self.draw()
 
 	def setCutOff(self, cutOff):
+		"""
+		Cut off setter. 
+		Triggers change of cut off cursor value,
+		allowing to update figure content.
+		"""
 		self.cursor.setCutOff(cutOff)
 
 	def draw(self):
+		"""
+		Updates bars color according to current cut off value. 
+		"""
 		plt.ioff()
 		i=0
 		for ax, axBar in zip(self.figure.axes, self.bars):	
@@ -113,12 +146,24 @@ class BaseHist(BaseFigure, ReincarnateFigureMixin):
 
 
 class MultiHist(BaseHist):
+	"""
+	BaseHist child class for plotting stacked hists.
+	"""
 	def __init__(self, xAxis, yMatrix):
+		"""
+		Sets title
+		"""
 		super().__init__(xAxis, yMatrix)
-		self.figure.suptitle('Titration : steps 1 to %s' % len(yMatrix) )# set title
+		self.figure.suptitle('Titration : steps 1 to %s' % len(yMatrix) )
+
+
 	def setupAxes(self):
+		"""
+		Creates a subplot for each line in yAxis matrix
+		"""
 		self.figure.subplots(nrows=len(self.yAxis), ncols=1, 
 							sharex=True, sharey=True, squeeze=True)
+		# Set content and layout for each subplot.
 		for index, ax in enumerate(self.figure.axes):
 			ax.set_xticks(self.positionTicks)
 			maxVal = num.amax(self.yAxis)
@@ -127,12 +172,22 @@ class MultiHist(BaseHist):
 			self.bars.append(ax.bar(self.xAxis, self.yAxis[index], align = 'center', alpha = 1))
 		
 class Hist(BaseHist):
+	"""
+	BaseHist child class for plotting single histogram
+	"""
+
 	def __init__(self, xAxis, yAxis, step=None):
+		"""
+		Sets title
+		"""
 		super().__init__(xAxis, yAxis)
 		if step:
 			self.figure.suptitle('Titration step %s' % step )# set title
 
 	def setupAxes(self):
+		"""
+		Create a single subplot and set its layout and data. 
+		"""
 		self.figure.subplots(nrows=1, ncols=1, squeeze=True)
 		ax = self.figure.axes[0]
 		ax.set_xticks(self.positionTicks)
