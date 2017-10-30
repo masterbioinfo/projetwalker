@@ -130,7 +130,7 @@ print("\nWelcolme to Shift2Me - The only dating site for proteins !!!")
 #The program continues to work while "quit" = False.
 quit = False
 #All commands support by the program, the number before call the same commands than the string indicate after : number_command(i), command(i).
-order = ["1", "2Dmap", "2", "cutoff", "3", "", "help", "4", "histogram", "5", "load", "6", "quit", "7", "save", "8", "select residu"]
+order = ("1", "2Dmap", "2", "cutoff", "3", "", "help", "4", "histogram", "5", "load", "6", "quit", "7", "save", "8", "select residu")
 #If we don't load a file who contains an older job, listResidu select all AminoAcid object by default:
 #Else listResidu is load from the file who contains the older job.
 if directoryIn["extensionIn"] == "list":
@@ -139,59 +139,8 @@ if directoryIn["extensionIn"] == "list":
 
 while quit == False:
 	
-	#Select a command by is number or is proper name.
-	selectOrder = None
-	while selectOrder not in order:
-		selectOrder = input("\nPlease, enter a command. (default: 'help')\n")
-		selectOrder = str (selectOrder)
-		selectOrder.lower()
-
-		if selectOrder in order:
-			pass
-		else :
-			print('This is not valid order. Pease refere to "help" section to see all valids commands.')
-					
-	
-	if selectOrder == "2Dmap" or selectOrder == "1" :
-		#Show 2Dmap.
-		pass
-
-	elif selectOrder == "cutoff" or selectOrder == "2" :
-		#The user selction a residu.
-		newCutoff = functions.cutoffSelection(plotsAndCutoffs)
-		#Plot(s) selectionned by the user and affiliate cutoff selectionned with plot selectionned.
-		plotsAndCutoffs = functions.plotSelection(plotsAndCutoffs, newCutoff)
-	
-	elif selectOrder == "help" or selectOrder == "" or selectOrder == "3" :
-		#Help commands.
-		functions.helpOrder()
-
-	elif selectOrder == "histogram" or selectOrder == "4" :
-		#Show histograms.
-		#graphic = functions.histograms(deltaDeltaShifts, plotsAndCutoffs)
-		#print(graphic)
-		pass
-
-	elif selectOrder == "load" or selectOrder == "5" :
-		#Load older job.
-		(listFileTitration, plotsAndCutoffs, listResidus, loadMessage) = functions.loadAsk()
-		print(loadMessage)
-
-	elif selectOrder == "quit" or selectOrder == "6" :
-		#Quit the program and save the current job.
-		quit = functions.quitProgram()
-		datasToBeSave = (listFileTitration, plotsAndCutoffs, listResidus, residuSelected)
-		saveCurrentJob = functions.saveAsk(directoryIn, datasToBeSave)
-
-	elif selectOrder == "save" or selectOrder == "7":
-		#Save the current job.
-		datasToBeSave = (listFileTitration, plotsAndCutoffs, listResidus, residuSelected)
-		saveCurrentJob = functions.saveAsk(directoryIn, datasToBeSave)
-
-	elif selectOrder == "select residu" or selectOrder == "8" :
-		#Select a residu to explore him. All residus can be selected too.
-		residuSelected = functions.residuSelection(listResidus)
-
+	selectOrder = functions.orderSelected(order)
+	quit = functions.controls(selectOrder, quit, directoryIn, listFileTitration, plotsAndCutoffs, listResidus, residuSelected)
 
 ###Goodbye message.
 print("\n\nSee you soon on Sheeft2Me !!! ;-)")

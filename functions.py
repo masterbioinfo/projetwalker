@@ -212,6 +212,67 @@ def aminoAcideObjectsCreation(listChemicalShift):
 
 ###Fonctions program controls.
 
+def orderSelected(order):
+	""" """
+	
+	#Select a command by is number or is proper name.
+	selectOrder = None
+	while selectOrder not in order:
+		selectOrder = input("\nPlease, enter a command. (default: 'help')\n")
+		selectOrder = str (selectOrder)
+		selectOrder.lower()
+
+		if selectOrder in order:
+			return selectOrder
+		else :
+			print('This is not valid order. Pease refere to "help" section to see all valids commands.')
+
+
+def controls(selectOrder, quit, directoryIn, listFileTitration, plotsAndCutoffs, listResidus, residuSelected):
+	""" """
+	
+	if selectOrder == "2Dmap" or selectOrder == "1" :
+		#Show 2Dmap.
+		pass
+
+	elif selectOrder == "cutoff" or selectOrder == "2" :
+		#The user selction a residu.
+		newCutoff = cutoffSelection(plotsAndCutoffs)
+		#Plot(s) selectionned by the user and affiliate cutoff selectionned with plot selectionned.
+		plotsAndCutoffs = plotSelection(plotsAndCutoffs, newCutoff)
+	
+	elif selectOrder == "help" or selectOrder == "" or selectOrder == "3" :
+		#Help commands.
+		helpOrder()
+
+	elif selectOrder == "histogram" or selectOrder == "4" :
+		#Show histograms.
+		#graphic = functions.histograms(deltaDeltaShifts, plotsAndCutoffs)
+		#print(graphic)
+		pass
+
+	elif selectOrder == "load" or selectOrder == "5" :
+		#Load older job.
+		(listFileTitration, plotsAndCutoffs, listResidus, loadMessage) = loadAsk()
+		print(loadMessage)
+
+	elif selectOrder == "quit" or selectOrder == "6" :
+		#Quit the program and save the current job.
+		quit = quitProgram()
+		datasToBeSave = (listFileTitration, plotsAndCutoffs, listResidus, residuSelected)
+		saveCurrentJob = saveAsk(directoryIn, datasToBeSave)
+
+	elif selectOrder == "save" or selectOrder == "7":
+		#Save the current job.
+		datasToBeSave = (listFileTitration, plotsAndCutoffs, listResidus, residuSelected)
+		saveCurrentJob = saveAsk(directoryIn, datasToBeSave)
+
+	elif selectOrder == "select residu" or selectOrder == "8" :
+		#Select a residu to explore him. All residus can be selected too.
+		residuSelected = residuSelection(listResidus)
+		
+	return quit
+
 def helpOrder():
 	"""This functions displays all commands support by the program."""
 	
