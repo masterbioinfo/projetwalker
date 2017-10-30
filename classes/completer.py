@@ -138,7 +138,68 @@ class Completer(object):
 		results = [c + ' ' for c in COMMANDS if c.startswith(cmd)] + [None]
 		return results[state]
 
+class CommandContainer(object):
+	
+	def __init__(self, cmdTree = None):
+		self.cmds = dict()
+		if cmdTree:
+			for cmd, subTree in cmdTree.items():
+				self.add_command(cmd, subTree)
+				
+	def add_command(self, cmd, **kwargs):
+		"""
+		Add or replace command
+		kwargs are CommandMapper __init__ kwargs
+		"""
+		if cmdTree:
+			self.cmds[cmd] = CommandMapper(cmd, **kwargs)
 
+class CommandMapper(object):
+	def __init__(self, cmd, cmdTree = None, func = None, args = None,
+				help = None, parent = None, subCmds = None):
+		
+		self.cmd = cmd # command name
+		self.subs = dict()
+
+		if cmdTree:
+			self.parse_branch(cmdTree)
+
+		# kwargs merge with cmdTree data when possible, or overwrite
+		self.help = help or self.help # overwrite
+		self.parent = parent
+		self.func = func or self.func # overwrite
+		if args : # merge
+			self.args.update(args)
+
+		if type(subCmds) == list: # merge (replacing)
+			# as a list of CommandMapper objects
+			for subCmd in subCmds:
+				self.subs[subCmd.cmd] = subCmd
+		elif type(subCmds) == dict:
+			# as a command tree dict
+			self.parse_branch(subCmds)
+		
+
+	def parse_tree(self, tree):
+		"Parse command descriptor tree"
+		self.help = tree.get['help']
+		self.func = tree.get('func')
+		self.args = tree.get('args')
+		if tree.get('subs'):
+			self.parse_branch(tree['subs'])
+
+	def parse_branch(self, branch):
+		"Parses subcommands branch"
+		for subCmd, subBranch in branch.items():
+			self.add_subcommand(subCmd, subBranch)
+
+	def add_subcommand(self, cmd, **kwargs):
+		""""
+		Add or replace subcommand
+		kwargs are CommandMapper __init__ kwargs
+		"""
+		self.subCmds[cmd] = CommandMapper(cmd, parent=self, **kwargs)
+		return self.subs[cmd]
 
 """
 Usage
