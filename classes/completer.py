@@ -6,23 +6,38 @@ import readline
 
 COMMANDS = {
 	"help" : 	None,
+	"plot" :	{
+		'all' :	None,
+		'hist' : [str(x) for x in range(5)],
+		'map' : {
+			"all": ["split", "global"], 
+			"complete" : ["split", "global"], 
+			"filtered" : ["split", "global"],
+			"selected" : ["split", "global"]
+		}
+	},
 	"save" : 	None,
 	"load" : 	None,
 	"print": 	list("abcde"),
-	"export": 	None
+	"export": 	{
+		"map": ['split', 'global'],
+		"hist": ['stacked', 'all', 'all_built'] + [str(x) for x in range(5)]
+	}
 }
-COMMANDS['help'] = [ cmd for cmd in COMMANDS if cmd != 'help' ]
-"""
-COMMANDS = ['plot', 'save', 'help', 'load',
-			'export', 'set', 'print']
-"""
-RE_SPACE = re.compile('.*\s+$', re.M)
 
-print(COMMANDS)
+COMMANDS['help'] = [ cmd for cmd in COMMANDS if cmd != 'help' ]
+RE_SPACE = re.compile(r'.*\s+$', re.M)
+
+"""COMMANDS = ['plot', 'save', 'help', 'load', 'export', 'set', 'print']"""
+
 class Completer(object):
+	"""
+	Completer class for input() commands
+	"""
 	def __init__(self):
 		self.complete_load = self.complete_arg_path
 		self.complete_save = self.complete_arg_path
+
 	def _listdir(self, root):
 		"List directory 'root' appending the path separator to subdirs."
 		res = []
@@ -61,6 +76,14 @@ class Completer(object):
 		"Completions for 'help' command."
 		return self.complete_subcommand('help', args)
 
+	def complete_plot(self, args):
+		"Completion for 'plot' command."
+		return self.complete_subcommand('plot', args)
+
+	def complete_export(self, args):
+		"Completion for 'plot' command."
+		return self.complete_subcommand('export', args)
+
 	def complete_subcommand(self, cmd, args):
 		"""
 		Allows completion by iterating over nested subcommand
@@ -80,8 +103,13 @@ class Completer(object):
 				refContent = refContent[arg]
 			else:
 				break
+		#print("++", refKey, refContent,"++")
 		if refKey in args[-2:-1] + [cmd] :
+			# show possibly matching subcmd
 			return [ subcmd + ' ' for subcmd in refContent if subcmd.startswith(args[-1])]
+		elif args[-1] == refKey:
+			# add space if found exact subcmd match
+			return [refKey + ' ']
 		else:
 			return []
 
