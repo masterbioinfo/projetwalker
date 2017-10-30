@@ -130,7 +130,7 @@ print("\nWelcolme to Shift2Me - The only dating site for proteins !!!")
 #The program continues to work while "quit" = False.
 quit = False
 #All commands support by the program, the number before call the same commands than the string indicate after : number_command(i), command(i).
-order = ("1", "2Dmap", "2", "cutoff", "3", "", "help", "4", "histogram", "5", "load", "6", "quit", "7", "save", "8", "select residu")
+order = ["1", "2Dmap", "2", "cutoff", "3", "", "help", "4", "histogram", "5", "load", "6", "quit", "7", "save", "8", "select_residu"]
 #If we don't load a file who contains an older job, listResidu select all AminoAcid object by default:
 #Else listResidu is load from the file who contains the older job.
 if directoryIn["extensionIn"] == "list":

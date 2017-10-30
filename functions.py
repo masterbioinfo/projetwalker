@@ -213,68 +213,76 @@ def aminoAcideObjectsCreation(listChemicalShift):
 ###Fonctions program controls.
 
 def orderSelected(order):
-	""" """
+	"""
+	This function takes order tuple in argument and return selectOrder list.
+	"""
 	
 	#Select a command by is number or is proper name.
 	selectOrder = None
 	while selectOrder not in order:
 		selectOrder = input("\nPlease, enter a command. (default: 'help')\n")
-		selectOrder = str (selectOrder)
+		selectOrder = str(selectOrder)
 		selectOrder.lower()
+		selectOrder = selectOrder.split(" ")
 
-		if selectOrder in order:
+		if selectOrder[0] in order:
 			return selectOrder
 		else :
-			print('This is not valid order. Pease refere to "help" section to see all valids commands.')
+			print('This is not valid order. Please refere to "help" section to see all valids commands.')
 
 
 def controls(selectOrder, quit, directoryIn, listFileTitration, plotsAndCutoffs, listResidus, residuSelected):
-	""" """
+	"""
+	This function takes selectOrder list, quit bool, directoryIn directory, listeFileTitration list,
+	plotsAndCutoffs list, listResidus list and residuSelected list in arguments. It's return quit bool.
+	This function do the interface beetween differents program controls. 
+	"""
 	
-	if selectOrder == "2Dmap" or selectOrder == "1" :
+	if selectOrder[0] == "2Dmap" or selectOrder[0] == "1" :
 		#Show 2Dmap.
 		pass
 
-	elif selectOrder == "cutoff" or selectOrder == "2" :
+	elif selectOrder[0] == "cutoff" or selectOrder[0] == "2" :
 		#The user selction a residu.
-		newCutoff = cutoffSelection(plotsAndCutoffs)
-		#Plot(s) selectionned by the user and affiliate cutoff selectionned with plot selectionned.
-		plotsAndCutoffs = plotSelection(plotsAndCutoffs, newCutoff)
+		newCutoff = cutoffSelection(plotsAndCutoffs, selectOrder)
+		if len(selectOrder) == 3 : 
+			#Plot(s) selectionned by the user and affiliate cutoff selectionned with plot selectionned.
+			plotsAndCutoffs = plotSelection(plotsAndCutoffs, newCutoff, selectOrder)
 	
-	elif selectOrder == "help" or selectOrder == "" or selectOrder == "3" :
+	elif selectOrder[0] == "help" or selectOrder[0] == "" or selectOrder[0] == "3" :
 		#Help commands.
 		helpOrder()
 
-	elif selectOrder == "histogram" or selectOrder == "4" :
+	elif selectOrder[0] == "histogram" or selectOrder[0] == "4" :
 		#Show histograms.
 		#graphic = functions.histograms(deltaDeltaShifts, plotsAndCutoffs)
 		#print(graphic)
 		pass
 
-	elif selectOrder == "load" or selectOrder == "5" :
+	elif selectOrder[0] == "load" or selectOrder[0] == "5" :
 		#Load older job.
 		(listFileTitration, plotsAndCutoffs, listResidus, loadMessage) = loadAsk()
 		print(loadMessage)
 
-	elif selectOrder == "quit" or selectOrder == "6" :
+	elif selectOrder[0] == "quit" or selectOrder[0] == "6" :
 		#Quit the program and save the current job.
 		quit = quitProgram()
 		datasToBeSave = (listFileTitration, plotsAndCutoffs, listResidus, residuSelected)
 		saveCurrentJob = saveAsk(directoryIn, datasToBeSave)
 
-	elif selectOrder == "save" or selectOrder == "7":
+	elif selectOrder[0] == "save" or selectOrder[0] == "7":
 		#Save the current job.
 		datasToBeSave = (listFileTitration, plotsAndCutoffs, listResidus, residuSelected)
 		saveCurrentJob = saveAsk(directoryIn, datasToBeSave)
 
-	elif selectOrder == "select residu" or selectOrder == "8" :
+	elif selectOrder[0] == "select_residu" or selectOrder[0] == "8" :
 		#Select a residu to explore him. All residus can be selected too.
 		residuSelected = residuSelection(listResidus)
 		
 	return quit
 
 def helpOrder():
-	"""This functions displays all commands support by the program."""
+	"""This functions takes no argument and displays all commands support by the program."""
 	
 	print("Enter this key word or number to select an order:\n")
 	print('1 - Show NMR "2Dmap" globale or not if you select a residu before.')
@@ -284,92 +292,106 @@ def helpOrder():
 	print('5 - Select "load" to load the last job saved.')
 	print('6 - Select a "quit" to quit Shift2Me (you can save before quit the program of course).')
 	print('7 - Select a "save" to save the current job.')
-	print('8 - Select a "select residu" to select a residu to explore him.\n')
+	print('8 - Select a "select_residu" to select a residu to explore him.\n')
 
 	return True
 
 
-def cutoffSelection(plotsAndCutoffs):
-	"""This function takes plotsAndCutoffs list in argument, she return the new cutoff value (type : float).
-	The user can write a new cutoff value. If the cutoff is in acceptable values, the function return 
-	the new cutoff value. 
-	If the value entry isn't in acceptables values, the function return an error. 
-	If the value cannot be transform in float type, the function return an error."""	
+def cutoffSelection(plotsAndCutoffs, selectOrder):
+	"""
+	This function takes plotsAndCutoffs and selectOrder lists in arguments, she return the new cutoff value (type: float).
+	The function return the new cutoff value.
+	The new cutoff value is in position 1 in selectOrder list.  
+	If only one value is in selectOrder, this function display all cutoffs and plots on the screen.
+	If three values are in selectOrder, the function verify if the cutoff is in acceptable values.
+	If the value entry isn't in acceptables values, the new cutoff isn't affected. 
+	If the value cannot be transform in float type, the function return an error.
+	"""	
 	
 	#Display all currents plots and their cutoffs.
-	i = 0
-	while i < len(plotsAndCutoffs):
-		print("Plot {0} have {1} ppm in cutoff.".format(plotsAndCutoffs[i]["plot"], plotsAndCutoffs[i]["cutoff"]))	
-		i += 1
+	if len(selectOrder) == 1 :
+		i = 0
+		while i < len(plotsAndCutoffs):
+			print("Plot {0} have {1} ppm in cutoff.".format(plotsAndCutoffs[i]["plot"], plotsAndCutoffs[i]["cutoff"]))	
+			i += 1
+		return True
 	
 	#Select a new cutoff.
-	newCutoff = None
-	while newCutoff == None:
-		newCutoff = input("What cutoff value do you want applied ?\n")
+	elif len(selectOrder) == 3 :
+		newCutoff = None
 	
 		try :
-			newCutoff = float(newCutoff)
+			newCutoff = float(selectOrder[1])
 			if newCutoff <= 2 and newCutoff >= 0:
 				print("New cutoff applied = {0}.".format(newCutoff))
 				return newCutoff
 			elif newCutoff > 2 or newCutoff < 0:
 				raise ValueError
-			else:
+			elif type(selectOrder[1]) != float:
 				raise TypeError 
-		except TypeError:
-			if plotSelected != float :
-				print("Cutoff value must be integer or decimal !")
-			newCutoff = None	
 		except ValueError:
 			if newCutoff > 2 :
 				print("Cutoff selected is too higher! It's must be lower or equal than 5 !")
 			elif newCutoff < 0 :
 				print("Cutoff selected is too lower! It's must be higher or equal than 0 !") 
-			newCutoff = None		
+			newCutoff = None
+		except TypeError:
+			if plotSelected != float :
+				print("Cutoff value must be integer or decimal !")
+			newCutoff = None			
 
 
-def plotSelection(plotsAndCutoffs, newCutoff):
-	"""This function takes plotsAndCutoffs list and newCutoff float in argument, she return the selected plot 
-	(type : int).The user can choose the selected plot. Then the function return plotsAndCutoffs list with the 
-	new affiliation between plot(s) selectionned and cutoff selectionned previously.
-	If the plot is in 0 and the plotsAndCutoffs list length, the function return the selected plot. 
+def plotSelection(plotsAndCutoffs, newCutoff, selectOrder):
+	"""
+	This function takes plotsAndCutoffs and selectOrder lists, and newCutoff float in argument. It's return plotsAndCutoffs
+	list with the new affiliation between plot(s) selectionned and cutoff selectionned previously.
+	Plots affected are in position 2 of selectOrder list.
+	If the plot selected is in 0 and the plotsAndCutoffs list length, the function return the selected plot.
+	If the plot selected is "all" or "", all plots are affected by the new cutoff value. 
 	If the value entry isn't in acceptables values, the function return an error. 
 	If the value cannot be transform in integer type, the function return an error. 
-	By default, all plots are selected."""
+	By default, all plots are selected.
+	"""
 	
 	plotSelected = None
-	while plotSelected == None :
-		plotSelected = input('Which plot do you want to select ? [default : all] \n')
 
-		try :
-			if plotSelected:
-				plotSelected = int(plotSelected)
+	try :
+		plotSelected = selectOrder[2]
+		plotSelected = str(plotSelected)
+		plotSelected.lower()	
+		
+		#If selectOrder is str ("all" or "" authorized) :
+		if plotSelected == "" or plotSelected == "all" :
+			i = 0
+			while i < len(plotsAndCutoffs) :
+				plotsAndCutoffs[i]["cutoff"] = newCutoff
+				i += 1
+			print("You have selectionned all plots.")
+			return plotsAndCutoffs
+		
+		#Else, try to convert him in int:
+		else :
+			plotSelected = int(plotSelected)
 	
-				if plotSelected  <= len(plotsAndCutoffs) and plotSelected  >= 0:
-					plotsAndCutoffs[plotSelected]["cutoff"] = newCutoff
-					print("You have selectionned plot n°{0}.".format(plotSelected))
-					return plotsAndCutoffs
-				else:
-					raise ValueError ("The plot choose cannot be selected !") 
-					 
-			else:
-				i = 0
-				while i < len(plotsAndCutoffs) :
-					plotsAndCutoffs[i]["cutoff"] = newCutoff
-					i += 1
-				print("You have selectionned all plots.")
-
+			if plotSelected  <= len(plotsAndCutoffs) and plotSelected  >= 0:
+				plotsAndCutoffs[plotSelected]["cutoff"] = newCutoff
+				print("You have selectionned plot n°{0}.".format(plotSelected))
 				return plotsAndCutoffs
-		except TypeError:
-			if plotSelected != int :
-				print("Plot selected must be integer !")
-			plotSelected = None
-		except ValueError:
-			if plotSelected > len(plotsAndCutoffs) :
-				print("The plot choose cannot be selected !") 
-			elif plotSelected < 0 :
-				print("Plots numbers cannot be inderior of 0 !")
-			plotSelected = None
+			elif type(plotSelected) != int :
+				raise TypeError
+			else:
+				raise ValueError ("The plot choose cannot be selected !")
+			
+	except TypeError:
+		if type(plotSelected) != str or type(plotSelected) != int :
+			print("Plot selected must be integer or 'all'!")
+		plotSelected = None
+	except ValueError:
+		if plotSelected > len(plotsAndCutoffs) :
+			print("The plot choose cannot be selected !") 
+		elif plotSelected < 0 :
+			print("Plots numbers cannot be inderior of 0 !")
+		plotSelected = None
 
 
 def quitProgram():
