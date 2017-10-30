@@ -21,7 +21,7 @@ Last modification : 2017-10-24.
 #Moduls used in AminoAcid.py.
 
 
-import math
+import math, sys
 
 
 ###############################################################################################
