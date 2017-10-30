@@ -5,10 +5,11 @@ import re
 import readline
 
 COMMANDS = {
-	"save" : None,
-	"help" : None,
-	"load" : None,
-	"print": list("abcde")
+	"help" : 	None,
+	"save" : 	None,
+	"load" : 	None,
+	"print": 	list("abcde"),
+	"export": 	None
 }
 COMMANDS['help'] = [ cmd for cmd in COMMANDS if cmd != 'help' ]
 """
@@ -64,20 +65,23 @@ class Completer(object):
 		"""
 		Allows completion by iterating over nested subcommand
 		"""
-		if cmd == 'help':
-			ref = COMMANDS
+
+		refKey = cmd
+
+		if cmd == 'help': # go through command tree
+			refContent = [ cmd for cmd in COMMANDS if cmd != 'help' ]
 		else:
-			ref = COMMANDS[cmd]
-		lastRefName = cmd
+			refContent = COMMANDS[cmd]
+		
 		for arg in args:
-			if type(ref) == dict and ref.get(arg):
+			if type(refContent) == dict and refContent.get(arg):
 				# Found dict, go deeper
-				lastRefName = arg
-				ref = ref[arg]
+				refKey = arg
+				refContent = refContent[arg]
 			else:
 				break
-		if lastRefName in args[-2:-1] + [cmd] :
-			return [ subcmd + ' ' for subcmd in ref if subcmd.startswith(args[-1])]
+		if refKey in args[-2:-1] + [cmd] :
+			return [ subcmd + ' ' for subcmd in refContent if subcmd.startswith(args[-1])]
 		else:
 			return []
 

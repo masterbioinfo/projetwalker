@@ -7,7 +7,8 @@ Authors : Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY and Rainier-Nu
 This program is developped in Python 3.5.1, Anaconda v5.0.0, JuPyter v5.2.0, MatPlotLib v2.1.0, 
 on Ubuntu v16.04.3 LTS (UNIX core system).
 Date of creation : 2017-10-13
-Last modification : 2017-10-24."""
+Last modification : 2017-10-24.
+"""
 
 ###############################################################################################
 
