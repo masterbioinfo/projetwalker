@@ -34,6 +34,7 @@ import classes.AminoAcid as aa
 from classes.Titration import Titration
 from matplotlib import pyplot as plt
 from classes.completer import Completer
+from classes.command import ShiftShell
 
 args = docopt(__doc__)
 
@@ -57,7 +58,10 @@ comp = Completer()
 readline.set_completer_delims(' \t\n;')
 readline.parse_and_bind("tab: complete")
 readline.set_completer(comp.complete)
-input("Enter cmd:\n")
+
+cli = ShiftShell(titration = titration)
+cli.cmdloop()
+
 exit(1)
 titration.plotHistogram(cutOff=newCutoff)
 newCutoff = float(input("select cut off :\n"))

@@ -106,10 +106,8 @@ class MultiDraggableCursor(MultiCursor):
 				line.set_visible(self.visible)
 		if self.horizOn:
 			for line in self.hlines:
-				
 				line.set_ydata((ydata, ydata))
 				line.set_visible(self.visible)
-				print(line._visible)
 		self._update()
 		
 

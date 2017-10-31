@@ -179,11 +179,11 @@ class Titration (object):
 		Define all the options needed (step, cutoof) for the representation.
 		Call the getHistogram function to show corresponding histogram plots.
 		"""
-		if step is None: #if step is not precised, all the plots will be showed
+		if not step: #if step is not precised, all the plots will be showed
 			targetHist = self.stackedHist
 		else: # plot specific titration step
 			if not self.hist.get(step):
-				self.hist[step] = Hist(self.positions, self.intensities[step], step=step)
+				self.hist[step] = Hist(self.positions, self.intensities[step-1], step=step)
 			targetHist = self.hist[step]
 		targetHist.show()
 		if cutOff:

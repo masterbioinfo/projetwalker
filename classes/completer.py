@@ -4,6 +4,18 @@ import os
 import re
 import readline
 
+CMDS = {
+	"plot" : {
+		"help" : "This is a command for plotting",
+		"subs" : {
+			"hist" : {
+				"help" : "Plots histogram",
+				"func" : lambda x="a" : print("kanar",x)
+			}
+		}
+	}
+}
+
 COMMANDS = {
 	"help" : 	None,
 	"plot" :	{
@@ -230,6 +242,14 @@ class CommandMapper(object):
 			return self.func(*args)
 		else:
 			return self.func()
+
+	def complete(self, arg):
+		if arg in self.subs or arg in self.args:
+			return arg + ' '
+		else:
+			return [ subCmd+' ' for subCmd in self.subs if subCmd.startswith(arg) ]
+
+
 
 """
 Usage
