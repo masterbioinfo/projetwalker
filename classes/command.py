@@ -69,6 +69,13 @@ class ShiftShell(Cmd):
 			self.titration.plotChemShifts(split=split)
 
 	def complete_hist(self, text, line, begidx, endidx):
+
+		if text.startswith('--export='):
+			text = text.replace('--export=', '')
+			return self.path_complete(text, line, begidx, endidx)
+		elif text.startswith('--e'):
+			return ['--export=']
+
 		histArgs = list( map(str, self.titration.sortedSteps) ) + ['all']
 		if text in histArgs:
 			return [text+' '] 
