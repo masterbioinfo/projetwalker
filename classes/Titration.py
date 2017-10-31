@@ -107,7 +107,7 @@ class Titration (object):
 
 	@property
 	def sortedSteps(self):
-		return sorted(range(1,self.titration.steps))
+		return sorted(range(1,self.steps))
 
 	def setCutOff(self, cutOff):
 		for hist in self.hist.values():

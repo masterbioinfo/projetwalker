@@ -58,7 +58,6 @@ comp = Completer()
 readline.set_completer_delims(' \t\n;')
 readline.parse_and_bind("tab: complete")
 readline.set_completer(comp.complete)
-
 cli = ShiftShell(titration = titration)
 cli.cmdloop()
 
