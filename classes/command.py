@@ -7,6 +7,7 @@ class ShiftShell(Cmd):
 	intro = "Type help or ? to list commands.\n"
 	prompt = ">>"
 	file = None
+
 	
 	def __init__(self, *args, **kwargs):
 		self.allow_cli_args = False
@@ -37,7 +38,9 @@ class ShiftShell(Cmd):
 
 	@options([
 		make_option('-e', '--export', help="Export hist as image")
-	])
+	],
+	arg_desc='(<titration_step> | all)'
+	)
 	def do_hist(self, args, opts=None):
 		"""
 		Plot chemical shift intensity per residu as histograms
@@ -52,9 +55,7 @@ class ShiftShell(Cmd):
 		else:
 			self.titration.plotHistogram(int(step))
 
-	@options([
-		make_option('-s', '--split', action="store_true", help="Sublot each residue individually.")
-	])
+	@options([make_option('-s', '--split', action="store_true", help="Sublot each residue individually.")])
 	def do_shiftmap(self, args, opts=None):
 		"""
 		Plot chemical shifts for H and N atoms for each residue at each titration step
@@ -66,3 +67,12 @@ class ShiftShell(Cmd):
 			pass
 		else:
 			self.titration.plotChemShifts(split=split)
+
+	def complete_hist(self, text, line, begidx, endidx):
+		histArgs = list( map(str, self.titration.sortedSteps) ) + ['all']
+		if text in histArgs:
+			return [text+' '] 
+		for arg in histArgs:
+			if arg in line.split():
+				return []
+		return [ arg+' ' for arg in histArgs if arg.startswith(text) ]

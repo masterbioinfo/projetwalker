@@ -105,6 +105,9 @@ class Titration (object):
 		self.stackedHist=MultiHist(self.positions,self.intensities)
 		self.hist = dict()
 
+	@property
+	def sortedSteps(self):
+		return sorted(range(1,self.titration.steps))
 
 	def setCutOff(self, cutOff):
 		for hist in self.hist.values():
