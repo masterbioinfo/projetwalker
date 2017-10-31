@@ -154,6 +154,18 @@ class CommandContainer(object):
 		if cmdTree:
 			self.cmds[cmd] = CommandMapper(cmd, **kwargs)
 
+	def execute(self, cmdLine):
+		cmdParse = cmdLine.strip().split()
+
+		help = [ helpFlag for helpFlag in cmdParse if helpFlag in ('-h', '--help') ]
+		for helpFlag in help : cmdParse.remove(helpFlag)
+
+		cmdNode = self.cmds.get(cmdParse[0])
+		if cmdNode:
+			cmd, args = cmdNode.get_subcommand(cmdParse[1:])
+			cmd.execute(args)
+
+
 class CommandMapper(object):
 	def __init__(self, cmd, cmdTree = None, func = None, args = None,
 				help = None, parent = None, subCmds = None):
@@ -200,6 +212,24 @@ class CommandMapper(object):
 		"""
 		self.subCmds[cmd] = CommandMapper(cmd, parent=self, **kwargs)
 		return self.subs[cmd]
+
+	def get_subcommand(self, cmd):
+		if type(cmd) == str:
+			cmd = cmdLine.strip().split()
+		subCmd = self.subs.get(cmd[0])
+		if subCmd:
+			return subCmd.get_subcommand(cmd[1:])
+		else:
+			args = cmd
+			return self, args
+
+	def execute(self, args=[] ):
+		if args :
+			for arg in args:
+				arg = self.args.get(arg) or arg
+			return self.func(*args)
+		else:
+			return self.func()
 
 """
 Usage
