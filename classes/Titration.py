@@ -253,6 +253,7 @@ class Titration (object):
 			plt.colorbar().set_label("Titration steps")
 		
 		fig.show()
+		return fig
 
 	def extractResidues (self, cutOff = 0, targetFile = 'extracted_residues.txt', stepBegin = 'last', stepEnd = 'last'):
 		"""

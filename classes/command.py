@@ -50,12 +50,12 @@ class ShiftShell(Cmd):
 	def do_hist(self, args, opts=None):
 		"""
 		Plot chemical shift intensity per residu as histograms
+		Accepted arguments are any titration step except 0 (reference)
+		or 'all' to plot all steps as stacked histograms. 
+		Defaults to plotting the last step when no arguments
+		are provided.
 		"""
-		if args:
-			step = args[0]
-		else : 
-			step = self.titration.steps -1
-
+		step = args[0] if args else self.titration.steps -1
 		if step == 'all':
 			hist = self.titration.plotHistogram()
 		else:
@@ -75,11 +75,13 @@ class ShiftShell(Cmd):
 		Plot chemical shifts for H and N atoms for each residue at each titration step.
 		Invocation with no arguments will plot all residues with complete data.
 		"""
-		split = True if opts.split else False
 		if args:
-			pass
+			pass # parse arguments here
 		else:
-			self.titration.plotChemShifts(split=split)
+			fig = self.titration.plotChemShifts(split=opts.split)
+		if opts.export:
+			fig.savefig(opts.export, dpi=fig.dpi)
+
 
 ################
 ##	COMPLETERS
