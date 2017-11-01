@@ -17,6 +17,7 @@ from matplotlib.ticker import FormatStrFormatter
 import numpy as num
 from math import *
 import os, re, sys
+import pickle
 
 from classes.AminoAcid import AminoAcid
 from classes.widgets import CutOffCursor
@@ -85,13 +86,13 @@ class Titration (object):
 		
 		# incomplete residues
 		self.incomplete = set(self.residues.values()) - set(self.complete)
+
 		print("Found %s residues out of %s with incomplete data" % (len(self.incomplete), len(self.complete)), file=sys.stderr)
 		
 		# Prepare (position, chem shift intensity) coordinates for histogram plot
 		self.intensities = [] # 2D array, by titration step then residu position
 		self.positions = []
 		self.deltaChemShift = []
-
 		for step in range(self.steps - 1): # intensity is null for reference step
 			self.intensities.append( [ residue.chemShiftIntensity[step] for residue in self.complete ] )
 		for residue in self.complete:
@@ -304,3 +305,12 @@ class Titration (object):
 		except (ValueError, TypeError) as error:
 			sys.stderr.write("%s\n" % error)
 			exit(1)
+
+
+	def save(self, path):
+		"Save method for titration object"
+		try:
+			with open(path, 'wb') as saveHandle:
+				pickle.dump(self, fileHandle)
+		except IOError as fileError:
+			sys.stderr.write("Could not save titration : %s\n" % fileError)

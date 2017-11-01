@@ -19,10 +19,13 @@ class ShiftShell(Cmd):
 		self.settable.update({'active' : "Current working titration"})
 		"""
 		Cmd.__init__(self)
+
+		# Exclude irrelevant cmds from help menu
 		self.exclude_from_help += ['do__relative_load', 'do_cmdenvironment', 'do_edit', 'do_run']
 
-		complete_save_job=self.path_complete
-		complete_load_job=self.path_complete
+		# Set path completion for save/load
+		self.complete_save_job=self.path_complete
+		self.complete_load_job=self.path_complete
 
 	def do_save_job(self, arg):
 		"Saves active titration to binary file"
@@ -77,28 +80,36 @@ class ShiftShell(Cmd):
 ##	COMPLETERS
 ################
 
-	def complete_hist(self, text, line, begidx, endidx):
+	def complete_hist(self, text, line ,begidx, endidx):
 		"Completer for hist command"
-		if text.startswith('--export='):
-			text = text.replace('--export=', '')
-			return self.path_complete(text, line, begidx, endidx)
-		elif text.startswith('--e'):
-			return ['--export=']
+		flagComplete = self.complete_flag_path('e', 'export', text, line ,begidx, endidx)
+		if flagComplete: return flagComplete
 
 		histArgs = list( map(str, self.titration.sortedSteps) ) + ['all']
 		return self.complete_arg_set(text, line, histArgs)
 
 
-	def complete_shiftmap(self, text, line, begidx, endidx):
+	def complete_shiftmap(self, text, line ,begidx, endidx):
 		"Completer for shiftmap command"
-		if text.startswith('--export='):
-			text = text.replace('--export=', '')
-			return self.path_complete(text, line, begidx, endidx)
-		elif text.startswith('--e'):
-			return ['--export=']
+		flagComplete = self.complete_flag_path('e', 'export', text, line ,begidx, endidx)
+		if flagComplete: return flagComplete
 
 		residueSetArgs = ['all', 'complete', 'filtered', 'selected']
 		return self.complete_arg_set(text, line, residueSetArgs)
+
+	def complete_flag_path(self, shortFlag, longFlag, text, line ,begidx, endidx):
+		# accept --flag=, flag=, --flag, flag
+		longFlag = '--'+longFlag.strip('--=')+'='
+		shortFlag = '-'+shortFlag.strip('-')
+		if text.startswith(longFlag):
+			# remove flag and start path completion
+			text = text.replace(longFlag, '')
+			return self.path_complete(text, line, begidx, endidx)
+			# complete flag (this is ugly if several flags start with same letter)
+		elif text.startswith(longFlag[:3]):
+			return [longFlag]
+		else:
+			return []
 
 	def complete_arg_set(self, text, line, argSet):
 		"Completion logic for commands accepting predefined set of arguments"
