@@ -180,7 +180,7 @@ class Titration (object):
 			exit(1)
 
 
-	def plotHistogram (self, step = None, cutOff = None, scale=True):
+	def plotHistogram (self, step = None, cutOff = None, scale=True, show=True):
 		""" 
 		Define all the options needed (step, cutoof) for the representation.
 		Call the getHistogram function to show corresponding histogram plots.
@@ -191,9 +191,11 @@ class Titration (object):
 			if not self.hist.get(step):
 				self.hist[step] = Hist(self.positions, self.intensities[step-1], step=step)
 			targetHist = self.hist[step]
-		targetHist.show()
+		if show:
+			targetHist.show()
 		if cutOff:
 			targetHist.setCutOff(cutOff)
+		return targetHist
 
 
 
@@ -251,7 +253,6 @@ class Titration (object):
 			plt.colorbar().set_label("Titration steps")
 		
 		fig.show()
-
 
 	def extractResidues (self, cutOff = 0, targetFile = 'extracted_residues.txt', stepBegin = 'last', stepEnd = 'last'):
 		"""

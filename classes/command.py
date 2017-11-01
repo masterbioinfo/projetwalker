@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import sys
+import sys, os
 from cmd2 import Cmd, options, make_option
 
 class ShiftShell(Cmd):
@@ -44,6 +44,7 @@ class ShiftShell(Cmd):
 		"""
 		pass
 
+
 	@options([make_option('-e', '--export', help="Export hist as image")],
 			arg_desc='(<titration_step> | all)')
 	def do_hist(self, args, opts=None):
@@ -56,9 +57,13 @@ class ShiftShell(Cmd):
 			step = self.titration.steps -1
 
 		if step == 'all':
-			self.titration.plotHistogram()
+			hist = self.titration.plotHistogram()
 		else:
-			self.titration.plotHistogram(int(step))
+			hist = self.titration.plotHistogram(int(step))
+		
+		if opts.export:
+			hist.figure.savefig(opts.export, dpi = hist.figure.dpi)
+
 
 	@options([
 		make_option('-s', '--split', action="store_true", help="Sublot each residue individually."),
@@ -103,13 +108,40 @@ class ShiftShell(Cmd):
 		shortFlag = '-'+shortFlag.strip('-')
 		if text.startswith(longFlag):
 			# remove flag and start path completion
-			text = text.replace(longFlag, '')
-			return self.path_complete(text, line, begidx, endidx)
+			pathText = text[len(longFlag):]
+			return [longFlag + path for path in self._complete_truncated(pathText) ]
+			
 			# complete flag (this is ugly if several flags start with same letter)
 		elif text.startswith(longFlag[:3]):
 			return [longFlag]
-		else:
-			return []
+		return []
+
+	def _listdir(self, root):
+		"List directory 'root' appending the path separator to subdirs."
+		res = []
+		for name in os.listdir(root):
+			path = os.path.join(root, name)
+			if os.path.isdir(path):
+				name += os.sep
+			res.append(name)
+		return res
+
+	def _complete_truncated(self, path=None):
+		"Perform completion of filesystem path when inside a posix flag"
+		if not path:
+			return self._listdir('.')
+		dirname, rest = os.path.split(path)
+		tmp = dirname if dirname else '.'
+		res = [os.path.join(dirname, p)
+				for p in self._listdir(tmp) if p.startswith(rest)]
+		# more than one match, or single match which does not exist (typo)
+		if len(res) > 1 or not os.path.exists(path):
+			return res
+		# resolved to a single directory, so return list of files below it
+		if os.path.isdir(path):
+			return [os.path.join(path, p) for p in self._listdir(path)]
+		# exact file match terminates this completion
+		return [path + ' ']
 
 	def complete_arg_set(self, text, line, argSet):
 		"Completion logic for commands accepting predefined set of arguments"
