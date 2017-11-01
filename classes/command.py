@@ -82,6 +82,9 @@ class ShiftShell(Cmd):
 		if opts.export:
 			fig.savefig(opts.export, dpi=fig.dpi)
 
+	def do_extract_residues(self, arg):
+		self.titration.extractResidues()
+
 
 ################
 ##	COMPLETERS
