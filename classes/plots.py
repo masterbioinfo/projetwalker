@@ -75,7 +75,7 @@ class BaseHist(BaseFigure, ReincarnateFigureMixin):
 		# Init cursor widget and connect it
 
 		self.initCursor()
-
+		
 	def initCursor(self):
 		"""
 		Init cursor widget and connect it to self.cutOffListener
@@ -121,7 +121,10 @@ class BaseHist(BaseFigure, ReincarnateFigureMixin):
 		Triggers change of cut off cursor value,
 		allowing to update figure content.
 		"""
-		self.cursor.setCutOff(cutOff)
+		if self.closed : 
+			self.cutOff = cutOff
+		else:
+			self.cursor.setCutOff(cutOff)
 
 	def draw(self):
 		"""

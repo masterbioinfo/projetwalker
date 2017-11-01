@@ -83,6 +83,25 @@ class ShiftShell(Cmd):
 		if opts.export:
 			fig.savefig(opts.export, dpi=fig.dpi)
 
+	def do_extract_residues(self, arg):
+		self.titration.extractResidues()
+
+
+	@options([
+		make_option('-p', '--plot', action="store_true", help="Set cut-off and plot.")
+	],
+	arg_desc = '<float>')
+	def do_cutoff(self, args, opts=None):
+		try:
+			cutOff = float(args[0])
+			lastStep = self.titration.steps-1
+			if self.titration.hist.get(lastStep):
+				self.titration.hist[lastStep].setCutOff(cutOff)
+			else:
+				self.titration.plotHistogram(lastStep, cutOff = cutOff, show=opts.plot)
+		except (TypeError, IndexError):
+			self.do_help("cutoff")
+
 
 	@options([
 		make_option('-p', '--plot', action="store_true", help="Set cut-off and plot.")
@@ -96,7 +115,7 @@ class ShiftShell(Cmd):
 				self.titration.plotHistogram(lastStep, cutOff = cutOff, show=True)
 			else:
 				if self.titration.hist.get(lastStep):
-					self.titration.hist[lastStep].cutOff = cutOff
+					self.titration.hist[lastStep].setCutOff(cutOff)
 				else:
 					self.titration.hist[lastStep] = self.titration.plotHistogram(lastStep, cutOff = cutOff, show=False)
 		except (TypeError, IndexError):
