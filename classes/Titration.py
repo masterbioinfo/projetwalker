@@ -182,15 +182,19 @@ class Titration (object):
 		"""
 		if not step: #if step is not precised, all the plots will be showed
 			hist = MultiHist(self.positions,self.intensities)
-			if self.stackedHist.cutOff and not cutOff:
-				cutOff = self.stackedHist.cutOff
+			if self.stackedHist.cutOff:
+				if cutOff:
+					cutOff = self.stackedHist.cutOff
+				plt.close(self.stackedHist.figure)
 			self.stackedHist = hist
 			targetHist = self.stackedHist
 		else: # plot specific titration step
 			#if not self.hist.get(step):
 			hist = Hist(self.positions, self.intensities[step-1], step=step)
-			if self.hist.get(step) and self.hist[step].cutOff and not cutOff:
-				cutOff = self.hist[step].cutOff
+			if self.hist.get(step):
+				if self.hist[step].cutOff and not cutOff:
+					cutOff = self.hist[step].cutOff
+				plt.close(self.hist[step].figure)
 			self.hist[step] = hist
 			targetHist = self.hist[step]
 		if show:
