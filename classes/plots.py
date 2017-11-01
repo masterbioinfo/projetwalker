@@ -21,6 +21,7 @@ class ReincarnateFigureMixin(object):
 
 	def handle_close(self, event):
 		self.closed=True
+		self.figure.canvas.get_tk_widget().destroy()
 
 	def show(self, callback=None):
 		"""
@@ -72,12 +73,16 @@ class BaseHist(BaseFigure, ReincarnateFigureMixin):
 		self.ylabel=self.figure.text(0.04, 0.5, 'Chem Shift Intensity', 
 									va='center', rotation='vertical') 
 		# Init cursor widget and connect it
+
 		self.initCursor()
-		
+
+		self.figure.canvas.draw()
+
 	def initCursor(self):
 		"""
 		Init cursor widget and connect it to self.cutOffListener
 		"""
+		self.figure.canvas.draw()
 		self.cursor = CutOffCursor(self.figure.canvas, self.figure.axes, 
 									color='r', linestyle='--', lw=0.8, 
 									horizOn=True, vertOn=False )
@@ -87,6 +92,7 @@ class BaseHist(BaseFigure, ReincarnateFigureMixin):
 
 	def show(self, callback=None):
 		# Init cursor when reopening figure in a new window
+		
 		callback = callback or self.initCursor
 		super().show(callback)
 
@@ -108,7 +114,7 @@ class BaseHist(BaseFigure, ReincarnateFigureMixin):
 		Sets new cut-off, and trigger draw for coloring bars
 		"""
 		self.cutOff = cutOff
-		print("CutOff change : %s" % self.cutOff)
+		print("CutOff : %s" % self.cutOff)
 		self.draw()
 
 	def setCutOff(self, cutOff):
@@ -126,7 +132,7 @@ class BaseHist(BaseFigure, ReincarnateFigureMixin):
 		plt.ioff()
 		i=0
 		for ax, axBar in zip(self.figure.axes, self.bars):	
-			self.figure.canvas.restore_region(self.background[i])
+			#self.figure.canvas.restore_region(self.background[i])
 			i+=1
 			for bar in axBar:
 				if self.cutOff:
@@ -142,6 +148,7 @@ class BaseHist(BaseFigure, ReincarnateFigureMixin):
 				#bar.set_animated(False)
 			#self.figure.canvas.blit(ax.bbox)
 		self.figure.canvas.draw()
+		self.figure.canvas.flush_events() 
 		plt.ion()
 
 
