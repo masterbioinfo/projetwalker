@@ -4,10 +4,12 @@ import sys
 from cmd2 import Cmd, options, make_option
 
 class ShiftShell(Cmd):
+	"""
+	Command line interface wrapper for Titration
+	"""
 	intro = "Type help or ? to list commands.\n"
-	prompt = ">>"
+	prompt = ">> "
 	file = None
-
 	
 	def __init__(self, *args, **kwargs):
 		self.allow_cli_args = False
@@ -18,6 +20,9 @@ class ShiftShell(Cmd):
 		"""
 		Cmd.__init__(self)
 		self.exclude_from_help += ['do__relative_load', 'do_cmdenvironment', 'do_edit', 'do_run']
+
+		complete_save_job=self.path_complete
+		complete_load_job=self.path_complete
 
 	def do_save_job(self, arg):
 		"Saves active titration to binary file"
@@ -36,11 +41,8 @@ class ShiftShell(Cmd):
 		"""
 		pass
 
-	@options([
-		make_option('-e', '--export', help="Export hist as image")
-	],
-	arg_desc='(<titration_step> | all)'
-	)
+	@options([make_option('-e', '--export', help="Export hist as image")],
+			arg_desc='(<titration_step> | all)')
 	def do_hist(self, args, opts=None):
 		"""
 		Plot chemical shift intensity per residu as histograms
@@ -55,21 +57,28 @@ class ShiftShell(Cmd):
 		else:
 			self.titration.plotHistogram(int(step))
 
-	@options([make_option('-s', '--split', action="store_true", help="Sublot each residue individually.")])
+	@options([
+		make_option('-s', '--split', action="store_true", help="Sublot each residue individually."),
+		make_option('-e', '--export', help="Export 2D shifts map as image")
+	],
+	arg_desc='( all | complete | filtered | selected )')
 	def do_shiftmap(self, args, opts=None):
 		"""
-		Plot chemical shifts for H and N atoms for each residue at each titration step
+		Plot chemical shifts for H and N atoms for each residue at each titration step.
+		Invocation with no arguments will plot all residues with complete data.
 		"""
-
 		split = True if opts.split else False
-
 		if args:
 			pass
 		else:
 			self.titration.plotChemShifts(split=split)
 
-	def complete_hist(self, text, line, begidx, endidx):
+################
+##	COMPLETERS
+################
 
+	def complete_hist(self, text, line, begidx, endidx):
+		"Completer for hist command"
 		if text.startswith('--export='):
 			text = text.replace('--export=', '')
 			return self.path_complete(text, line, begidx, endidx)
@@ -77,9 +86,28 @@ class ShiftShell(Cmd):
 			return ['--export=']
 
 		histArgs = list( map(str, self.titration.sortedSteps) ) + ['all']
-		if text in histArgs:
+		return self.complete_arg_set(text, line, histArgs)
+
+
+	def complete_shiftmap(self, text, line, begidx, endidx):
+		"Completer for shiftmap command"
+		if text.startswith('--export='):
+			text = text.replace('--export=', '')
+			return self.path_complete(text, line, begidx, endidx)
+		elif text.startswith('--e'):
+			return ['--export=']
+
+		residueSetArgs = ['all', 'complete', 'filtered', 'selected']
+		return self.complete_arg_set(text, line, residueSetArgs)
+
+	def complete_arg_set(self, text, line, argSet):
+		"Completion logic for commands accepting predefined set of arguments"
+		# Last word is an exact match with args
+		if text in argSet:
 			return [text+' '] 
-		for arg in histArgs:
+		# Arg already provided
+		for arg in argSet:
 			if arg in line.split():
 				return []
-		return [ arg+' ' for arg in histArgs if arg.startswith(text) ]
+		# Arg matches with many allowed args
+		return [ arg+' ' for arg in argSet if arg.startswith(text) ]
