@@ -33,7 +33,7 @@ class ShiftShell(Cmd):
 
 	def do_load_job(self, arg):
 		"Loads previously saved titration, replacing active titration"
-		pass
+		self.titration.load(arg)
 
 	def do_new(self, arg):
 		"""

@@ -61,6 +61,8 @@ class Titration (object):
 			self.files = source
 		elif os.path.isdir(source):
 			self.files = [ os.path.join(self.source, titrationFile) for titrationFile in os.listdir(source) if ".list" in titrationFile ]
+		elif os.path.isfile(source):
+			return self.load(source)
 
 		# sort files by ascending titration number
 		self.files.sort(key=lambda path:self.validateFilePath(path))
@@ -310,7 +312,27 @@ class Titration (object):
 	def save(self, path):
 		"Save method for titration object"
 		try:
+			stackedHist = self.stackedHist
+			hist = self.hist
+			self.stackedHist= None
+			self.hist = dict()
 			with open(path, 'wb') as saveHandle:
-				pickle.dump(self, fileHandle)
+				pickle.dump(self, saveHandle)
+
+			self.stackedHist = stackedHist
+			self.hist= hist
 		except IOError as fileError:
 			sys.stderr.write("Could not save titration : %s\n" % fileError)
+
+	def load(self, path):
+		"Loads previously saved titration in place of current instance"
+		try:
+			with open(path, 'rb') as loadHandle:
+				self = pickle.load(loadHandle)
+				if type(self) == Titration:
+					return self
+				else:
+					raise ValueError("%s does not contain a Titration object" % path)
+		except (ValueError, IOError) as loadError:
+			sys.stderr.write("Could not load titration : %s\n" % loadError)
+
