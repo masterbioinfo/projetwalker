@@ -189,7 +189,9 @@ class CutOffCursor(MultiDraggableCursor, WatchableWidgetMixin):
 		self.raise_changed(self.cutOff)
 		"""
 
-	def setCutOff(self, cutOff):
+	def setCutOff(self, cutOff, propagate = True):
 		self.cutOff = cutOff
-		self.raise_changed(self.cutOff)
+		if propagate:
+			self.raise_changed(self.cutOff)
 		self.update_lines(None, cutOff)
+		

@@ -10,6 +10,7 @@ class ShiftShell(Cmd):
 	intro = "Type help or ? to list commands.\n"
 	prompt = ">> "
 	file = None
+	cutOff = None
 	
 	def __init__(self, *args, **kwargs):
 		self.allow_cli_args = False
@@ -81,6 +82,25 @@ class ShiftShell(Cmd):
 			fig = self.titration.plotChemShifts(split=opts.split)
 		if opts.export:
 			fig.savefig(opts.export, dpi=fig.dpi)
+
+
+	@options([
+		make_option('-p', '--plot', action="store_true", help="Set cut-off and plot.")
+	],
+	arg_desc = '<float>')
+	def do_cutoff(self, args, opts=None):
+		try:
+			cutOff = float(args[0])
+			lastStep = self.titration.steps-1
+			if opts.plot:
+				self.titration.plotHistogram(lastStep, cutOff = cutOff, show=True)
+			else:
+				if self.titration.hist.get(lastStep):
+					self.titration.hist[lastStep].cutOff = cutOff
+				else:
+					self.titration.hist[lastStep] = self.titration.plotHistogram(lastStep, cutOff = cutOff, show=False)
+		except (TypeError, IndexError):
+			self.do_help("cutoff")
 
 
 ################
