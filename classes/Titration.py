@@ -112,11 +112,6 @@ class Titration (object):
 	def sortedSteps(self):
 		return sorted(range(1,self.steps))
 
-	def setCutOff(self, cutOff):
-		for hist in self.hist.values():
-			self.hist.setCutOff(cutOff)
-		self.stackedHist.setCutOff(cutOff)
-
 
 	def validateFilePath(self, filePath):
 		"""
@@ -186,15 +181,23 @@ class Titration (object):
 		Call the getHistogram function to show corresponding histogram plots.
 		"""
 		if not step: #if step is not precised, all the plots will be showed
+			hist = MultiHist(self.positions,self.intensities)
+			if self.stackedHist.cutOff:
+				hist.setCutOff(self.stackedHist.cutOff)
+			self.stackedHist = hist
 			targetHist = self.stackedHist
 		else: # plot specific titration step
-			if not self.hist.get(step):
-				self.hist[step] = Hist(self.positions, self.intensities[step-1], step=step)
+			#if not self.hist.get(step):
+			hist = Hist(self.positions, self.intensities[step-1], step=step)
+			if self.hist.get(step) and self.hist[step].cutOff:
+				print(self.hist[step].cutOff)
+				hist.setCutOff(self.hist[step].cutOff)
+			self.hist[step] = hist
 			targetHist = self.hist[step]
 		if show:
 			targetHist.show()
 		if cutOff:
-			targetHist.setCutOff(cutOff)
+			targetHist.setCutOff(float(cutOff))
 		return targetHist
 
 
