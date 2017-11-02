@@ -38,17 +38,18 @@ class MultiDraggableCursor(MultiCursor):
 	def connect(self):
 		"""connect events"""
 		self._cidmotion = self.canvas.mpl_connect('motion_notify_event',
-												  self.onmove)
+												  self.on_move)
 		self._ciddraw = self.canvas.mpl_connect('draw_event', self.clear)
 		self._cidpress = self.canvas.mpl_connect('button_press_event', self.on_press)
-		self._cidpress = self.canvas.mpl_connect('button_release_event', self.on_release)
+		self._cidrelease = self.canvas.mpl_connect('button_release_event', self.on_release)
 
 	def disconnect(self):
 		"""disconnect events"""
 		self.canvas.mpl_disconnect(self._cidmotion)
 		self.canvas.mpl_disconnect(self._ciddraw)
 
-
+	
+		
 	def clear(self, event):
 		"""clear the cursor"""
 		if self.ignore(event):
@@ -61,6 +62,7 @@ class MultiDraggableCursor(MultiCursor):
 
 	def event_accept(self, event):
 		"Check if event capturing is allowed"
+		
 		if self.ignore(event):
 			return False
 		if event.inaxes is None:
@@ -86,9 +88,8 @@ class MultiDraggableCursor(MultiCursor):
 		self.cutOff = event.ydata
 		self.raise_changed(self.cutOff)
 		self.update_lines(event.xdata, event.ydata)
-		
 
-	def onmove(self, event):
+	def on_move(self, event):
 		if not self.event_accept(event):
 			return
 		if not self.press:

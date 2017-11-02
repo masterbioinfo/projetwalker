@@ -45,6 +45,12 @@ class BaseHist(object):
 	def initCloseEvent(self):
 		"Capture window close event"
 		self.figure.canvas.mpl_connect('close_event', self.handle_close)
+		self.figure.canvas.mpl_connect('draw_event', self.on_draw)
+
+
+	def on_draw(self, event):
+		self.cursor.visible=True
+		self.cursor.update_lines(None, self.cutOff)
 
 	def handle_close(self, event):
 		"Set closed state to true on window close"
