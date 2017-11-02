@@ -23,17 +23,6 @@ from classes.AminoAcid import AminoAcid
 from classes.widgets import CutOffCursor
 from classes.plots import Hist, MultiHist
 
-
-def saveGraph (name, format = 'png'):
-	"""Saves graphs with a specific name for each figure. 
-	Default format is png but can be changed into pdf, ps, eps and svg.
-	Creates a repository named 'results' to store all figures.
-	"""
-	if not os.path.exists("results/"):
-		os.makedirs("results/")
-	print ("New figure saved at", "results/" + name + "." + format + "\n")
-	return plt.savefig("results/" + name + "." + format, format = format)
-
 class Titration (object):
 	"""
 	Class Titration.

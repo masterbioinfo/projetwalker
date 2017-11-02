@@ -7,59 +7,20 @@ import itertools
 import numpy as num
 from math import *
 
-class ReincarnateFigureMixin(object):
-	"""
-	Simple class mix-in, allowing to show matplotlib figure again
-	after its window was closed. 
-	"""
-	def __init__(self):
-		self.closed=False
-		self.initCloseEvent()
-	
-	def initCloseEvent(self):
-		self.figure.canvas.mpl_connect('close_event', self.handle_close)
 
-	def handle_close(self, event):
-		self.closed=True
-		self.figure.canvas.get_tk_widget().destroy()
-
-	def show(self, callback=None):
-		"""
-		Set up a new window to display a closed figure.
-		"""
-		if self.closed:
-			# create dummy figure and steal its canvas
-			newFig = plt.figure()
-			newManager = newFig.canvas.manager 
-			newManager.canvas.figure = self.figure
-			self.figure.set_canvas(newManager.canvas)
-			# reinit
-			self.initCloseEvent()
-			if callback:
-				callback()
-		else:
-			self.figure.show()
-
-
-class BaseFigure(object):
-	def __init__(self):
-		self.figure = plt.figure()
-
-
-class BaseHist(BaseFigure, ReincarnateFigureMixin):
+class BaseHist(object):
 	"""
 	Base histogram class, providing interface to a matplotlib figure.
-	ReincarnateFigureMixin parent class allows figure to be open after
-	it was closed.
 	"""
 	def __init__(self, xAxis, yAxis):
-		super().__init__()
-		ReincarnateFigureMixin.__init__(self)
+		self.figure = plt.figure()
+		self.closed=True
+		
 		self.bars = []
 		self.selected = dict()
 		self.background = [] 
-		
 		self.cutOff=None
+		
 		# Tick every 10
 		self.positionTicks=range(xAxis[0] - xAxis[0] % 5, xAxis[-1]+10, 10)
 		self.xAxis, self.yAxis = xAxis, yAxis
@@ -72,10 +33,17 @@ class BaseHist(BaseFigure, ReincarnateFigureMixin):
 		self.xlabel = self.figure.axes[-1].set_xlabel('Residue') 
 		self.ylabel=self.figure.text(0.04, 0.5, 'Chem Shift Intensity', 
 									va='center', rotation='vertical') 
-		# Init cursor widget and connect it
 
+		# Init cursor widget and connect it
 		self.initCursor()
-		
+		self.initCloseEvent()
+	
+	def initCloseEvent(self):
+		self.figure.canvas.mpl_connect('close_event', self.handle_close)
+
+	def handle_close(self, event):
+		self.closed=True
+
 	def initCursor(self):
 		"""
 		Init cursor widget and connect it to self.cutOffListener
@@ -88,11 +56,8 @@ class BaseHist(BaseFigure, ReincarnateFigureMixin):
 		if self.cutOff:
 			self.setCutOff(self.cutOff)
 
-	def show(self, callback=None):
-		# Init cursor when reopening figure in a new window
-		
-		callback = callback or self.initCursor
-		super().show(callback)
+	def show(self):
+		self.figure.show()
 
 	def setupAxes(self, yAxis):
 		"""
@@ -178,7 +143,8 @@ class MultiHist(BaseHist):
 			ax.set_ylim(0, num.round(maxVal + maxVal*0.1, decimals=1))
 			self.background.append(self.figure.canvas.copy_from_bbox(ax.bbox))
 			self.bars.append(ax.bar(self.xAxis, self.yAxis[index], align = 'center', alpha = 1))
-		
+
+
 class Hist(BaseHist):
 	"""
 	BaseHist child class for plotting single histogram
