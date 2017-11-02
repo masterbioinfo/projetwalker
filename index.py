@@ -24,17 +24,11 @@ Last modification : 2017-10-24.
 Exemple :  ./index.py data/listes/listPP/*.list
 """
 
-
-import functions
-import readline
-import os
-import sys
 from docopt import docopt
-import classes.AminoAcid as aa
-from classes.Titration import Titration
 from matplotlib import pyplot as plt
-from classes.completer import Completer
+from classes.Titration import Titration
 from classes.command import ShiftShell
+
 
 args = docopt(__doc__)
 
@@ -43,22 +37,8 @@ if args["<file.list>"]:
 	titration = Titration(args["<file.list>"])
 elif args["<dir>"]:
 	titration = Titration(args["<dir>"])
-"""
-titration.plotHistogram()
-"""
 
-"""
-titration.plotChemShifts(titration.complete[0:10],split=True)
-titration.plotChemShifts(split=False)
-"""
 #Cutoff selection by the user.
 plt.ion()
-"""
-comp = Completer()
-# we want to treat '/' as part of a word, so override the delimiters
-readline.set_completer_delims(' \t\n;')
-readline.parse_and_bind("tab: complete")
-readline.set_completer(comp.complete)
-"""
 cli = ShiftShell(titration = titration)
 cli.cmdloop()
