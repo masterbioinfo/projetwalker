@@ -39,6 +39,6 @@ elif args["<dir>"]:
 	titration = Titration(args["<dir>"])
 
 #Cutoff selection by the user.
-plt.ion()
+plt.ioff()
 cli = ShiftShell(titration = titration)
 cli.cmdloop()

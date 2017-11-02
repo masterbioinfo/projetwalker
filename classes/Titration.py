@@ -203,8 +203,8 @@ class Titration (object):
 				self.hist[step].close()
 			hist = Hist(self.positions, self.intensities[step-1], step=step)
 			self.hist[step] = hist
-		"""if show:
-			hist.show()"""
+		if show:
+			hist.show()
 		if showCutOff and self.cutOff:
 			hist.setCutOff(self.cutOff)
 		return hist

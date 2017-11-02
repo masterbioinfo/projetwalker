@@ -58,7 +58,6 @@ class BaseHist(object):
 		"""
 		Init cursor widget and connect it to self.cutOffListener
 		"""
-		self.figure.canvas.draw()
 		self.cursor = CutOffCursor(self.figure.canvas, self.figure.axes, 
 									color='r', linestyle='--', lw=0.8, 
 									horizOn=True, vertOn=False )
@@ -86,15 +85,9 @@ class BaseHist(object):
 		"""
 		Listener method to be connected to cursor widget
 		"""
-		self.updateCutOff(cutOff)
-
-	def updateCutOff(self, cutOff):
-		"""
-		Sets new cut-off, and trigger draw for coloring bars
-		"""
 		self.cutOff = cutOff
 		print("CutOff : %s" % self.cutOff)
-		self.draw()
+		self.draw()		
 
 	def setCutOff(self, cutOff):
 		"""
@@ -113,7 +106,7 @@ class BaseHist(object):
 		"""
 		Updates bars color according to current cut off value. 
 		"""
-		plt.ioff()
+		#plt.ioff()
 		for i, (ax, axBar) in enumerate(zip(self.figure.axes, self.bars)):	
 			#self.figure.canvas.restore_region(self.background[i])
 			for bar in axBar:
@@ -130,7 +123,7 @@ class BaseHist(object):
 				#bar.set_animated(False)
 				#self.figure.canvas.blit(ax.bbox)
 		self.figure.canvas.draw()
-		plt.ion()
+		#plt.ion()
 		
 
 
