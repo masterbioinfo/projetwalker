@@ -20,7 +20,7 @@ class BaseHist(object):
 		self.selected = dict()
 		self.background = [] 
 		self.cutOff=None
-		
+
 		# Tick every 10
 		self.positionTicks=range(xAxis[0] - xAxis[0] % 5, xAxis[-1]+10, 10)
 		self.xAxis, self.yAxis = xAxis, yAxis
@@ -96,10 +96,8 @@ class BaseHist(object):
 		Updates bars color according to current cut off value. 
 		"""
 		plt.ioff()
-		i=0
-		for ax, axBar in zip(self.figure.axes, self.bars):	
+		for i, (ax, axBar) in enumerate(zip(self.figure.axes, self.bars)):	
 			#self.figure.canvas.restore_region(self.background[i])
-			i+=1
 			for bar in axBar:
 				if self.cutOff:
 					if bar.get_height() >= self.cutOff: # show high intensity residues
@@ -110,12 +108,12 @@ class BaseHist(object):
 						if self.selected.get(bar):
 							bar.set_color(None)
 							self.selected[bar] = 0
-				ax.draw_artist(bar)
+				#ax.draw_artist(bar)
 				#bar.set_animated(False)
 			#self.figure.canvas.blit(ax.bbox)
 		self.figure.canvas.draw()
-		self.figure.canvas.flush_events() 
 		plt.ion()
+		
 
 
 class MultiHist(BaseHist):

@@ -99,6 +99,10 @@ class Titration (object):
 
 	@property
 	def sortedSteps(self):
+		"""
+		Sorted list of titration steps, beginning at step 1.
+		Reference step 0 is ignored.
+		"""
 		return sorted(range(1,self.steps))
 
 
@@ -164,19 +168,21 @@ class Titration (object):
 			exit(1)
 
 
-	def plotHistogram (self, step = None, cutOff = None, scale=True, show=True):
+	def plotHistogram (self, step = None, cutOff = None, 
+								scale=True, show=True):
 		""" 
 		Define all the options needed (step, cutoof) for the representation.
 		Call the getHistogram function to show corresponding histogram plots.
 		"""
-		if not step: #if step is not precised, all the plots will be showed
+		if not step: # plot stacked histograms of all steps
 			hist = MultiHist(self.positions,self.intensities)
-			if self.stackedHist.cutOff:
-				if cutOff:
-					cutOff = self.stackedHist.cutOff
-				plt.close(self.stackedHist.figure)
+			# retrieve last used cutOff
+			if not cutOff and self.stackedHist.cutOff:
+				cutOff = self.stackedHist.cutOff
+			# close stacked hist
+			plt.close(self.stackedHist.figure)
+			# replace stacked hist with new hist
 			self.stackedHist = hist
-			targetHist = self.stackedHist
 		else: # plot specific titration step
 			#if not self.hist.get(step):
 			hist = Hist(self.positions, self.intensities[step-1], step=step)
@@ -185,14 +191,11 @@ class Titration (object):
 					cutOff = self.hist[step].cutOff
 				plt.close(self.hist[step].figure)
 			self.hist[step] = hist
-			targetHist = self.hist[step]
 		if show:
-			targetHist.show()
+			hist.show()
 		if cutOff:
-			targetHist.setCutOff(float(cutOff))
-		return targetHist
-
-
+			hist.setCutOff(float(cutOff))
+		return hist
 
 	def plotChemShifts(self, residues=None, split = False):
 		"""
@@ -277,13 +280,14 @@ class Titration (object):
 	def save(self, path):
 		"Save method for titration object"
 		try:
+			# matplotlib objects can't be saved
 			stackedHist = self.stackedHist
 			hist = self.hist
 			self.stackedHist= None
 			self.hist = dict()
 			with open(path, 'wb') as saveHandle:
 				pickle.dump(self, saveHandle)
-
+			# restore matplotlib objects
 			self.stackedHist = stackedHist
 			self.hist= hist
 		except IOError as fileError:
