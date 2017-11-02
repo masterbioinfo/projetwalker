@@ -20,6 +20,7 @@ class BaseHist(object):
 		self.selected = dict()
 		self.background = [] 
 		self.cutOff=None
+		self.cutOffDrawn = False
 
 		# Tick every 10
 		self.positionTicks=range(xAxis[0] - xAxis[0] % 5, xAxis[-1]+10, 10)
@@ -37,12 +38,21 @@ class BaseHist(object):
 		# Init cursor widget and connect it
 		self.initCursor()
 		self.initCloseEvent()
+
+		# initial draw
+		self.figure.canvas.draw()
 	
 	def initCloseEvent(self):
+		"Capture window close event"
 		self.figure.canvas.mpl_connect('close_event', self.handle_close)
 
 	def handle_close(self, event):
+		"Set closed state to true on window close"
 		self.closed=True
+
+	def close(self):
+		"Close figure window"
+		plt.close(self.figure)
 
 	def initCursor(self):
 		"""
@@ -57,7 +67,9 @@ class BaseHist(object):
 			self.setCutOff(self.cutOff)
 
 	def show(self):
+		"Show figure and set open/closed state"
 		self.figure.show()
+		self.closed = False
 
 	def setupAxes(self, yAxis):
 		"""
@@ -65,6 +77,10 @@ class BaseHist(object):
 		Must be replaced in child classes.
 		"""
 		pass
+
+	def addCutOffListener(self, func):
+		"Add extra on_change cutoff event handlers"
+		self.cursor.on_changed(func)
 
 	def cutOffListener(self, cutOff):
 		"""
@@ -88,8 +104,10 @@ class BaseHist(object):
 		"""
 		if self.closed : 
 			self.cutOff = cutOff
+			self.cutOffDrawn = False
 		else:
 			self.cursor.setCutOff(cutOff)
+			self.cutOffDrawn = True
 
 	def draw(self):
 		"""
@@ -102,15 +120,15 @@ class BaseHist(object):
 				if self.cutOff:
 					if bar.get_height() >= self.cutOff: # show high intensity residues
 						if not self.selected.get(bar):
-							bar.set_color('orange')
+							bar.set_facecolor('orange')
 							self.selected[bar] = 1
 					else:
 						if self.selected.get(bar):
-							bar.set_color(None)
+							bar.set_facecolor(None)
 							self.selected[bar] = 0
 				#ax.draw_artist(bar)
 				#bar.set_animated(False)
-			#self.figure.canvas.blit(ax.bbox)
+				#self.figure.canvas.blit(ax.bbox)
 		self.figure.canvas.draw()
 		plt.ion()
 		

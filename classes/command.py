@@ -57,12 +57,12 @@ class ShiftShell(Cmd):
 		are provided.
 		"""
 		step = args[0] if args else self.titration.steps -1
-		if step == 'all':
+		if step == 'all': # plot stacked hist
 			hist = self.titration.plotHistogram()
-		else:
-			hist = self.titration.plotHistogram(int(step))
+		else: # plot single hist
+			hist = self.titration.plotHistogram(step=int(step))
 		
-		if opts.export:
+		if opts.export: # export figure as png
 			hist.figure.savefig(opts.export, dpi = hist.figure.dpi)
 
 
@@ -94,32 +94,10 @@ class ShiftShell(Cmd):
 	def do_cutoff(self, args, opts=None):
 		try:
 			cutOff = float(args[0])
-			lastStep = self.titration.steps-1
-			if self.titration.hist.get(lastStep):
-				self.titration.hist[lastStep].setCutOff(cutOff)
-			else:
-				self.titration.plotHistogram(lastStep, cutOff = cutOff, show=opts.plot)
+			self.titration.setCutOff(cutOff)
 		except (TypeError, IndexError):
 			self.do_help("cutoff")
 
-
-	@options([
-		make_option('-p', '--plot', action="store_true", help="Set cut-off and plot.")
-	],
-	arg_desc = '<float>')
-	def do_cutoff(self, args, opts=None):
-		try:
-			cutOff = float(args[0])
-			lastStep = self.titration.steps-1
-			if opts.plot:
-				self.titration.plotHistogram(lastStep, cutOff = cutOff, show=True)
-			else:
-				if self.titration.hist.get(lastStep):
-					self.titration.hist[lastStep].setCutOff(cutOff)
-				else:
-					self.titration.hist[lastStep] = self.titration.plotHistogram(lastStep, cutOff = cutOff, show=False)
-		except (TypeError, IndexError):
-			self.do_help("cutoff")
 
 
 ################

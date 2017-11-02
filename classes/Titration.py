@@ -97,6 +97,23 @@ class Titration (object):
 		self.stackedHist=MultiHist(self.positions,self.intensities)
 		self.hist = dict()
 
+	def setCutOff(self, cutOff):
+		"Sets cut off for all titration steps"
+		try:
+			# check cut off validity and store it
+			cutOff = float(cutOff)
+			self.cutOff = cutOff
+
+			# update cutoff in open hists
+			for hist in self.hist.values():
+				hist.setCutOff(cutOff)
+			self.stackedHist.setCutOff(cutOff)
+
+			return self.cutOff
+		except TypeError as err:
+			sys.stderr.write("Invalid cut-off value : %s\n" % err)
+			return self.cutOff
+
 	@property
 	def sortedSteps(self):
 		"""
@@ -168,33 +185,28 @@ class Titration (object):
 			exit(1)
 
 
-	def plotHistogram (self, step = None, cutOff = None, 
+	def plotHistogram (self, step = None, showCutOff = True, 
 								scale=True, show=True):
 		""" 
 		Define all the options needed (step, cutoof) for the representation.
 		Call the getHistogram function to show corresponding histogram plots.
 		"""
 		if not step: # plot stacked histograms of all steps
-			hist = MultiHist(self.positions,self.intensities)
-			# retrieve last used cutOff
-			if not cutOff and self.stackedHist.cutOff:
-				cutOff = self.stackedHist.cutOff
 			# close stacked hist
-			plt.close(self.stackedHist.figure)
+			if not self.stackedHist.closed:
+				self.stackedHist.close()
 			# replace stacked hist with new hist
+			hist = MultiHist(self.positions,self.intensities)
 			self.stackedHist = hist
 		else: # plot specific titration step
-			#if not self.hist.get(step):
+			if self.hist.get(step) and not self.hist[step].closed:
+				self.hist[step].close()
 			hist = Hist(self.positions, self.intensities[step-1], step=step)
-			if self.hist.get(step):
-				if self.hist[step].cutOff and not cutOff:
-					cutOff = self.hist[step].cutOff
-				plt.close(self.hist[step].figure)
 			self.hist[step] = hist
-		if show:
-			hist.show()
-		if cutOff:
-			hist.setCutOff(float(cutOff))
+		"""if show:
+			hist.show()"""
+		if showCutOff and self.cutOff:
+			hist.setCutOff(self.cutOff)
 		return hist
 
 	def plotChemShifts(self, residues=None, split = False):

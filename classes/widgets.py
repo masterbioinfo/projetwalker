@@ -60,6 +60,7 @@ class MultiDraggableCursor(MultiCursor):
 			line.set_visible(False)
 
 	def event_accept(self, event):
+		"Check if event capturing is allowed"
 		if self.ignore(event):
 			return False
 		if event.inaxes is None:
@@ -99,7 +100,7 @@ class MultiDraggableCursor(MultiCursor):
 		
 
 	def update_lines(self, xdata, ydata):
-		
+		"Update cut off line data"
 		if self.vertOn:
 			for line in self.vlines:
 				line.set_xdata((xdata, xdata))
@@ -112,6 +113,7 @@ class MultiDraggableCursor(MultiCursor):
 		
 
 	def _update(self):
+		"Update canvas"
 		if self.useblit:
 			if self.background is not None:
 				self.canvas.restore_region(self.background)
