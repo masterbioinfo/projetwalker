@@ -83,9 +83,13 @@ class ShiftShell(Cmd):
 		if opts.export:
 			fig.savefig(opts.export, dpi=fig.dpi)
 
-	def do_extract_residues(self,args):
+
+	def do_filter(self,args):
+		"Output residues having intensity >= cut off"
 		self.stdout.write("%s\n" % ";".join([str(res.position) for res in self.titration.filtered]))
 
+	def do_summary(self, args):
+		self.stdout.write("%s\n" % self.titration.summary)
 
 	@options([
 		make_option('-p', '--plot', action="store_true", help="Set cut-off and plot.")

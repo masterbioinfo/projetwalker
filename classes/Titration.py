@@ -30,7 +30,7 @@ class Titration (object):
 	Provides methods for accessing each titration step datas.
 	"""
 
-	def __init__(self, source):
+	def __init__(self, source, name = None):
 		"""
 		Load titration files, check their integrity
 		`source` is either a directory containing `.list` file, or is a list of `.list` files
@@ -38,7 +38,7 @@ class Titration (object):
 		"""
 
 		# Placeholder for naming saved titrations
-		self.name = None
+		self.name = name or "Unnamed Titration"
 
 		## FILE PATH PROCESSING
 
@@ -123,6 +123,19 @@ class Titration (object):
 		"""
 		return sorted(range(1,self.steps))
 
+	@property
+	def summary(self):
+		"Returns a short summary of current titration status as string."
+		summary =  "----------------\n"
+		summary += "Name : %s\n" % self.name
+		summary +=  "----------------\n"
+		summary += "Steps : %s (reference step 0 to %s)\n" % (self.steps, self.steps -1)
+		summary += "Cut-off : %s\n" % self.cutOff
+		summary += "Total residues : %s\n" % len(self.residues)
+		summary += "\tComplete residues : %s\n" % len(self.complete)
+		summary += "\tIncomplete residues : %s\n" % len(self.incomplete)
+		summary += "\tFiltered residues : %s\t%s" % (len(self.filtered), [res.position for res in self.filtered])
+		return summary
 
 	def validateFilePath(self, filePath):
 		"""
