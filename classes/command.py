@@ -28,6 +28,9 @@ class ShiftShell(Cmd):
 		self.complete_save_job=self.path_complete
 		self.complete_load_job=self.path_complete
 
+	def echo(self, arg):
+		self.sys.stdout.write("%s\n" % arg)
+
 	def do_save_job(self, arg):
 		"Saves active titration to binary file"
 		self.titration.save(arg)
@@ -97,12 +100,14 @@ class ShiftShell(Cmd):
 	arg_desc = '<float>')
 	def do_cutoff(self, args, opts=None):
 		try:
-			cutOff = float(args[0])
-			self.titration.setCutOff(cutOff)
+			if not args :
+				self.stdout.write("Cut-off=%s\n" % self.titration.cutOff)
+			else:
+				cutOff = float(args[0])
+				self.titration.setCutOff(cutOff)
 		except (TypeError, IndexError) as error:
 			sys.stderr.write("%s\n" % error)
 			self.do_help("cutoff")
-
 
 
 ################
