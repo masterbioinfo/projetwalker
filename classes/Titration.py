@@ -74,9 +74,10 @@ class Titration (object):
 		
 		# filter complete residues as list and sort them by positions
 		self.complete = sorted([ residue for residue in self.residues.values() if residue.validate(self.steps) ], key=lambda a: a.position)
-		
 		# incomplete residues
 		self.incomplete = set(self.residues.values()) - set(self.complete)
+		# filtered residue (>= cutOff)
+		self.filtered = self.complete
 
 		print("Found %s residues out of %s with incomplete data" % (len(self.incomplete), len(self.complete)), file=sys.stderr)
 		
@@ -103,7 +104,7 @@ class Titration (object):
 			# check cut off validity and store it
 			cutOff = float(cutOff)
 			self.cutOff = cutOff
-
+			self.filtered = [residue for residue in self.complete if residue.chemShiftIntensity[self.steps-2] >= cutOff]
 			# update cutoff in open hists
 			for hist in self.hist.values():
 				hist.setCutOff(cutOff)
@@ -264,30 +265,6 @@ class Titration (object):
 		
 		fig.show()
 		return fig
-
-	def extractResidues (self, targetFile = None):
-		"""
-		Enables the extraction of residues whose intensity at the last step (default) is superior or equal to the cutoff (by default equal to 0).
-		Takes attiuts of Titration object, optinal cutOff, targetFile, titration step to begin with (stepBegin) and to end with (stepEnd).
-		Both stepBegin and stepEnd represent an interval with included limits. 
-		For example: stepBegin = 1, stepEnd = 2 means from step 1 (included) to step 2 (included).
-		Create and write in a file (extracted_residues.txt by default) the positions of residues as well as their intensity for each titration
-		Returns a list of residues potentially involved in interaction (can be given as an argument to plotChemShifts())
-		"""	
-		#Write the header at first
-		titrationList = ["Titration " + str(index) for index in self.sortedSteps] #list to be written in the new file
-		interactionResidues = []
-		if targetFile:
-			handle = open(targetFile, 'w')
-		else:
-			handle = sys.stdout
-		handle.write ("Residue\t" + "\t".join(titrationList) + "\n")
-		for index,intensity in enumerate(self.intensities[self.steps-2]):
-			if intensity >= self.hist[self.sortedSteps[-1]].cutOff:
-				handle.write(str(self.positions[index]) + "\t" + "\t".join(map(str,self.complete[index].chemShiftIntensity)) + "\n")
-				interactionResidues.append(self.positions[index])  
-		return interactionResidues
-
 
 	def save(self, path):
 		"Save method for titration object"

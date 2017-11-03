@@ -83,8 +83,8 @@ class ShiftShell(Cmd):
 		if opts.export:
 			fig.savefig(opts.export, dpi=fig.dpi)
 
-	def do_extract_residues(self, arg):
-		self.titration.extractResidues()
+	def do_extract_residues(self,args):
+		self.stdout.write("%s\n" % ";".join([str(res.position) for res in self.titration.filtered]))
 
 
 	@options([
@@ -95,7 +95,8 @@ class ShiftShell(Cmd):
 		try:
 			cutOff = float(args[0])
 			self.titration.setCutOff(cutOff)
-		except (TypeError, IndexError):
+		except (TypeError, IndexError) as error:
+			sys.stderr.write("%s\n" % error)
 			self.do_help("cutoff")
 
 
