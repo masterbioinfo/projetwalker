@@ -33,6 +33,7 @@ class MultiDraggableCursor(MultiCursor):
 	def __init__(self, canvas, axes, useblit=True, horizOn=False, vertOn=True,
 				 **lineprops):
 		self.press = None
+		self.propagate = dict()
 		super().__init__(canvas, axes, useblit, horizOn, vertOn, **lineprops)
 
 	def connect(self):
@@ -138,7 +139,7 @@ class WatchableWidgetMixin(object):
 		self.cnt = 0
 		self.observers = {}		
 
-	def on_changed(self, func):
+	def on_changed(self, func, propagate=False):
 		"""
 		When the widget value is changed call *func* with the new
 		widget value
@@ -153,6 +154,7 @@ class WatchableWidgetMixin(object):
 		"""
 		cid = self.cnt
 		self.observers[cid] = func
+		self.propagate[cid] = propagate
 		self.cnt += 1
 		return cid
 
@@ -169,14 +171,18 @@ class WatchableWidgetMixin(object):
 		except KeyError:
 			pass
 
-	def raise_changed(self,val):
+	def raise_changed(self,val,propagate=True):
 		"""
 		Call each observer.
 		raise_changed should be called in the desired update function
 		in the child class.
 		"""
 		for cid, func in six.iteritems(self.observers):
-			func(val)
+			if not propagate:
+				if not self.propagate[cid]:
+					func(val)
+			elif propagate:
+				func(val)
 
 
 class CutOffCursor(MultiDraggableCursor, WatchableWidgetMixin):
@@ -192,9 +198,8 @@ class CutOffCursor(MultiDraggableCursor, WatchableWidgetMixin):
 		self.raise_changed(self.cutOff)
 		"""
 
-	def setCutOff(self, cutOff, propagate = True):
+	def setCutOff(self, cutOff, **kwargs):
 		self.cutOff = cutOff
-		if propagate:
-			self.raise_changed(self.cutOff)
+		self.raise_changed(self.cutOff, **kwargs)
 		self.update_lines(None, cutOff)
 		

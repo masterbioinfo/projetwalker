@@ -48,8 +48,10 @@ class Titration (object):
 		# fetch all .list files in source dir
 		if type(source) is list: # or use provided source as files
 			self.files = source
+			self.dirPath = os.path.dirname(source[0])
 		elif os.path.isdir(source):
 			self.files = [ os.path.join(self.source, titrationFile) for titrationFile in os.listdir(source) if ".list" in titrationFile ]
+			self.dirPath = os.path.abspath(source)
 		elif os.path.isfile(source):
 			return self.load(source)
 
@@ -96,7 +98,9 @@ class Titration (object):
 		self.cutOff = None
 		self.positionTicks =range(self.positions[0] - self.positions[0] % 5, self.positions[-1] + 10, 10)
 		self.stackedHist=MultiHist(self.positions,self.intensities)
+		self.stackedHist.addCutOffListener(self.setCutOff)
 		self.hist = dict()
+
 
 	def setCutOff(self, cutOff):
 		"Sets cut off for all titration steps"
@@ -107,14 +111,13 @@ class Titration (object):
 			self.filtered = [residue for residue in self.complete if residue.chemShiftIntensity[self.steps-2] >= cutOff]
 			# update cutoff in open hists
 			for hist in self.hist.values():
-				hist.setCutOff(cutOff)
-			self.stackedHist.setCutOff(cutOff)
-
+				hist.setCutOff(cutOff, propagate=False)
+			self.stackedHist.setCutOff(cutOff, propagate=False)
+			sys.stdout.write("\r\nCut-off=%s\r\n>> " % cutOff)
 			return self.cutOff
 		except TypeError as err:
 			sys.stderr.write("Invalid cut-off value : %s\n" % err)
 			return self.cutOff
-
 	@property
 	def sortedSteps(self):
 		"""
@@ -127,8 +130,9 @@ class Titration (object):
 	def summary(self):
 		"Returns a short summary of current titration status as string."
 		summary =  "----------------\n"
-		summary += "Name : %s\n" % self.name
+		summary += "%s\n" % self.name
 		summary +=  "----------------\n"
+		summary += "Source dir : %s\n" % self.dirPath
 		summary += "Steps : %s (reference step 0 to %s)\n" % (self.steps, self.steps -1)
 		summary += "Cut-off : %s\n" % self.cutOff
 		summary += "Total residues : %s\n" % len(self.residues)
@@ -212,15 +216,17 @@ class Titration (object):
 			# replace stacked hist with new hist
 			hist = MultiHist(self.positions,self.intensities)
 			self.stackedHist = hist
+			self.stackedHist.addCutOffListener(self.setCutOff, propagate=True)
 		else: # plot specific titration step
 			if self.hist.get(step) and not self.hist[step].closed:
 				self.hist[step].close()
 			hist = Hist(self.positions, self.intensities[step-1], step=step)
 			self.hist[step] = hist
+			self.hist[step].addCutOffListener(self.setCutOff, propagate=True)
 		if show:
 			hist.show()
 		if showCutOff and self.cutOff:
-			hist.setCutOff(self.cutOff)
+			hist.setCutOff(self.cutOff, propagate=False)
 		return hist
 
 	def plotChemShifts(self, residues=None, split = False):

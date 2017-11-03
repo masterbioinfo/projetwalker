@@ -12,7 +12,9 @@ class BaseHist(object):
 	"""
 	Base histogram class, providing interface to a matplotlib figure.
 	"""
+
 	def __init__(self, xAxis, yAxis):
+		"Init new matplotlib figure, setup widget, events, and layout"
 		self.figure = plt.figure()
 		self.closed=True
 		
@@ -47,8 +49,8 @@ class BaseHist(object):
 		self.figure.canvas.mpl_connect('close_event', self.handle_close)
 		self.figure.canvas.mpl_connect('draw_event', self.on_draw)
 
-
 	def on_draw(self, event):
+		"Prevent cut off hiding, e.g on window resize"
 		self.cursor.visible=True
 		self.cursor.update_lines(None, self.cutOff)
 
@@ -69,7 +71,7 @@ class BaseHist(object):
 									horizOn=True, vertOn=False )
 		self.cursor.on_changed(self.cutOffListener)
 		if self.cutOff:
-			self.setCutOff(self.cutOff)
+			self.setCutOff(self.cutOff, propagate=False)
 
 	def show(self):
 		"Show figure and set open/closed state"
@@ -83,19 +85,19 @@ class BaseHist(object):
 		"""
 		pass
 
-	def addCutOffListener(self, func):
+	def addCutOffListener(self, func, propagate=False):
 		"Add extra on_change cutoff event handlers"
-		self.cursor.on_changed(func)
+		self.cursor.on_changed(func,propagate)
 
 	def cutOffListener(self, cutOff):
 		"""
 		Listener method to be connected to cursor widget
 		"""
 		self.cutOff = cutOff
-		print("CutOff : %s" % self.cutOff)
+		#print("CutOff : %s" % self.cutOff)
 		self.draw()		
 
-	def setCutOff(self, cutOff):
+	def setCutOff(self, cutOff, **kwargs):
 		"""
 		Cut off setter. 
 		Triggers change of cut off cursor value,
@@ -105,7 +107,7 @@ class BaseHist(object):
 			self.cutOff = cutOff
 			self.cutOffDrawn = False
 		else:
-			self.cursor.setCutOff(cutOff)
+			self.cursor.setCutOff(cutOff, **kwargs)
 			self.cutOffDrawn = True
 
 	def draw(self):
@@ -137,6 +139,7 @@ class MultiHist(BaseHist):
 	"""
 	BaseHist child class for plotting stacked hists.
 	"""
+
 	def __init__(self, xAxis, yMatrix):
 		"""
 		Sets title
