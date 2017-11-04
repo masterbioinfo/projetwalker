@@ -291,7 +291,7 @@ class Titration(object):
 			fig.text(0.5, 0.04, 'H Chemical Shift', ha='center')
 			fig.text(0.04, 0.5, 'N Chemical Shift', va='center',
 					rotation='vertical')
-
+			
 			# iterate over each created cell
 			for index, ax in enumerate(axes.flat):
 				if index < len(residueSet):
@@ -300,9 +300,13 @@ class Titration(object):
 									facecolors='none', cmap=self.colors, c = range(self.steps),
 									alpha=0.2)
 					ax.set_title("Residue %s " % residueSet[index].position)
+					# print xticks as 2 post-comma digits float
 					ax.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
 				else:
 					ax.remove() # remove extra subplots
+
+			# scale
+			self.scale_split_shiftmap(residueSet, axes)
 
 			# display them nicely
 			fig.tight_layout()
@@ -313,16 +317,30 @@ class Titration(object):
 			cbar_ax = fig.add_axes([0.90, 0.15, 0.02, 0.7])
 			fig.colorbar(mappable=im, cax=cbar_ax).set_label("Titration steps")
 
-		else:
+		else: # Trace global chem shifts map
 			for residue in residueSet :
-				# Trace global chem shifts map
-				im=plt.scatter(residue.chemShiftH, residue.chemShiftN, facecolors='none', cmap=self.colors, c = range(self.steps), alpha=0.2)
-
+				im=plt.scatter(residue.chemShiftH, residue.chemShiftN, 
+								facecolors='none', cmap=self.colors, 
+								c = range(self.steps), alpha=0.2)
 			# Add colorbar legend for titration steps
 			plt.colorbar().set_label("Titration steps")
 
 		fig.show()
 		return fig
+
+	def scale_split_shiftmap(self, residueSet, axes):
+		"Scales subplots when plotting splitted shift map"
+		xBounds = [res.getShiftBounds('H') for res in residueSet]
+		xMaxRange=max([bound[1]-bound[0] for bound in xBounds]) * 1.4
+		yBounds = [res.getShiftBounds('N') for res in residueSet]
+		yMaxRange=max([bound[1]-bound[0] for bound in yBounds]) * 1.4
+		for ax in axes.flat:
+			currentXRange = ax.get_xlim()
+			currentYRange = ax.get_ylim()
+			xMiddle = sum(currentXRange) / 2
+			yMiddle = sum(currentYRange) / 2
+			ax.set_xlim(xMiddle - xMaxRange/2, xMiddle + xMaxRange/2)
+			ax.set_ylim(yMiddle - yMaxRange/2, yMiddle + yMaxRange/2)
 
 	def save(self, path):
 		"Save method for titration object"
