@@ -148,8 +148,12 @@ class MultiHist(BaseHist):
 			ax.set_xticks(self.positionTicks)
 			maxVal = num.amax(self.yAxis)
 			ax.set_ylim(0, num.round(maxVal + maxVal*0.1, decimals=1))
+			stepLabel = "%s." % str(index+1)
+			ax.set_ylabel(stepLabel, rotation="horizontal", labelpad=15)
+			#ax.yaxis.label.set_color('red')
 			self.background.append(self.figure.canvas.copy_from_bbox(ax.bbox))
 			self.bars.append(ax.bar(self.xAxis, self.yAxis[index], align='center', alpha=1))
+		self.figure.subplots_adjust(left=0.15)
 
 
 class Hist(BaseHist):
