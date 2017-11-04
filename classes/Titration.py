@@ -63,14 +63,10 @@ class Titration(object):
 		# set number of titration steps including reference step 0
 		self.steps  = 0
 
-		# generate colors for each titration step
-		self.colors = plt.cm.get_cmap('hsv', self.steps)
-
 		## PLOTTING
 		self.stackedHist = None
 		self.hist = dict()
 		self.positionTicks = None
-		
 
 		## FILE PARSING
 		# init residues {position:AminoAcid object}
@@ -95,16 +91,20 @@ class Titration(object):
 		self.incomplete = set(self.residues.values()) - set(self.complete)
 		print("\t\t%s incomplete residue out of %s" % (
 			 len(self.incomplete), len(self.complete)), file=sys.stderr)
-		# Prepare (position, chem shift intensity) coordinates for histogram plot
+
+		# Recalculate (position, chem shift intensity) coordinates for histogram plot
 		self.intensities = [] # 2D array, by titration step then residu position
 		self.positions = []
-		self.deltaChemShift = []
 		for step in range(self.steps - 1): # intensity is null for reference step
 			self.intensities.append( [ residue.chemShiftIntensity[step] for residue in self.complete ] )
 		for residue in self.complete:
 			self.positions.append(residue.position)
-			self.deltaChemShift.append(residue.deltaChemShift)
+
+		# Update graph settings according to step change
 		self.positionTicks = range(self.positions[0] - self.positions[0] % 5, self.positions[-1] + 10, 10)
+		# generate colors for each titration step
+		self.colors = plt.cm.get_cmap('hsv', self.steps)
+		
 		if self.stackedHist and not self.stackedHist.closed:
 			self.stackedHist.close()
 
