@@ -41,12 +41,12 @@ class Titration(object):
 
 		# Placeholder for naming saved titrations
 		self.name = name or "Unnamed Titration"
+		# number of titration steps
+		self.steps  = 0
 
 		## FILE PATH PROCESSING
-
 		# keep track of source data
 		self.source = source
-
 		# fetch all .list files in source dir
 		if type(source) is list: # or use provided source as files
 			self.files = source
@@ -56,12 +56,8 @@ class Titration(object):
 			self.dirPath = os.path.abspath(source)
 		elif os.path.isfile(source):
 			return self.load(source)
-
 		# sort files by ascending titration number
 		self.files.sort(key=lambda path: self.validateFilePath(path))
-
-		# set number of titration steps including reference step 0
-		self.steps  = 0
 
 		## PLOTTING
 		self.stackedHist = None
@@ -81,10 +77,13 @@ class Titration(object):
 			self.setCutOff(cutOff)
 
 	def add_step(self, titrationFile):
+		"Adds a titration step described in `titrationFile`"
 		print("[Step %s]\tLoading file %s" % (self.steps, titrationFile), file=sys.stderr)
+		# verify file
 		step = self.validateFilePath(titrationFile, verifyStep=True)
+		# parse it
 		self.parseTitrationFile(titrationFile)
-		self.steps += 1
+		self.steps += 1 # increase number of titration steps
 		# filter complete residues as list and sort them by positions
 		self.complete = sorted([ residue for residue in self.residues.values() if residue.validate(self.steps) ], key=lambda a: a.position)
 		# incomplete residues
@@ -104,13 +103,14 @@ class Titration(object):
 		self.positionTicks = range(self.positions[0] - self.positions[0] % 5, self.positions[-1] + 10, 10)
 		# generate colors for each titration step
 		self.colors = plt.cm.get_cmap('hsv', self.steps)
-		
+
 		if self.stackedHist and not self.stackedHist.closed:
 			self.stackedHist.close()
 
 
 	@property
 	def filtered(self):
+		"Returns list of filtered residue having last intensity >= cutoff value"
 		if self.cutOff:
 			return  [residue for residue in self.complete if residue.chemShiftIntensity[self.steps-2] >= self.cutOff]
 		else:
@@ -132,6 +132,7 @@ class Titration(object):
 		except TypeError as err:
 			sys.stderr.write("Invalid cut-off value : %s\n" % err)
 			return self.cutOff
+
 	@property
 	def sortedSteps(self):
 		"""
@@ -143,9 +144,9 @@ class Titration(object):
 	@property
 	def summary(self):
 		"Returns a short summary of current titration status as string."
-		summary =  "--------------------------\n"
-		summary += "%s\n" % self.name
-		summary +=  "-------------------------\n"
+		summary =   "--------------------------------------------\n"
+		summary += "> %s\n" % self.name
+		summary +=  "--------------------------------------------\n"
 		summary += "Source dir :\t%s\n" % self.dirPath
 		summary += "Steps :\t\t%s (reference step 0 to %s)\n" % (self.steps, self.steps -1)
 		summary += "Cut-off :\t%s\n" % self.cutOff
@@ -153,7 +154,7 @@ class Titration(object):
 		summary += " - Complete residues :\t\t%s\n" % len(self.complete)
 		summary += " - Incomplete residues :\t%s\n" % len(self.incomplete)
 		summary += " - Filtered residues :\t\t%s\n" % len(self.filtered)
-		summary +=  "-------------------------\n"
+		summary +=  "--------------------------------------------\n"
 		return summary
 
 
