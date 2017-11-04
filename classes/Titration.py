@@ -220,8 +220,12 @@ class Titration (object):
 			self.stackedHist = hist
 			self.stackedHist.addCutOffListener(self.setCutOff, mouseUpdateOnly=True)
 		else: # plot specific titration step
+			# allow accession using python-ish negative index
+			step = step if step >= 0 else self.steps + step
+			# close existing figure if needed
 			if self.hist.get(step) and not self.hist[step].closed:
 				self.hist[step].close()
+			# plot new hist
 			hist = Hist(self.positions, self.intensities[step-1], step=step)
 			self.hist[step] = hist
 			self.hist[step].addCutOffListener(self.setCutOff, mouseUpdateOnly=True)

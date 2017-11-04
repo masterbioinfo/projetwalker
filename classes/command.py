@@ -88,10 +88,11 @@ class ShiftShell(Cmd):
 
 
 	def do_filter(self,args):
-		"Output residues having intensity >= cut off"
+		"Output residues having intensity >= cut-off"
 		self.stdout.write("%s\n" % ";".join([str(res.position) for res in self.titration.filtered]))
 
 	def do_summary(self, args):
+		"Prints a summary of current titration state"
 		self.stdout.write("%s\n" % self.titration.summary)
 
 	@options([
@@ -105,6 +106,8 @@ class ShiftShell(Cmd):
 			else:
 				cutOff = float(args[0])
 				self.titration.setCutOff(cutOff)
+			if opts.plot:
+				self.titration.plotHistogram(-1)
 		except (TypeError, IndexError) as error:
 			sys.stderr.write("%s\n" % error)
 			self.do_help("cutoff")
