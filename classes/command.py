@@ -15,11 +15,13 @@ class ShiftShell(Cmd):
 	def __init__(self, *args, **kwargs):
 		self.allow_cli_args = False
 		self.titration = kwargs.get('titration')
+		
 		"""
 		self.active = self.titration
 		self.settable.update({'active' : "Current working titration"})
 		"""
 		Cmd.__init__(self)
+		self._set_prompt()
 
 		# Exclude irrelevant cmds from help menu
 		self.exclude_from_help += ['do__relative_load', 'do_cmdenvironment', 'do_edit', 'do_run']
@@ -30,6 +32,11 @@ class ShiftShell(Cmd):
 		self.complete_add_step=self.path_complete
 
 		self.intro = self.titration.summary + "\n"+ self.intro
+
+	def _set_prompt(self):
+		"""Set prompt so it displays the current working directory."""
+		self.cwd = os.getcwd().strip("'")
+		self.prompt = self.colorize("[shift2me]", 'magenta') + " >> "
 
 	@options([],arg_desc='<titration_file_##.list>')
 	def do_add_step(self, arg, opts=None):
@@ -84,12 +91,17 @@ class ShiftShell(Cmd):
 		Plot chemical shifts for H and N atoms for each residue at each titration step.
 		Invocation with no arguments will plot all residues with complete data.
 		"""
-		if args:
-			pass # parse arguments here
-		else:
-			fig = self.titration.plotChemShifts(split=opts.split)
-		if opts.export:
-			fig.savefig(opts.export, dpi=fig.dpi)
+		try:
+			if args:
+				fig = self.titration.plotChemShifts(args[0], split=opts.split)
+			else:
+				fig = self.titration.plotChemShifts(split=opts.split)
+			if opts.export:
+				fig.savefig(opts.export, dpi=fig.dpi)
+		except ValueError as invalidArgErr:
+			sys.stderr.write("%s\n" % invalidArgErr)
+			self.do_help("shiftmap")
+			self.stdout.write("")
 
 
 	def do_filter(self,args):

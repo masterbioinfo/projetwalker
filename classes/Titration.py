@@ -262,7 +262,19 @@ class Titration(object):
 		`residue` argument should be an iterable of AminoAcid objects.
 		If using `split` option, each residue is plotted in its own subplot.
 		"""
-		residueSet = residues or self.complete # using complete residues by default
+		argMap = {
+			"all" : self.residues, # might be error prone because of missing data
+			"complete" : self.complete,
+			"filtered" : self.filtered
+			#"selected" : self.selected
+		} 
+		if residues:
+			if argMap.get(residues):
+				residueSet = argMap[residues]
+			else:
+				raise ValueError("Invalid argument : %s" % residues)
+		else:
+			residueSet = argMap.get(residues) or self.complete # using complete residues by default
 		fig = plt.figure()
 
 		# set title
