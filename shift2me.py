@@ -4,11 +4,11 @@
 Shift2Me Project - Dating site for proteins !!!
 
 Usage: 
-	index.py <file.list> <file.list> ... [ -o <output_dir> ]
-	index.py <dir>
+	index.py [ -c <cutoff> ] <file.list> <file.list> ... 
+	index.py [ -c <cutoff> ] <dir> 
 
 Options:
-	-o <output_dir>, --output-dir <output_dir>  Output generated files to <output_dir>.
+	-c <cutoff>, --cut-off=<cutoff>  Set default cutoff at <cutoff> (float).
 
 This program can calculate chemicals shifts of 15N and 1H during a portein protein interaction in fonction of titation of the secondary protein. 
 He generate plots to show chemicals shifts for each titration of the secondary protein. You can fix a cutoff to appreciate residus involved in protein protein interaction. 
@@ -34,9 +34,9 @@ args = docopt(__doc__)
 
 #Enter experimentals files :
 if args["<file.list>"]:
-	titration = Titration(args["<file.list>"])
+	titration = Titration(args["<file.list>"], cutOff=args["<cutoff>"])
 elif args["<dir>"]:
-	titration = Titration(args["<dir>"])
+	titration = Titration(args["<dir>"], cutOff=args["<cutoff>"])
 
 #Cutoff selection by the user.
 plt.ioff()

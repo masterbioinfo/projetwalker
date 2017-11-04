@@ -32,7 +32,7 @@ class Titration(object):
 	complete = list()
 	incomplete = set()
 
-	def __init__(self, source, name=None):
+	def __init__(self, source, name=None, cutOff = None):
 		"""
 		Load titration files, check their integrity
 		`source` is either a directory containing `.list` file, or is a list of `.list` files
@@ -67,10 +67,10 @@ class Titration(object):
 		self.colors = plt.cm.get_cmap('hsv', self.steps)
 
 		## PLOTTING
-		self.cutOff = None
 		self.stackedHist = None
 		self.hist = dict()
 		self.positionTicks = None
+		
 
 		## FILE PARSING
 		# init residues {position:AminoAcid object}
@@ -78,6 +78,11 @@ class Titration(object):
 		# and fill it by parsing files
 		for titrationFile in self.files:
 			self.add_step(titrationFile)
+		
+		## INIT CUTOFF
+		self.cutOff = None
+		if cutOff:
+			self.setCutOff(cutOff)
 
 	def add_step(self, titrationFile):
 		print("[Step %s]\tLoading file %s" % (self.steps, titrationFile), file=sys.stderr)
@@ -122,7 +127,7 @@ class Titration(object):
 				hist.setCutOff(cutOff)
 			if self.stackedHist:
 				self.stackedHist.setCutOff(cutOff)
-			sys.stdout.write("\r\nCut-off=%s\r\n>> " % cutOff)
+			#sys.stdout.write("\r\nCut-off=%s\r\n>> " % cutOff)
 			return self.cutOff
 		except TypeError as err:
 			sys.stderr.write("Invalid cut-off value : %s\n" % err)
@@ -170,7 +175,7 @@ class Titration(object):
 				return int(matching.group("step"))
 			else:
 				# found incorrect line format
-				raise IOError("Refusing to parse file %s : please check it is named like *[0-9]+.list" % path)
+				raise IOError("Refusing to parse file %s : please check it is named like *[0-9]+.list" % filePath)
 		except IOError as err:
 			sys.stderr.write("%s\n" % err )
 			exit(1)
