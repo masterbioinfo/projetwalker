@@ -279,18 +279,16 @@ class Titration(object):
 		fig = plt.figure()
 
 		# set title
-		fig.suptitle('2D map of chemical shifts')
-
-		if split:
+		fig.suptitle('Chemical shifts 2D map')
+		# set common xlabel and ylabel
+		fig.text(0.5, 0.04, 'H Chemical Shift', ha='center')
+		fig.text(0.04, 0.5, 'N Chemical Shift', 
+				va='center', rotation='vertical')
+		if split and len(residueSet) > 1:
 			# create an array of cells with squared shape
 			axes = fig.subplots(nrows=ceil(sqrt(len(residueSet))),
 								ncols=round(sqrt(len(residueSet))),
 								sharex=False, sharey=False, squeeze=True)
-
-			# set common xlabel and ylabel
-			fig.text(0.5, 0.04, 'H Chemical Shift', ha='center')
-			fig.text(0.04, 0.5, 'N Chemical Shift', va='center',
-					rotation='vertical')
 			
 			# iterate over each created cell
 			for index, ax in enumerate(axes.flat):
