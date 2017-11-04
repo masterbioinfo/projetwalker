@@ -7,7 +7,8 @@ class ShiftShell(Cmd):
 	"""
 	Command line interface wrapper for Titration
 	"""
-	intro = "Type help or ? to list commands.\n"
+	intro = "Welcome to Shift2Me !\n"\
+			"Type help or ? to list commands.\n"
 	prompt = ">> "
 	file = None
 	cutOff = None
