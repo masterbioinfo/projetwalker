@@ -4,8 +4,8 @@
 Shift2Me Project - Dating site for proteins !!!
 
 Usage: 
-	index.py [ -c <cutoff> ] <file.list> <file.list> ... 
-	index.py [ -c <cutoff> ] <dir> 
+	shift2me.py [ -c <cutoff> ] <file.list> <file.list> ... 
+	shift2me.py [ -c <cutoff> ] <dir> 
 
 Options:
 	-c <cutoff>, --cut-off=<cutoff>  Set default cutoff at <cutoff> (float).
@@ -21,7 +21,7 @@ on Ubuntu v16.04.3 LTS (UNIX core system).
 Date of creation : 2017-10-13.
 Last modification : 2017-10-24.
 
-Exemple :  ./index.py data/listes/listPP/*.list
+Exemple :  ./shift2me.py data/listes/listPP/*.list
 """
 
 from docopt import docopt
