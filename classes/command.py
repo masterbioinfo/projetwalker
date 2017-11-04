@@ -28,9 +28,6 @@ class ShiftShell(Cmd):
 		self.complete_save_job=self.path_complete
 		self.complete_load_job=self.path_complete
 
-	def echo(self, arg):
-		self.sys.stdout.write("%s\n" % arg)
-
 	def do_save_job(self, arg):
 		"Saves active titration to binary file"
 		self.titration.save(arg)

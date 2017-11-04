@@ -79,8 +79,6 @@ class MultiDraggableCursor(MultiCursor):
 		if not self.event_accept(event):
 			return
 		self.press=True
-		#self.needclear = True
-		#self.update_lines(event.xdata, event.ydata)
 
 	def on_release(self, event):
 		'on release we reset the press data'
@@ -190,17 +188,14 @@ class WatchableWidgetMixin(object):
 
 
 class CutOffCursor(MultiDraggableCursor, WatchableWidgetMixin):
+	"""
+	Widget class implementing a draggable horizontal cursor line.
+	Its y value sets a cut off that may be used to filter data.
+	"""
 	def __init__(self, canvas, axes, useblit=True, horizOn=False, vertOn=True, **lineprops):
 		self.cutOff = None
 		super().__init__(canvas, axes, useblit, horizOn, vertOn, **lineprops)
 		WatchableWidgetMixin.__init__(self)
-	
-	def _update(self):
-		super()._update()
-		"""
-		self.cutOff = self.hlines[0].get_ydata()[0]
-		self.raise_changed(self.cutOff)
-		"""
 
 	def setCutOff(self, cutOff, **kwargs):
 		"""
