@@ -97,8 +97,7 @@ class Titration (object):
 
 		self.cutOff = None
 		self.positionTicks =range(self.positions[0] - self.positions[0] % 5, self.positions[-1] + 10, 10)
-		self.stackedHist=MultiHist(self.positions,self.intensities)
-		self.stackedHist.addCutOffListener(self.setCutOff)
+		self.stackedHist=None
 		self.hist = dict()
 
 
@@ -111,8 +110,9 @@ class Titration (object):
 			self.filtered = [residue for residue in self.complete if residue.chemShiftIntensity[self.steps-2] >= cutOff]
 			# update cutoff in open hists
 			for hist in self.hist.values():
-				hist.setCutOff(cutOff, propagate=False)
-			self.stackedHist.setCutOff(cutOff, propagate=False)
+				hist.setCutOff(cutOff)
+			if self.stackedHist:
+				self.stackedHist.setCutOff(cutOff)
 			sys.stdout.write("\r\nCut-off=%s\r\n>> " % cutOff)
 			return self.cutOff
 		except TypeError as err:
@@ -141,6 +141,7 @@ class Titration (object):
 		summary += "\tFiltered residues : %s\t%s" % (len(self.filtered), [res.position for res in self.filtered])
 		return summary
 
+
 	def validateFilePath(self, filePath):
 		"""
 		Given a file path, checks if it has .list extension and if it is numbered after the titration step. 
@@ -158,6 +159,7 @@ class Titration (object):
 		except IOError as err: 
 			sys.stderr.write("%s\n" % err )
 			exit(1)
+
 
 	def parseTitrationFile(self, titrationFile):
 		"""
@@ -211,22 +213,22 @@ class Titration (object):
 		"""
 		if not step: # plot stacked histograms of all steps
 			# close stacked hist
-			if not self.stackedHist.closed:
+			if self.stackedHist and not self.stackedHist.closed:
 				self.stackedHist.close()
 			# replace stacked hist with new hist
 			hist = MultiHist(self.positions,self.intensities)
 			self.stackedHist = hist
-			self.stackedHist.addCutOffListener(self.setCutOff, propagate=True)
+			self.stackedHist.addCutOffListener(self.setCutOff, mouseUpdateOnly=True)
 		else: # plot specific titration step
 			if self.hist.get(step) and not self.hist[step].closed:
 				self.hist[step].close()
 			hist = Hist(self.positions, self.intensities[step-1], step=step)
 			self.hist[step] = hist
-			self.hist[step].addCutOffListener(self.setCutOff, propagate=True)
+			self.hist[step].addCutOffListener(self.setCutOff, mouseUpdateOnly=True)
 		if show:
 			hist.show()
 		if showCutOff and self.cutOff:
-			hist.setCutOff(self.cutOff, propagate=False)
+			hist.setCutOff(self.cutOff)
 		return hist
 
 	def plotChemShifts(self, residues=None, split = False):

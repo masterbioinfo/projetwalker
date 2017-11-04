@@ -22,7 +22,6 @@ class BaseHist(object):
 		self.selected = dict()
 		self.background = [] 
 		self.cutOff=None
-		self.cutOffDrawn = False
 
 		# Tick every 10
 		self.positionTicks=range(xAxis[0] - xAxis[0] % 5, xAxis[-1]+10, 10)
@@ -71,7 +70,7 @@ class BaseHist(object):
 									horizOn=True, vertOn=False )
 		self.cursor.on_changed(self.cutOffListener)
 		if self.cutOff:
-			self.setCutOff(self.cutOff, propagate=False)
+			self.setCutOff(self.cutOff)
 
 	def show(self):
 		"Show figure and set open/closed state"
@@ -85,9 +84,12 @@ class BaseHist(object):
 		"""
 		pass
 
-	def addCutOffListener(self, func, propagate=False):
+	def addCutOffListener(self, func, mouseUpdateOnly=False):
 		"Add extra on_change cutoff event handlers"
-		self.cursor.on_changed(func,propagate)
+		if mouseUpdateOnly:
+			self.cursor.on_mouse_update(func)
+		else:
+			self.cursor.on_changed(func)
 
 	def cutOffListener(self, cutOff):
 		"""
@@ -97,18 +99,16 @@ class BaseHist(object):
 		#print("CutOff : %s" % self.cutOff)
 		self.draw()		
 
-	def setCutOff(self, cutOff, **kwargs):
+	def setCutOff(self, cutOff):
 		"""
 		Cut off setter. 
-		Triggers change of cut off cursor value,
-		allowing to update figure content.
+		Triggers change of cut off cursor value, allowing to update figure content.
+		kwargs are passed to cursor widget setCutOff method.
 		"""
 		if self.closed : 
 			self.cutOff = cutOff
-			self.cutOffDrawn = False
 		else:
-			self.cursor.setCutOff(cutOff, **kwargs)
-			self.cutOffDrawn = True
+			self.cursor.setCutOff(cutOff)
 
 	def draw(self):
 		"""

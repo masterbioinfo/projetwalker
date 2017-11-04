@@ -33,7 +33,9 @@ class MultiDraggableCursor(MultiCursor):
 	def __init__(self, canvas, axes, useblit=True, horizOn=False, vertOn=True,
 				 **lineprops):
 		self.press = None
-		self.propagate = dict()
+		self.propagation = dict()
+		self.selfUpdated=False
+		self.mouse_observers = dict()
 		super().__init__(canvas, axes, useblit, horizOn, vertOn, **lineprops)
 
 	def connect(self):
@@ -86,9 +88,11 @@ class MultiDraggableCursor(MultiCursor):
 		self.press = False
 		if not self.event_accept(event):
 			return
+		self.selfUpdated = True
 		self.cutOff = event.ydata
 		self.raise_changed(self.cutOff)
 		self.update_lines(event.xdata, event.ydata)
+		
 
 	def on_move(self, event):
 		if not self.event_accept(event):
@@ -139,7 +143,7 @@ class WatchableWidgetMixin(object):
 		self.cnt = 0
 		self.observers = {}		
 
-	def on_changed(self, func, propagate=False):
+	def on_changed(self, func):
 		"""
 		When the widget value is changed call *func* with the new
 		widget value
@@ -154,7 +158,6 @@ class WatchableWidgetMixin(object):
 		"""
 		cid = self.cnt
 		self.observers[cid] = func
-		self.propagate[cid] = propagate
 		self.cnt += 1
 		return cid
 
@@ -171,17 +174,18 @@ class WatchableWidgetMixin(object):
 		except KeyError:
 			pass
 
-	def raise_changed(self,val,propagate=True):
+	def raise_changed(self,val):
 		"""
 		Call each observer.
-		raise_changed should be called in the desired update function
-		in the child class.
+		raise_changed should be called in the desired update function in the child class.
+		If propagate kwarg is true, call all signal handlers. 
+		Else call those identified as not propagating. 
 		"""
+		# Iterate over all signal handlers
 		for cid, func in six.iteritems(self.observers):
-			if not propagate:
-				if not self.propagate[cid]:
-					func(val)
-			elif propagate:
+			func(val)
+		if self.selfUpdated:
+			for cid, func in six.iteritems(self.mouse_observers):
 				func(val)
 
 
@@ -199,7 +203,29 @@ class CutOffCursor(MultiDraggableCursor, WatchableWidgetMixin):
 		"""
 
 	def setCutOff(self, cutOff, **kwargs):
+		"""
+		Sets cutoff value, updating cutoff line.
+		Also sending changed signal, with kwargs arguments.
+		"""
+		self.selfUpdated = False
 		self.cutOff = cutOff
 		self.raise_changed(self.cutOff, **kwargs)
 		self.update_lines(None, cutOff)
 		
+	def on_mouse_update(self, func):
+		"""
+		When the widget value is changed __from mouse events__, 
+		call *func* with the new widget value
+		Parameters
+		----------
+		func : callable
+			Function to call when widget is changed.
+		Returns
+		-------
+		cid : int
+			Connection id (which can be used to disconnect *func*)
+		"""
+		cid = self.cnt
+		self.mouse_observers[cid] = func
+		self.cnt += 1
+		return cid
