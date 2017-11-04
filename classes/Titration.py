@@ -6,9 +6,9 @@ Titration class module
 Titration allows manipulating chemical shift data measured with 2D NMR
 Input is a set of `.list` tabular files with one residue per line, e.g output of Sparky
 It calculates chemical shift variation at each titration step using the first step as reference.
-They are transformed into a single 'intensity' value, associated to a residue. 
-The class provides matplotlib wrapping functions, allowing to display the data from the analysis, 
-as well as setting an cut off to filter residues having high intensity values.
+They are transformed into a single 'intensity' value, associated to a residue.
+The class provides matplotlib wrapping functions, allowing to display the data from the analysis,
+as well as setting a cut-off to filter residues having high intensity values.
 """
 
 import matplotlib.pyplot as plt
@@ -23,14 +23,14 @@ from classes.AminoAcid import AminoAcid
 from classes.widgets import CutOffCursor
 from classes.plots import Hist, MultiHist
 
-class Titration (object):
+class Titration(object):
 	"""
 	Class Titration.
 	Contains a list of aminoacid objects
 	Provides methods for accessing each titration step datas.
 	"""
 
-	def __init__(self, source, name = None):
+	def __init__(self, source, name=None):
 		"""
 		Load titration files, check their integrity
 		`source` is either a directory containing `.list` file, or is a list of `.list` files
@@ -44,7 +44,7 @@ class Titration (object):
 
 		# keep track of source data
 		self.source = source
-		
+
 		# fetch all .list files in source dir
 		if type(source) is list: # or use provided source as files
 			self.files = source
@@ -56,11 +56,11 @@ class Titration (object):
 			return self.load(source)
 
 		# sort files by ascending titration number
-		self.files.sort(key=lambda path:self.validateFilePath(path))
-		
+		self.files.sort(key=lambda path: self.validateFilePath(path))
+
 		# set number of titration steps including reference step 0
 		self.steps  = len(self.files)
-		
+
 		# generate colors for each titration step
 		self.colors = plt.cm.get_cmap('hsv', self.steps)
 
@@ -68,12 +68,12 @@ class Titration (object):
 
 		# init residues {position:AminoAcid object}
 		self.residues = dict()
-		
+
 		# and fill it by parsing files
 		for titrationFile in self.files:
 			print("Loading file %s" % titrationFile, file=sys.stderr)
 			self.parseTitrationFile(titrationFile)
-		
+
 		# filter complete residues as list and sort them by positions
 		self.complete = sorted([ residue for residue in self.residues.values() if residue.validate(self.steps) ], key=lambda a: a.position)
 		# incomplete residues
@@ -82,7 +82,7 @@ class Titration (object):
 		self.filtered = self.complete
 
 		print("Found %s residues out of %s with incomplete data" % (len(self.incomplete), len(self.complete)), file=sys.stderr)
-		
+
 		# Prepare (position, chem shift intensity) coordinates for histogram plot
 		self.intensities = [] # 2D array, by titration step then residu position
 		self.positions = []
@@ -96,8 +96,8 @@ class Titration (object):
 		## PLOTTING
 
 		self.cutOff = None
-		self.positionTicks =range(self.positions[0] - self.positions[0] % 5, self.positions[-1] + 10, 10)
-		self.stackedHist=None
+		self.positionTicks = range(self.positions[0] - self.positions[0] % 5, self.positions[-1] + 10, 10)
+		self.stackedHist = None
 		self.hist = dict()
 
 
@@ -144,55 +144,55 @@ class Titration (object):
 
 	def validateFilePath(self, filePath):
 		"""
-		Given a file path, checks if it has .list extension and if it is numbered after the titration step. 
+		Given a file path, checks if it has .list extension and if it is numbered after the titration step.
 		Returns the titration step number if found, IOError is raised otherwise
 		"""
-		try: 
+		try:
 			rePath = re.compile(r'(.+/)?(.*[^\d]+)(?P<step>[0-9]+)\.list') # expected path format
 			matching = rePath.match(filePath) # attempt to match
 			if matching:
 				# retrieve titration step number parsed from file name
-				return int(matching.group("step")) 
+				return int(matching.group("step"))
 			else:
 				# found incorrect line format
 				raise IOError("Refusing to parse file %s : please check it is named like *[0-9]+.list" % path)
-		except IOError as err: 
+		except IOError as err:
 			sys.stderr.write("%s\n" % err )
 			exit(1)
 
 
 	def parseTitrationFile(self, titrationFile):
 		"""
-		Titration file parser. 
+		Titration file parser.
 		Returns a new dict which keys are residues' position and values are AminoAcid objects.
 		If residues argument is provided, updates AminoAcid by adding parsed chemical shift values.
-		Throws ValueError if incorrect lines are encountered in file. 
+		Throws ValueError if incorrect lines are encountered in file.
 		"""
 		try :
 			with open(titrationFile, "r", encoding = "utf-8") as titration:
 
 				# expected line format
-				
-				reLine = re.compile(r"^(?P<pos>\d+)N-H\s+(?P<csH>\d+\.\d+)\s+(?P<csN>\d+\.\d+)$") 
+
+				reLine = re.compile(r"^(?P<pos>\d+)N-H\s+(?P<csH>\d+\.\d+)\s+(?P<csN>\d+\.\d+)$")
 				reLineIgnore = re.compile(r"^\d.*")
 
 				for lineNb, line in enumerate(titration) :
 					line = line.strip()
-					
+
 					# check for ignoring empty lines and header lines
 					if reLineIgnore.match(line):
-						
+
 						# attempt to match to expected format
-						lineMatch = reLine.match(line) 
+						lineMatch = reLine.match(line)
 						if lineMatch: # parse as dict
 							chemShift = dict(zip(("position", "chemShiftH", "chemShiftN"),
-													lineMatch.groups() )) 
-							
+													lineMatch.groups() ))
+
 							# add or update residue
-							if self.residues.get(chemShift["position"]): 
+							if self.residues.get(chemShift["position"]):
 								# update AminoAcid object in residues dict
 								self.residues[chemShift["position"]].addShift(**chemShift)
-							else: 
+							else:
 								# create AminoAcid object in residues dict
 								self.residues[chemShift["position"]] = AminoAcid(**chemShift)
 
@@ -205,9 +205,9 @@ class Titration (object):
 			exit(1)
 
 
-	def plotHistogram (self, step = None, showCutOff = True, 
+	def plotHistogram (self, step = None, showCutOff = True,
 								scale=True, show=True):
-		""" 
+		"""
 		Define all the options needed (step, cutoof) for the representation.
 		Call the getHistogram function to show corresponding histogram plots.
 		"""
@@ -244,27 +244,27 @@ class Titration (object):
 		"""
 		residueSet = residues or self.complete # using complete residues by default
 		fig = plt.figure()
-		
+
 		# set title
 		fig.suptitle('2D map of chemical shifts')
-		
+
 		if split:
 			# create an array of cells with squared shape
-			axes = fig.subplots(nrows=ceil(sqrt(len(residueSet))), 
-								ncols=round(sqrt(len(residueSet))), 
+			axes = fig.subplots(nrows=ceil(sqrt(len(residueSet))),
+								ncols=round(sqrt(len(residueSet))),
 								sharex=False, sharey=False, squeeze=True)
-			
+
 			# set common xlabel and ylabel
-			fig.text(0.5, 0.04, 'H Chemical Shift', ha='center') 
-			fig.text(0.04, 0.5, 'N Chemical Shift', va='center', 
-					rotation='vertical') 
+			fig.text(0.5, 0.04, 'H Chemical Shift', ha='center')
+			fig.text(0.04, 0.5, 'N Chemical Shift', va='center',
+					rotation='vertical')
 
 			# iterate over each created cell
 			for index, ax in enumerate(axes.flat):
 				if index < len(residueSet):
 					# Trace chem shifts for current residu in new graph cell
-					im = ax.scatter(residueSet[index].chemShiftH, residueSet[index].chemShiftN, 
-									facecolors='none', cmap=self.colors, c = range(self.steps), 
+					im = ax.scatter(residueSet[index].chemShiftH, residueSet[index].chemShiftN,
+									facecolors='none', cmap=self.colors, c = range(self.steps),
 									alpha=0.2)
 					ax.set_title("Residue %s " % residueSet[index].position)
 					ax.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
@@ -275,19 +275,19 @@ class Titration (object):
 			fig.tight_layout()
 
 			# Add colorbar legend for titration steps using last plot cell data
-			fig.subplots_adjust(left=0.15, top=0.85, 
+			fig.subplots_adjust(left=0.15, top=0.85,
 								right=0.85,bottom=0.15) # make room for legend
 			cbar_ax = fig.add_axes([0.90, 0.15, 0.02, 0.7])
 			fig.colorbar(mappable=im, cax=cbar_ax).set_label("Titration steps")
 
 		else:
-			for residue in residueSet : 
+			for residue in residueSet :
 				# Trace global chem shifts map
 				im=plt.scatter(residue.chemShiftH, residue.chemShiftN, facecolors='none', cmap=self.colors, c = range(self.steps), alpha=0.2)
-			
+
 			# Add colorbar legend for titration steps
 			plt.colorbar().set_label("Titration steps")
-		
+
 		fig.show()
 		return fig
 

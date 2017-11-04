@@ -30,18 +30,16 @@ class MultiDraggableCursor(MultiCursor):
 		show()
 
 	"""
-	def __init__(self, canvas, axes, useblit=True, horizOn=False, vertOn=True,
-				 **lineprops):
+	def __init__(self, canvas, axes, useblit=True, horizOn=False, vertOn=True, **lineprops):
 		self.press = None
 		self.propagation = dict()
-		self.selfUpdated=False
+		self.selfUpdated = False
 		self.mouse_observers = dict()
 		super().__init__(canvas, axes, useblit, horizOn, vertOn, **lineprops)
 
 	def connect(self):
 		"""connect events"""
-		self._cidmotion = self.canvas.mpl_connect('motion_notify_event',
-												  self.on_move)
+		self._cidmotion = self.canvas.mpl_connect('motion_notify_event', self.on_move)
 		self._ciddraw = self.canvas.mpl_connect('draw_event', self.clear)
 		self._cidpress = self.canvas.mpl_connect('button_press_event', self.on_press)
 		self._cidrelease = self.canvas.mpl_connect('button_release_event', self.on_release)
@@ -51,21 +49,18 @@ class MultiDraggableCursor(MultiCursor):
 		self.canvas.mpl_disconnect(self._cidmotion)
 		self.canvas.mpl_disconnect(self._ciddraw)
 
-	
-		
+
 	def clear(self, event):
 		"""clear the cursor"""
 		if self.ignore(event):
 			return
 		if self.useblit:
-			self.background = (
-				self.canvas.copy_from_bbox(self.canvas.figure.bbox))
+			self.background = (self.canvas.copy_from_bbox(self.canvas.figure.bbox))
 		for line in self.vlines + self.hlines:
 			line.set_visible(False)
 
 	def event_accept(self, event):
 		"Check if event capturing is allowed"
-		
 		if self.ignore(event):
 			return False
 		if event.inaxes is None:
@@ -78,13 +73,10 @@ class MultiDraggableCursor(MultiCursor):
 		'on button press we will see if the mouse is over us and store some data'
 		if not self.event_accept(event):
 			return
-		self.press=True
-		#self.needclear = True
-		#self.update_lines(event.xdata, event.ydata)
+		self.press = True
 
 	def on_release(self, event):
 		'on release we reset the press data'
-		
 		self.press = False
 		if not self.event_accept(event):
 			return
@@ -92,9 +84,10 @@ class MultiDraggableCursor(MultiCursor):
 		self.cutOff = event.ydata
 		self.raise_changed(self.cutOff)
 		self.update_lines(event.xdata, event.ydata)
-		
+
 
 	def on_move(self, event):
+		"if mouse button pressed while moving, move cursor"
 		if not self.event_accept(event):
 			return
 		if not self.press:
@@ -103,7 +96,7 @@ class MultiDraggableCursor(MultiCursor):
 		if not self.visible:
 			return
 		self.update_lines(event.xdata, event.ydata)
-		
+
 
 	def update_lines(self, xdata, ydata):
 		"Update cut off line data"
@@ -116,7 +109,7 @@ class MultiDraggableCursor(MultiCursor):
 				line.set_ydata((ydata, ydata))
 				line.set_visible(self.visible)
 		self._update()
-		
+
 
 	def _update(self):
 		"Update canvas"
@@ -136,12 +129,12 @@ class MultiDraggableCursor(MultiCursor):
 class WatchableWidgetMixin(object):
 	"""
 	Provides a simple on_changed method, binding to a function.
-	raise_changed should be called at the appropriate time, 
+	raise_changed should be called at the appropriate time,
 	i.e when the widget sets a new value or is updated in some way
 	"""
 	def __init__(self):
 		self.cnt = 0
-		self.observers = {}		
+		self.observers = {}
 
 	def on_changed(self, func):
 		"""
@@ -174,12 +167,12 @@ class WatchableWidgetMixin(object):
 		except KeyError:
 			pass
 
-	def raise_changed(self,val):
+	def raise_changed(self, val):
 		"""
 		Call each observer.
 		raise_changed should be called in the desired update function in the child class.
-		If propagate kwarg is true, call all signal handlers. 
-		Else call those identified as not propagating. 
+		If propagate kwarg is true, call all signal handlers.
+		Else call those identified as not propagating.
 		"""
 		# Iterate over all signal handlers
 		for cid, func in six.iteritems(self.observers):
@@ -190,17 +183,14 @@ class WatchableWidgetMixin(object):
 
 
 class CutOffCursor(MultiDraggableCursor, WatchableWidgetMixin):
+	"""
+	Widget class implementing a draggable horizontal cursor line.
+	Its y value sets a cut off that may be used to filter data.
+	"""
 	def __init__(self, canvas, axes, useblit=True, horizOn=False, vertOn=True, **lineprops):
 		self.cutOff = None
 		super().__init__(canvas, axes, useblit, horizOn, vertOn, **lineprops)
 		WatchableWidgetMixin.__init__(self)
-	
-	def _update(self):
-		super()._update()
-		"""
-		self.cutOff = self.hlines[0].get_ydata()[0]
-		self.raise_changed(self.cutOff)
-		"""
 
 	def setCutOff(self, cutOff, **kwargs):
 		"""
@@ -211,7 +201,8 @@ class CutOffCursor(MultiDraggableCursor, WatchableWidgetMixin):
 		self.cutOff = cutOff
 		self.raise_changed(self.cutOff, **kwargs)
 		self.update_lines(None, cutOff)
-		
+
+
 	def on_mouse_update(self, func):
 		"""
 		When the widget value is changed __from mouse events__, 

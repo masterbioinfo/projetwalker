@@ -1,11 +1,8 @@
 #!/usr/bin/python3
 
 import matplotlib.pyplot as plt
-from matplotlib.widgets import MultiCursor, Slider
-from classes.widgets import CutOffCursor
-import itertools
 import numpy as num
-from math import *
+from classes.widgets import CutOffCursor
 
 
 class BaseHist(object):
@@ -16,12 +13,11 @@ class BaseHist(object):
 	def __init__(self, xAxis, yAxis):
 		"Init new matplotlib figure, setup widget, events, and layout"
 		self.figure = plt.figure()
-		self.closed=True
-		
+		self.closed = True
 		self.bars = []
 		self.selected = dict()
-		self.background = [] 
-		self.cutOff=None
+		self.background = []
+		self.cutOff = None
 
 		# Tick every 10
 		self.positionTicks=range(xAxis[0] - xAxis[0] % 5, xAxis[-1]+10, 10)
@@ -32,9 +28,9 @@ class BaseHist(object):
 		self.setupAxes()
 
 		# set xy labels
-		self.xlabel = self.figure.axes[-1].set_xlabel('Residue') 
-		self.ylabel=self.figure.text(0.04, 0.5, 'Chem Shift Intensity', 
-									va='center', rotation='vertical') 
+		self.xlabel = self.figure.axes[-1].set_xlabel('Residue')
+		self.ylabel = self.figure.text(0.04, 0.5, 'Chem Shift Intensity',
+										va='center', rotation='vertical')
 
 		# Init cursor widget and connect it
 		self.initCursor()
@@ -42,7 +38,7 @@ class BaseHist(object):
 
 		# initial draw
 		self.figure.canvas.draw()
-	
+
 	def initCloseEvent(self):
 		"Capture window close event"
 		self.figure.canvas.mpl_connect('close_event', self.handle_close)
@@ -50,12 +46,12 @@ class BaseHist(object):
 
 	def on_draw(self, event):
 		"Prevent cut off hiding, e.g on window resize"
-		self.cursor.visible=True
+		self.cursor.visible = True
 		self.cursor.update_lines(None, self.cutOff)
 
 	def handle_close(self, event):
 		"Set closed state to true on window close"
-		self.closed=True
+		self.closed = True
 
 	def close(self):
 		"Close figure window"
@@ -65,8 +61,8 @@ class BaseHist(object):
 		"""
 		Init cursor widget and connect it to self.cutOffListener
 		"""
-		self.cursor = CutOffCursor(self.figure.canvas, self.figure.axes, 
-									color='r', linestyle='--', lw=0.8, 
+		self.cursor = CutOffCursor(self.figure.canvas, self.figure.axes,
+									color='r', linestyle='--', lw=0.8,
 									horizOn=True, vertOn=False )
 		self.cursor.on_changed(self.cutOffListener)
 		if self.cutOff:
@@ -77,7 +73,7 @@ class BaseHist(object):
 		self.figure.show()
 		self.closed = False
 
-	def setupAxes(self, yAxis):
+	def setupAxes(self):
 		"""
 		Should define subplots in figure as well as plotting data.
 		Must be replaced in child classes.
@@ -97,26 +93,24 @@ class BaseHist(object):
 		"""
 		self.cutOff = cutOff
 		#print("CutOff : %s" % self.cutOff)
-		self.draw()		
+		self.draw()
 
 	def setCutOff(self, cutOff):
 		"""
-		Cut off setter. 
+		Cut off setter.
 		Triggers change of cut off cursor value, allowing to update figure content.
 		kwargs are passed to cursor widget setCutOff method.
 		"""
-		if self.closed : 
+		if self.closed :
 			self.cutOff = cutOff
 		else:
 			self.cursor.setCutOff(cutOff)
 
 	def draw(self):
 		"""
-		Updates bars color according to current cut off value. 
+		Updates bars color according to current cut off value.
 		"""
-		#plt.ioff()
-		for i, (ax, axBar) in enumerate(zip(self.figure.axes, self.bars)):	
-			#self.figure.canvas.restore_region(self.background[i])
+		for ax, axBar in zip(self.figure.axes, self.bars):
 			for bar in axBar:
 				if self.cutOff:
 					if bar.get_height() >= self.cutOff: # show high intensity residues
@@ -127,12 +121,7 @@ class BaseHist(object):
 						if self.selected.get(bar):
 							bar.set_facecolor(None)
 							self.selected[bar] = 0
-				#ax.draw_artist(bar)
-				#bar.set_animated(False)
-				#self.figure.canvas.blit(ax.bbox)
 		self.figure.canvas.draw()
-		#plt.ion()
-		
 
 
 class MultiHist(BaseHist):
@@ -152,7 +141,7 @@ class MultiHist(BaseHist):
 		"""
 		Creates a subplot for each line in yAxis matrix
 		"""
-		self.figure.subplots(nrows=len(self.yAxis), ncols=1, 
+		self.figure.subplots(nrows=len(self.yAxis), ncols=1,
 							sharex=True, sharey=True, squeeze=True)
 		# Set content and layout for each subplot.
 		for index, ax in enumerate(self.figure.axes):
@@ -160,7 +149,7 @@ class MultiHist(BaseHist):
 			maxVal = num.amax(self.yAxis)
 			ax.set_ylim(0, num.round(maxVal + maxVal*0.1, decimals=1))
 			self.background.append(self.figure.canvas.copy_from_bbox(ax.bbox))
-			self.bars.append(ax.bar(self.xAxis, self.yAxis[index], align = 'center', alpha = 1))
+			self.bars.append(ax.bar(self.xAxis, self.yAxis[index], align='center', alpha=1))
 
 
 class Hist(BaseHist):
@@ -178,7 +167,7 @@ class Hist(BaseHist):
 
 	def setupAxes(self):
 		"""
-		Create a single subplot and set its layout and data. 
+		Create a single subplot and set its layout and data.
 		"""
 		self.figure.subplots(nrows=1, ncols=1, squeeze=True)
 		ax = self.figure.axes[0]
@@ -186,4 +175,4 @@ class Hist(BaseHist):
 		maxVal = num.amax(self.yAxis)
 		ax.set_ylim(0, num.round(maxVal + maxVal*0.1, decimals=1))
 		self.background.append(self.figure.canvas.copy_from_bbox(ax.bbox))
-		self.bars.append(ax.bar(self.xAxis, self.yAxis, align = 'center', alpha = 1))
+		self.bars.append(ax.bar(self.xAxis, self.yAxis, align='center', alpha=1))
