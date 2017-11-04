@@ -29,6 +29,8 @@ class Titration(object):
 	Contains a list of aminoacid objects
 	Provides methods for accessing each titration step datas.
 	"""
+	complete = list()
+	incomplete = set()
 
 	def __init__(self, source, name=None):
 		"""
@@ -59,30 +61,35 @@ class Titration(object):
 		self.files.sort(key=lambda path: self.validateFilePath(path))
 
 		# set number of titration steps including reference step 0
-		self.steps  = len(self.files)
+		self.steps  = 0
 
 		# generate colors for each titration step
 		self.colors = plt.cm.get_cmap('hsv', self.steps)
 
-		## FILE PARSING
+		## PLOTTING
+		self.cutOff = None
+		self.stackedHist = None
+		self.hist = dict()
+		self.positionTicks = None
 
+		## FILE PARSING
 		# init residues {position:AminoAcid object}
 		self.residues = dict()
-
 		# and fill it by parsing files
 		for titrationFile in self.files:
-			print("Loading file %s" % titrationFile, file=sys.stderr)
-			self.parseTitrationFile(titrationFile)
+			self.add_step(titrationFile)
 
+	def add_step(self, titrationFile):
+		print("[Step %s]\tLoading file %s" % (self.steps, titrationFile), file=sys.stderr)
+		step = self.validateFilePath(titrationFile, verifyStep=True)
+		self.parseTitrationFile(titrationFile)
+		self.steps += 1
 		# filter complete residues as list and sort them by positions
 		self.complete = sorted([ residue for residue in self.residues.values() if residue.validate(self.steps) ], key=lambda a: a.position)
 		# incomplete residues
 		self.incomplete = set(self.residues.values()) - set(self.complete)
-		# filtered residue (>= cutOff)
-		self.filtered = self.complete
-
-		print("Found %s residues out of %s with incomplete data" % (len(self.incomplete), len(self.complete)), file=sys.stderr)
-
+		print("\t\t%s incomplete residue out of %s" % (
+			 len(self.incomplete), len(self.complete)), file=sys.stderr)
 		# Prepare (position, chem shift intensity) coordinates for histogram plot
 		self.intensities = [] # 2D array, by titration step then residu position
 		self.positions = []
@@ -92,14 +99,17 @@ class Titration(object):
 		for residue in self.complete:
 			self.positions.append(residue.position)
 			self.deltaChemShift.append(residue.deltaChemShift)
-
-		## PLOTTING
-
-		self.cutOff = None
 		self.positionTicks = range(self.positions[0] - self.positions[0] % 5, self.positions[-1] + 10, 10)
-		self.stackedHist = None
-		self.hist = dict()
+		if self.stackedHist and not self.stackedHist.closed:
+			self.stackedHist.close()
 
+
+	@property
+	def filtered(self):
+		if self.cutOff:
+			return  [residue for residue in self.complete if residue.chemShiftIntensity[self.steps-2] >= self.cutOff]
+		else:
+			return self.complete
 
 	def setCutOff(self, cutOff):
 		"Sets cut off for all titration steps"
@@ -107,7 +117,6 @@ class Titration(object):
 			# check cut off validity and store it
 			cutOff = float(cutOff)
 			self.cutOff = cutOff
-			self.filtered = [residue for residue in self.complete if residue.chemShiftIntensity[self.steps-2] >= cutOff]
 			# update cutoff in open hists
 			for hist in self.hist.values():
 				hist.setCutOff(cutOff)
@@ -129,28 +138,34 @@ class Titration(object):
 	@property
 	def summary(self):
 		"Returns a short summary of current titration status as string."
-		summary =  "----------------\n"
+		summary =  "--------------------------\n"
 		summary += "%s\n" % self.name
-		summary +=  "----------------\n"
-		summary += "Source dir : %s\n" % self.dirPath
-		summary += "Steps : %s (reference step 0 to %s)\n" % (self.steps, self.steps -1)
-		summary += "Cut-off : %s\n" % self.cutOff
-		summary += "Total residues : %s\n" % len(self.residues)
-		summary += "\tComplete residues : %s\n" % len(self.complete)
-		summary += "\tIncomplete residues : %s\n" % len(self.incomplete)
-		summary += "\tFiltered residues : %s\t%s" % (len(self.filtered), [res.position for res in self.filtered])
+		summary +=  "-------------------------\n"
+		summary += "Source dir :\t%s\n" % self.dirPath
+		summary += "Steps :\t\t%s (reference step 0 to %s)\n" % (self.steps, self.steps -1)
+		summary += "Cut-off :\t%s\n" % self.cutOff
+		summary += "Total residues :\t\t%s\n" % len(self.residues)
+		summary += " - Complete residues :\t\t%s\n" % len(self.complete)
+		summary += " - Incomplete residues :\t%s\n" % len(self.incomplete)
+		summary += " - Filtered residues :\t\t%s\n" % len(self.filtered)
+		summary +=  "-------------------------\n"
 		return summary
 
 
-	def validateFilePath(self, filePath):
+	def validateFilePath(self, filePath, verifyStep=False):
 		"""
 		Given a file path, checks if it has .list extension and if it is numbered after the titration step.
+		If `step` arg is provided, validation will enforce that parsed file number matches `step`.
 		Returns the titration step number if found, IOError is raised otherwise
 		"""
 		try:
 			rePath = re.compile(r'(.+/)?(.*[^\d]+)(?P<step>[0-9]+)\.list') # expected path format
 			matching = rePath.match(filePath) # attempt to match
 			if matching:
+				if verifyStep and int(matching.group("step")) != self.steps:
+					raise IOError("File %s expected to contain data for titration step #%s.\
+				 Are you sure this is the file you want ? \
+				 In this case it must be named like *[0-9]+.list" % (titrationFile, self.steps))
 				# retrieve titration step number parsed from file name
 				return int(matching.group("step"))
 			else:

@@ -27,6 +27,14 @@ class ShiftShell(Cmd):
 		# Set path completion for save/load
 		self.complete_save_job=self.path_complete
 		self.complete_load_job=self.path_complete
+		self.complete_add_step=self.path_complete
+
+		self.intro = self.titration.summary + "\n"+ self.intro
+
+	@options([],arg_desc='<titration_file_##.list>')
+	def do_add_step(self, arg, opts=None):
+		"Add a titration file as next step"
+		self.titration.add_step(arg[0])
 
 	def do_save_job(self, arg):
 		"Saves active titration to binary file"
@@ -90,7 +98,7 @@ class ShiftShell(Cmd):
 
 	def do_summary(self, args):
 		"Prints a summary of current titration state"
-		self.stdout.write("%s\n" % self.titration.summary)
+		self.stdout.write("%s" % self.titration.summary)
 
 	@options([
 		make_option('-p', '--plot', action="store_true", help="Set cut-off and plot.")
