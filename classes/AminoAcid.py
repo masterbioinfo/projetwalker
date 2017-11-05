@@ -111,6 +111,7 @@ class AminoAcid(object):
 
 	@property
 	def chemShift(self):
+		"Tuple of tuples (chem shift H, chem shift N) for each titration step"
 		return tuple(zip(self.chemShiftH,self.chemShiftN))
 
 	@property 
@@ -135,6 +136,7 @@ class AminoAcid(object):
 
 	@property
 	def arrow(self):
+		"Chem shift vector start/end coords calculated on first and last step chem shift data"
 		return (self.chemShiftH[0],
 				self.chemShiftN[0], 
 				(self.chemShiftH[-1] - self.chemShiftH[0]), 
@@ -142,8 +144,10 @@ class AminoAcid(object):
 
 	@property
 	def rangeH(self):
+		"Distance between max and min H chem shift"
 		return max(self.chemShiftH) - min(self.chemShiftH)
 
 	@property
 	def rangeN(self):
+		"Distance between max and min N chem shift"
 		return max(self.chemShiftN) - min(self.chemShiftN)

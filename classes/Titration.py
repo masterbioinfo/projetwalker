@@ -275,7 +275,7 @@ class Titration(object):
 			else:
 				raise ValueError("Invalid argument : %s" % residues)
 		else:
-			residueSet = argMap.get(residues) or self.complete # using complete residues by default
+			residueSet = self.complete # using complete residues by default
 		fig = plt.figure()
 
 		# set title
@@ -307,7 +307,8 @@ class Titration(object):
 			# scale
 			self.scale_split_shiftmap(residueSet, axes)
 			for index, ax in enumerate(axes.flat):
-				self.annotateChemShift(residueSet[index], ax)
+				if index < len(residueSet):
+					self.annotateChemShift(residueSet[index], ax)
 
 			# display them nicely
 			fig.tight_layout()
@@ -332,6 +333,7 @@ class Titration(object):
 		return fig
 
 	def annotateChemShift(self, residue, ax):
+		"Adds chem shift vector and residue position for current residue in current subplot"
 		xlim, ylim = ax.get_xlim(), ax.get_ylim()
 		xrange = xlim[1] - xlim[0]
 		yrange = ylim[1] - ylim[0]
@@ -365,6 +367,7 @@ class Titration(object):
 			xycoords='data', textcoords='data', fontsize=7,ha=horAlign, va=vertAlign)
 
 	def maxRangeNH(self, residueSet):
+		"Returns max range tuple for N and H among residues in residueSet"
 		return (max([res.rangeH for res in residueSet]),
 				max([res.rangeN for res in residueSet]))
 
