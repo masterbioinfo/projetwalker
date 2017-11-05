@@ -335,7 +335,7 @@ class Titration(object):
 		xlim, ylim = ax.get_xlim(), ax.get_ylim()
 		xrange = xlim[1] - xlim[0]
 		yrange = ylim[1] - ylim[0]
-		print(xrange,yrange)
+		#print(xrange,yrange)
 		x=num.array([1.0,1.0])
 		#x=num.array([1.0,1.0])
 		k=num.array(residue.arrow[2:])
