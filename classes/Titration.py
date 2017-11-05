@@ -289,15 +289,28 @@ class Titration(object):
 			axes = fig.subplots(nrows=ceil(sqrt(len(residueSet))),
 								ncols=round(sqrt(len(residueSet))),
 								sharex=False, sharey=False, squeeze=True)
-			
 			# iterate over each created cell
 			for index, ax in enumerate(axes.flat):
 				if index < len(residueSet):
+					res = residueSet[index]
 					# Trace chem shifts for current residu in new graph cell
-					im = ax.scatter(residueSet[index].chemShiftH, residueSet[index].chemShiftN,
+					im = ax.scatter(res.chemShiftH, res.chemShiftN,
 									facecolors='none', cmap=self.colors, c = range(self.steps),
 									alpha=0.2)
-					ax.set_title("Residue %s " % residueSet[index].position)
+					
+					x=num.array([1.0,1.0])
+					k=num.array(res.arrow[2:])
+					#print(x,k)
+					x -= x.dot(k) * k / num.linalg.norm(k)**2
+					x /= num.linalg.norm(x) * 10
+					#print(x, sqrt(sum(x ** 2)))
+					ax.arrow(*num.array(res.arrow[:2]) + x, *res.arrow[2:], head_width=0.07, head_length=0.08, fc='black', ec='red', 
+							length_includes_head=True, linestyle=':', alpha=0.6, overhang=0.5)
+					"""
+					ax.arrow(*res.arrow[:2], *x, head_width=0.07, head_length=0.08, fc='black', ec='green', 
+							length_includes_head=True, linestyle=':', alpha=0.6, overhang=0.5)
+							"""
+					ax.set_title("Residue %s " % res.position)
 					# print xticks as 2 post-comma digits float
 					ax.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
 				else:
@@ -320,18 +333,21 @@ class Titration(object):
 				im=plt.scatter(residue.chemShiftH, residue.chemShiftN, 
 								facecolors='none', cmap=self.colors, 
 								c = range(self.steps), alpha=0.2)
+			fig.subplots_adjust(left=0.15, top=0.85,
+								right=0.95,bottom=0.15) # make room for legend
 			# Add colorbar legend for titration steps
 			plt.colorbar().set_label("Titration steps")
 
 		fig.show()
 		return fig
 
+	def maxRangeNH(self, residueSet):
+		return (max([res.rangeH for res in residueSet]),
+				max([res.rangeN for res in residueSet]))
+
 	def scale_split_shiftmap(self, residueSet, axes):
 		"Scales subplots when plotting splitted shift map"
-		xBounds = [res.getShiftBounds('H') for res in residueSet]
-		xMaxRange=max([bound[1]-bound[0] for bound in xBounds]) * 1.4
-		yBounds = [res.getShiftBounds('N') for res in residueSet]
-		yMaxRange=max([bound[1]-bound[0] for bound in yBounds]) * 1.4
+		xMaxRange, yMaxRange = num.array(self.maxRangeNH(residueSet)) * 1.4
 		for ax in axes.flat:
 			currentXRange = ax.get_xlim()
 			currentYRange = ax.get_ylim()

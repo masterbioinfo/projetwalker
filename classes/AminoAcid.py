@@ -128,3 +128,18 @@ class AminoAcid(object):
 			return (min(self.chemShiftH), max(self.chemShiftH))
 		elif dim=='N':
 			return (min(self.chemShiftN), max(self.chemShiftN))
+
+	@property
+	def arrow(self):
+		return (self.chemShiftH[0],
+				self.chemShiftN[0], 
+				(self.chemShiftH[-1] - self.chemShiftH[0]), 
+				(self.chemShiftN[-1] - self.chemShiftN[0]))
+
+	@property
+	def rangeH(self):
+		return max(self.chemShiftH) - min(self.chemShiftH)
+
+	@property
+	def rangeN(self):
+		return max(self.chemShiftN) - min(self.chemShiftN)
