@@ -297,28 +297,17 @@ class Titration(object):
 					im = ax.scatter(res.chemShiftH, res.chemShiftN,
 									facecolors='none', cmap=self.colors, c = range(self.steps),
 									alpha=0.2)
-					
-					x=num.array([1.0,1.0])
-					k=num.array(res.arrow[2:])
-					#print(x,k)
-					x -= x.dot(k) * k / num.linalg.norm(k)**2
-					x /= (num.linalg.norm(x) * 10)
-					#print(x, sqrt(sum(x ** 2)))
-					ax.arrow(*num.array(res.arrow[:2]) + x, *res.arrow[2:], 
-							head_width=0.07, head_length=0.08, fc='black', ec='red', 
-							length_includes_head=True, linestyle=':', alpha=0.6, overhang=0.5)
-					"""
-					ax.arrow(*res.arrow[:2], *x, head_width=0.07, head_length=0.08, fc='black', ec='green', 
-							length_includes_head=True, linestyle=':', alpha=0.6, overhang=0.5)
-							"""
-					ax.set_title("Residue %s " % res.position, fontsize=10)
+					#ax.set_title("Residue %s " % res.position, fontsize=10)
 					# print xticks as 2 post-comma digits float
 					ax.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+					ax.tick_params(labelsize=8)
 				else:
 					ax.remove() # remove extra subplots
 
 			# scale
 			self.scale_split_shiftmap(residueSet, axes)
+			for index, ax in enumerate(axes.flat):
+				self.annotateChemShift(residueSet[index], ax)
 
 			# display them nicely
 			fig.tight_layout()
@@ -342,13 +331,46 @@ class Titration(object):
 		fig.show()
 		return fig
 
+	def annotateChemShift(self, residue, ax):
+		xlim, ylim = ax.get_xlim(), ax.get_ylim()
+		xrange = xlim[1] - xlim[0]
+		yrange = ylim[1] - ylim[0]
+		print(xrange,yrange)
+		x=num.array([1.0,1.0])
+		#x=num.array([1.0,1.0])
+		k=num.array(residue.arrow[2:])
+		#print(x,k)
+		x -= x.dot(k) * k / num.linalg.norm(k)**2
+		x *= num.array([xrange/yrange, 1.0])
+		x /= (num.linalg.norm(x) * 10)
+		
+		#print(x, sqrt(sum(x ** 2)))
+		"""
+		ax.arrow(*num.array(residue.arrow[:2]) + x, *residue.arrow[2:],
+				head_width=0.07, head_length=0.1, fc='red', ec='red', lw=0.5,
+				length_includes_head=True, linestyle='-', alpha=0.7, overhang=0.7)
+		"""
+		arrowStart = num.array(residue.arrow[:2]) + x
+		ax.annotate("", xy=arrowStart + k, xytext=num.array(residue.arrow[:2]) + x,
+    		arrowprops=dict(arrowstyle="->", fc="red", ec='red', lw=0.5))
+		"""
+		ax.arrow(*residue.arrow[:2], *x, head_width=0.02, head_length=0.02, fc='black', ec='green', 
+				length_includes_head=True, linestyle=':', alpha=0.6, overhang=0.5)
+"""
+		horAlign = "left" if x[0] <=0 else "right"
+		vertAlign = "top" if x[1] >=0 else "bottom"
+		ax.annotate(
+			str(residue.position),
+			xy=residue.chemShift[0], xytext=residue.chemShift[0]-0.8*x,
+			xycoords='data', textcoords='data', fontsize=7,ha=horAlign, va=vertAlign)
+
 	def maxRangeNH(self, residueSet):
 		return (max([res.rangeH for res in residueSet]),
 				max([res.rangeN for res in residueSet]))
 
 	def scale_split_shiftmap(self, residueSet, axes):
 		"Scales subplots when plotting splitted shift map"
-		xMaxRange, yMaxRange = num.array(self.maxRangeNH(residueSet)) * 1.4
+		xMaxRange, yMaxRange = num.array(self.maxRangeNH(residueSet)) * 1.5
 		for ax in axes.flat:
 			currentXRange = ax.get_xlim()
 			currentYRange = ax.get_ylim()

@@ -109,6 +109,10 @@ class AminoAcid(object):
 		"""
 		return tuple(zip(self.deltaChemShiftH, self.deltaChemShiftN))
 
+	@property
+	def chemShift(self):
+		return tuple(zip(self.chemShiftH,self.chemShiftN))
+
 	@property 
 	def chemShiftIntensity(self):
 		"""
