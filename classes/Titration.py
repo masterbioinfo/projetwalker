@@ -302,15 +302,16 @@ class Titration(object):
 					k=num.array(res.arrow[2:])
 					#print(x,k)
 					x -= x.dot(k) * k / num.linalg.norm(k)**2
-					x /= num.linalg.norm(x) * 10
+					x /= (num.linalg.norm(x) * 10)
 					#print(x, sqrt(sum(x ** 2)))
-					ax.arrow(*num.array(res.arrow[:2]) + x, *res.arrow[2:], head_width=0.07, head_length=0.08, fc='black', ec='red', 
+					ax.arrow(*num.array(res.arrow[:2]) + x, *res.arrow[2:], 
+							head_width=0.07, head_length=0.08, fc='black', ec='red', 
 							length_includes_head=True, linestyle=':', alpha=0.6, overhang=0.5)
 					"""
 					ax.arrow(*res.arrow[:2], *x, head_width=0.07, head_length=0.08, fc='black', ec='green', 
 							length_includes_head=True, linestyle=':', alpha=0.6, overhang=0.5)
 							"""
-					ax.set_title("Residue %s " % res.position)
+					ax.set_title("Residue %s " % res.position, fontsize=10)
 					# print xticks as 2 post-comma digits float
 					ax.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
 				else:
