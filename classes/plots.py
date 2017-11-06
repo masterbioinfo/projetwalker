@@ -138,7 +138,8 @@ class MultiHist(BaseHist):
 		"""
 		super().__init__(xAxis, yMatrix)
 		self.figure.suptitle('Titration : steps 1 to %s' % len(yMatrix) )
-
+		self.figure.text(0.96, 0.5, 'Titration step',
+						va='center', rotation='vertical')
 
 	def setup_axes(self):
 		"""

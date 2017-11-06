@@ -321,9 +321,9 @@ class Titration(object):
 			fig.tight_layout()
 
 			# Add colorbar legend for titration steps using last plot cell data
-			fig.subplots_adjust(left=0.15, top=0.85,
+			fig.subplots_adjust(left=0.12, top=0.9,
 								right=0.85,bottom=0.15) # make room for legend
-			cbar_ax = fig.add_axes([0.90, 0.15, 0.02, 0.7])
+			cbar_ax = fig.add_axes([0.90, 0.15, 0.02, 0.75])
 			fig.colorbar(mappable=im, cax=cbar_ax).set_label("Titration steps")
 
 		else: # Trace global chem shifts map
@@ -331,7 +331,7 @@ class Titration(object):
 				im=plt.scatter(residue.chemShiftH, residue.chemShiftN, 
 								facecolors='none', cmap=self.colors, 
 								c = range(self.steps), alpha=0.2)
-			fig.subplots_adjust(left=0.15, top=0.85,
+			fig.subplots_adjust(left=0.12, top=0.90,
 								right=0.95,bottom=0.15) # make room for legend
 			# Add colorbar legend for titration steps
 			plt.colorbar().set_label("Titration steps")
