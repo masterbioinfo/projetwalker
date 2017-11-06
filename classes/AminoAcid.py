@@ -61,7 +61,7 @@ class AminoAcid(object):
 	def __repr__(self):
 		return self.__str__()
 
-	def addShift(self, **kwargs):
+	def add_chemshift(self, **kwargs):
 		"""
 		Append chemical shifts to object's lists of chemical shifts
 		If one of the values is missing, None or 0, it is ignored.
@@ -122,17 +122,6 @@ class AminoAcid(object):
 		self._chemShiftIntensity = tuple([math.sqrt(ddH**2 + (ddN/5)**2) for (ddH, ddN) in self.deltaChemShift])
 		return self._chemShiftIntensity
 
-	def getShiftBounds(self, dim=None):
-		"Return (min, max) shift value for each dimension"
-		if dim is None:
-			return {
-				'H':(min(self.chemShiftH), max(self.chemShiftH)),
-				'N':(min(self.chemShiftN), max(self.chemShiftN))
-			}
-		elif dim=='H':
-			return (min(self.chemShiftH), max(self.chemShiftH))
-		elif dim=='N':
-			return (min(self.chemShiftN), max(self.chemShiftN))
 
 	@property
 	def arrow(self):

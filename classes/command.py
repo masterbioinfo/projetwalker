@@ -74,9 +74,9 @@ class ShiftShell(Cmd):
 		"""
 		step = args[0] if args else self.titration.steps -1
 		if step == 'all': # plot stacked hist
-			hist = self.titration.plotHistogram()
+			hist = self.titration.plot_hist()
 		else: # plot single hist
-			hist = self.titration.plotHistogram(step=int(step))
+			hist = self.titration.plot_hist(step=int(step))
 		
 		if opts.export: # export figure as png
 			hist.figure.savefig(opts.export, dpi = hist.figure.dpi)
@@ -94,9 +94,9 @@ class ShiftShell(Cmd):
 		"""
 		try:
 			if args:
-				fig = self.titration.plotChemShifts(args[0], split=opts.split)
+				fig = self.titration.plot_shiftmap(args[0], split=opts.split)
 			else:
-				fig = self.titration.plotChemShifts(split=opts.split)
+				fig = self.titration.plot_shiftmap(split=opts.split)
 			if opts.export:
 				fig.savefig(opts.export, dpi=fig.dpi)
 		except ValueError as invalidArgErr:
@@ -125,7 +125,7 @@ class ShiftShell(Cmd):
 				cutOff = float(args[0])
 				self.titration.set_cutoff(cutOff)
 			if opts.plot:
-				self.titration.plotHistogram(-1)
+				self.titration.plot_hist(-1)
 		except (TypeError, IndexError) as error:
 			sys.stderr.write("%s\n" % error)
 			self.do_help("cutoff")

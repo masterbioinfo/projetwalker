@@ -80,7 +80,7 @@ class Titration(object):
 			exit(1)
 		
 		# sort files by ascending titration number
-		self.files.sort(key=lambda path: self.validateFilePath(path))
+		self.files.sort(key=lambda path: self.validate_filepath(path))
 
 		## FILE PARSING
 		for titrationFile in self.files:
@@ -94,9 +94,9 @@ class Titration(object):
 		"Adds a titration step described in `titrationFile`"
 		print("[Step %s]\tLoading file %s" % (self.steps, titrationFile), file=sys.stderr)
 		# verify file
-		step = self.validateFilePath(titrationFile, verifyStep=True)
+		step = self.validate_filepath(titrationFile, verifyStep=True)
 		# parse it
-		self.parseTitrationFile(titrationFile)
+		self.parse_titration_file(titrationFile)
 		self.steps += 1 # increase number of titration steps
 		# filter complete residues as list and sort them by positions
 		self.complete = dict([(pos, res) for pos, res in self.residues.items() if res.validate(self.steps)])
@@ -172,7 +172,7 @@ class Titration(object):
 		return summary
 
 
-	def validateFilePath(self, filePath, verifyStep=False):
+	def validate_filepath(self, filePath, verifyStep=False):
 		"""
 		Given a file path, checks if it has .list extension and if it is numbered after the titration step.
 		If `step` arg is provided, validation will enforce that parsed file number matches `step`.
@@ -196,7 +196,7 @@ class Titration(object):
 			exit(1)
 
 
-	def parseTitrationFile(self, titrationFile):
+	def parse_titration_file(self, titrationFile):
 		"""
 		Titration file parser.
 		Returns a new dict which keys are residues' position and values are AminoAcid objects.
@@ -220,7 +220,7 @@ class Titration(object):
 							position = chemShift["position"]
 							if self.residues.get(position):
 								# update AminoAcid object in residues dict
-								self.residues[position].addShift(**chemShift)
+								self.residues[position].add_chemshift(**chemShift)
 							else:
 								# create AminoAcid object in residues dict
 								self.residues[position] = AminoAcid(**chemShift)
@@ -233,7 +233,7 @@ class Titration(object):
 			exit(1)
 
 
-	def plotHistogram (self, step = None, showCutOff = True,
+	def plot_hist (self, step = None, showCutOff = True,
 								scale=True, show=True):
 		"""
 		Define all the options needed (step, cutoof) for the representation.
@@ -256,14 +256,14 @@ class Titration(object):
 			hist = Hist(self.complete, self.intensities[step-1], step=step)
 			self.hist[step] = hist
 		# add cutoff change event handling
-		hist.addCutOffListener(self.set_cutoff, mouseUpdateOnly=True)
+		hist.add_cutoff_listener(self.set_cutoff, mouseUpdateOnly=True)
 		if show:
 			hist.show()
 		if showCutOff and self.cutOff:
 			hist.set_cutoff(self.cutOff)
 		return hist
 
-	def plotChemShifts(self, residues=None, split = False):
+	def plot_shiftmap(self, residues=None, split = False):
 		"""
 		Plot measured chemical shifts for each residue as a scatter plot of (chemShiftH, chemShiftN).
 		Each color is assigned to a titration step.
@@ -315,7 +315,7 @@ class Titration(object):
 			self.scale_split_shiftmap(residueSet, axes)
 			for index, ax in enumerate(axes.flat):
 				if index < len(residueSet):
-					self.annotateChemShift(residueSet[index], ax)
+					self.annotate_chemshift(residueSet[index], ax)
 
 			# display them nicely
 			fig.tight_layout()
@@ -339,7 +339,7 @@ class Titration(object):
 		fig.show()
 		return fig
 
-	def annotateChemShift(self, residue, ax):
+	def annotate_chemshift(self, residue, ax):
 		"Adds chem shift vector and residue position for current residue in current subplot"
 		xlim, ylim = ax.get_xlim(), ax.get_ylim()
 		xrange = xlim[1] - xlim[0]
@@ -373,14 +373,14 @@ class Titration(object):
 			xy=residue.chemShift[0], xytext=residue.chemShift[0]-0.8*x,
 			xycoords='data', textcoords='data', fontsize=7,ha=horAlign, va=vertAlign)
 
-	def maxRangeNH(self, residueSet):
+	def get_max_range_NH(self, residueSet):
 		"Returns max range tuple for N and H among residues in residueSet"
 		return (max([res.rangeH for res in residueSet]),
 				max([res.rangeN for res in residueSet]))
 
 	def scale_split_shiftmap(self, residueSet, axes):
 		"Scales subplots when plotting splitted shift map"
-		xMaxRange, yMaxRange = num.array(self.maxRangeNH(residueSet)) * 1.5
+		xMaxRange, yMaxRange = num.array(self.get_max_range_NH(residueSet)) * 1.5
 		for ax in axes.flat:
 			currentXRange = ax.get_xlim()
 			currentYRange = ax.get_ylim()

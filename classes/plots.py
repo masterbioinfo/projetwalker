@@ -14,7 +14,7 @@ class BaseHist(object):
 	cutOff = None
 	bars = list()
 	selected = dict()
-	
+
 	def __init__(self, xAxis, yAxis):
 		"Init new matplotlib figure, setup widget, events, and layout"
 		self.figure = plt.figure()
@@ -23,10 +23,9 @@ class BaseHist(object):
 		# Tick every 10
 		self.positionTicks=range(min(xAxis) - max(xAxis) % 5, max(xAxis)+10, 10)
 		
-
 		# Init subplots and plotting data.
 		# Must be redefined in child classes
-		self.setupAxes()
+		self.setup_axes()
 
 		# set xy labels
 		self.xlabel = self.figure.axes[-1].set_xlabel('Residue')
@@ -34,13 +33,13 @@ class BaseHist(object):
 										va='center', rotation='vertical')
 
 		# Init cursor widget and connect it
-		self.initCursor()
-		self.initCloseEvent()
+		self.init_cursor()
+		self.init_close_event()
 
 		# initial draw
 		self.figure.canvas.draw()
 
-	def initCloseEvent(self):
+	def init_close_event(self):
 		"Capture window close event"
 		self.figure.canvas.mpl_connect('close_event', self.handle_close)
 		self.figure.canvas.mpl_connect('draw_event', self.on_draw)
@@ -58,14 +57,14 @@ class BaseHist(object):
 		"Close figure window"
 		plt.close(self.figure)
 
-	def initCursor(self):
+	def init_cursor(self):
 		"""
-		Init cursor widget and connect it to self.cutOffListener
+		Init cursor widget and connect it to self.on_cutoff_update
 		"""
 		self.cursor = CutOffCursor(self.figure.canvas, self.figure.axes,
 									color='r', linestyle='--', lw=0.8,
 									horizOn=True, vertOn=False )
-		self.cursor.on_changed(self.cutOffListener)
+		self.cursor.on_changed(self.on_cutoff_update)
 		if self.cutOff:
 			self.set_cutoff(self.cutOff)
 
@@ -74,21 +73,21 @@ class BaseHist(object):
 		self.figure.show()
 		self.closed = False
 
-	def setupAxes(self):
+	def setup_axes(self):
 		"""
 		Should define subplots in figure as well as plotting data.
 		Must be replaced in child classes.
 		"""
 		pass
 
-	def addCutOffListener(self, func, mouseUpdateOnly=False):
+	def add_cutoff_listener(self, func, mouseUpdateOnly=False):
 		"Add extra on_change cutoff event handlers"
 		if mouseUpdateOnly:
 			self.cursor.on_mouse_update(func)
 		else:
 			self.cursor.on_changed(func)
 
-	def cutOffListener(self, cutOff):
+	def on_cutoff_update(self, cutOff):
 		"""
 		Listener method to be connected to cursor widget
 		"""
@@ -138,7 +137,7 @@ class MultiHist(BaseHist):
 		self.figure.suptitle('Titration : steps 1 to %s' % len(yMatrix) )
 
 
-	def setupAxes(self):
+	def setup_axes(self):
 		"""
 		Creates a subplot for each line in yAxis matrix
 		"""
@@ -171,7 +170,7 @@ class Hist(BaseHist):
 		if step:
 			self.figure.suptitle('Titration step %s' % step )# set title
 
-	def setupAxes(self):
+	def setup_axes(self):
 		"""
 		Create a single subplot and set its layout and data.
 		"""
