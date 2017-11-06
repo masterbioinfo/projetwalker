@@ -61,6 +61,12 @@ class ShiftShell(Cmd):
 		"""
 		pass
 
+	@options([],arg_desc='(residue residue ...)')
+	def do_titration(self, arg, opts=None):
+		"Show titration curve of one or several residues."
+		for residue in arg:
+			self.titration.plot_titration(residue)
+
 
 	@options([make_option('-e', '--export', help="Export hist as image")],
 			arg_desc='(<titration_step> | all)')

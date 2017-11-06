@@ -54,7 +54,6 @@ class AminoAcid(object):
 		self._deltaChemShiftH = None
 		self._deltaChemShiftN = None
 		self._chemShiftIntensity = None
-
 	def __str__(self):
 		return str((self.position, self.chemShiftH, self.chemShiftN))
 
