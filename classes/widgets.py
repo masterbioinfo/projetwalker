@@ -33,7 +33,7 @@ class MultiDraggableCursor(MultiCursor):
 	def __init__(self, canvas, axes, useblit=True, horizOn=False, vertOn=True, **lineprops):
 		self.press = None
 		self.propagation = dict()
-		self.selfUpdated = False
+		self.mouseUpdated = False
 		self.mouse_observers = dict()
 		super().__init__(canvas, axes, useblit, horizOn, vertOn, **lineprops)
 
@@ -80,7 +80,7 @@ class MultiDraggableCursor(MultiCursor):
 		self.press = False
 		if not self.event_accept(event):
 			return
-		self.selfUpdated = True
+		self.mouseUpdated = True
 		self.cutOff = event.ydata
 		self.raise_changed(self.cutOff)
 		self.update_lines(event.xdata, event.ydata)
@@ -196,7 +196,7 @@ class WatchableWidgetMixin(object):
 		# Iterate over all signal handlers
 		for cid, func in six.iteritems(self.observers):
 			func(val)
-		if self.selfUpdated:
+		if self.mouseUpdated:
 			for cid, func in six.iteritems(self.mouse_observers):
 				func(val)
 
@@ -216,7 +216,7 @@ class CutOffCursor(MultiDraggableCursor, WatchableWidgetMixin):
 		Sets cutoff value, updating cutoff line.
 		Also sending changed signal, with kwargs arguments.
 		"""
-		self.selfUpdated = False
+		self.mouseUpdated = False
 		self.cutOff = cutOff
 		self.raise_changed(self.cutOff, **kwargs)
 		self.update_lines(None, cutOff)
