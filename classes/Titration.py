@@ -59,7 +59,6 @@ class Titration(object):
 		# init plots
 		self.stackedHist = None
 		self.hist = dict()
-		self.positionTicks = None
 
 		## FILE PATH PROCESSING
 		# keep track of source path
@@ -89,7 +88,7 @@ class Titration(object):
 		
 		## INIT CUTOFF
 		if cutOff:
-			self.setCutOff(cutOff)
+			self.set_cutoff(cutOff)
 
 	def add_step(self, titrationFile):
 		"Adds a titration step described in `titrationFile`"
@@ -110,8 +109,6 @@ class Titration(object):
 		self.intensities = [] # 2D array, by titration step then residu position
 		for step in range(self.steps - 1): # intensity is null for reference step, ignoring
 			self.intensities.append([residue.chemShiftIntensity[step] for residue in self.complete.values()])
-		# Update graph settings according to step change
-		self.positionTicks = range(min(self.complete) - min(self.complete) % 5, max(self.complete)+ 10, 10)
 		# generate colors for each titration step
 		self.colors = plt.cm.get_cmap('hsv', self.steps)
 		# close stale stacked hist
@@ -133,7 +130,7 @@ class Titration(object):
 		return self.name
 
 
-	def setCutOff(self, cutOff):
+	def set_cutoff(self, cutOff):
 		"Sets cut off for all titration steps"
 		try:
 			# check cut off validity and store it
@@ -141,9 +138,9 @@ class Titration(object):
 			self.cutOff = cutOff
 			# update cutoff in open hists
 			for hist in self.hist.values():
-				hist.setCutOff(cutOff)
+				hist.set_cutoff(cutOff)
 			if self.stackedHist:
-				self.stackedHist.setCutOff(cutOff)
+				self.stackedHist.set_cutoff(cutOff)
 			#sys.stdout.write("\r\nCut-off=%s\r\n>> " % cutOff)
 			return self.cutOff
 		except TypeError as err:
@@ -259,11 +256,11 @@ class Titration(object):
 			hist = Hist(self.complete, self.intensities[step-1], step=step)
 			self.hist[step] = hist
 		# add cutoff change event handling
-		hist.addCutOffListener(self.setCutOff, mouseUpdateOnly=True)
+		hist.addCutOffListener(self.set_cutoff, mouseUpdateOnly=True)
 		if show:
 			hist.show()
 		if showCutOff and self.cutOff:
-			hist.setCutOff(self.cutOff)
+			hist.set_cutoff(self.cutOff)
 		return hist
 
 	def plotChemShifts(self, residues=None, split = False):

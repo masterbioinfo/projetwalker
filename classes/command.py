@@ -123,7 +123,7 @@ class ShiftShell(Cmd):
 				self.stdout.write("Cut-off=%s\n" % self.titration.cutOff)
 			else:
 				cutOff = float(args[0])
-				self.titration.setCutOff(cutOff)
+				self.titration.set_cutoff(cutOff)
 			if opts.plot:
 				self.titration.plotHistogram(-1)
 		except (TypeError, IndexError) as error:

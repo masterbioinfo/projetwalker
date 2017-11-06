@@ -9,19 +9,20 @@ class BaseHist(object):
 	"""
 	Base histogram class, providing interface to a matplotlib figure.
 	"""
-
+	# flag for open/closed state
+	closed = True
+	cutOff = None
+	bars = list()
+	selected = dict()
+	
 	def __init__(self, xAxis, yAxis):
 		"Init new matplotlib figure, setup widget, events, and layout"
 		self.figure = plt.figure()
-		self.closed = True
-		self.bars = []
-		self.selected = dict()
-		self.background = []
-		self.cutOff = None
+		self.xAxis, self.yAxis = list(xAxis), list(yAxis)
 
 		# Tick every 10
-		self.positionTicks=range(xAxis[0] - xAxis[0] % 5, xAxis[-1]+10, 10)
-		self.xAxis, self.yAxis = xAxis, yAxis
+		self.positionTicks=range(min(xAxis) - max(xAxis) % 5, max(xAxis)+10, 10)
+		
 
 		# Init subplots and plotting data.
 		# Must be redefined in child classes
@@ -66,7 +67,7 @@ class BaseHist(object):
 									horizOn=True, vertOn=False )
 		self.cursor.on_changed(self.cutOffListener)
 		if self.cutOff:
-			self.setCutOff(self.cutOff)
+			self.set_cutoff(self.cutOff)
 
 	def show(self):
 		"Show figure and set open/closed state"
@@ -95,16 +96,16 @@ class BaseHist(object):
 		#print("CutOff : %s" % self.cutOff)
 		self.draw()
 
-	def setCutOff(self, cutOff):
+	def set_cutoff(self, cutOff):
 		"""
 		Cut off setter.
 		Triggers change of cut off cursor value, allowing to update figure content.
-		kwargs are passed to cursor widget setCutOff method.
+		kwargs are passed to cursor widget set_cutoff method.
 		"""
 		if self.closed :
 			self.cutOff = cutOff
 		else:
-			self.cursor.setCutOff(cutOff)
+			self.cursor.set_cutoff(cutOff)
 
 	def draw(self):
 		"""
@@ -152,7 +153,7 @@ class MultiHist(BaseHist):
 			ax.set_ylabel(stepLabel, rotation="horizontal", labelpad=15)
 			ax.yaxis.set_label_position('right')
 			#ax.yaxis.label.set_color('red')
-			self.background.append(self.figure.canvas.copy_from_bbox(ax.bbox))
+			#self.background.append(self.figure.canvas.copy_from_bbox(ax.bbox))
 			self.bars.append(ax.bar(self.xAxis, self.yAxis[index], align='center', alpha=1))
 		self.figure.subplots_adjust(left=0.15)
 
@@ -179,5 +180,5 @@ class Hist(BaseHist):
 		ax.set_xticks(self.positionTicks)
 		maxVal = num.amax(self.yAxis)
 		ax.set_ylim(0, num.round(maxVal + maxVal*0.1, decimals=1))
-		self.background.append(self.figure.canvas.copy_from_bbox(ax.bbox))
+		#self.background.append(self.figure.canvas.copy_from_bbox(ax.bbox))
 		self.bars.append(ax.bar(self.xAxis, self.yAxis, align='center', alpha=1))

@@ -192,7 +192,7 @@ class CutOffCursor(MultiDraggableCursor, WatchableWidgetMixin):
 		super().__init__(canvas, axes, useblit, horizOn, vertOn, **lineprops)
 		WatchableWidgetMixin.__init__(self)
 
-	def setCutOff(self, cutOff, **kwargs):
+	def set_cutoff(self, cutOff, **kwargs):
 		"""
 		Sets cutoff value, updating cutoff line.
 		Also sending changed signal, with kwargs arguments.
