@@ -35,7 +35,8 @@ class BaseHist(object):
 		# Init cursor widget and connect it
 		self.init_cursor()
 		self.init_close_event()
-
+		cutOffStr = "Cut-off : %.4f" if self.cutOff is not None else "Cut-off : %s"
+		self.cutOffText = self.figure.text(0.13, 0.9, cutOffStr % self.cutOff)
 		# initial draw
 		self.figure.canvas.draw()
 
@@ -92,6 +93,8 @@ class BaseHist(object):
 		Listener method to be connected to cursor widget
 		"""
 		self.cutOff = cutOff
+		cutOffStr = "Cut-off : %.4f" if self.cutOff is not None else "Cut-off : %s"
+		self.cutOffText.set_text(cutOffStr % self.cutOff)
 		#print("CutOff : %s" % self.cutOff)
 		self.draw()
 
@@ -154,7 +157,7 @@ class MultiHist(BaseHist):
 			#ax.yaxis.label.set_color('red')
 			#self.background.append(self.figure.canvas.copy_from_bbox(ax.bbox))
 			self.bars.append(ax.bar(self.xAxis, self.yAxis[index], align='center', alpha=1))
-		self.figure.subplots_adjust(left=0.15)
+		#self.figure.subplots_adjust(left=0.15)
 
 
 class Hist(BaseHist):
