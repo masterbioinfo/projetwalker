@@ -123,16 +123,28 @@ class ShiftShell(Cmd):
 				sys.stderr.write("%s\n" % error)
 				pass
 
-			
 
 	@options([])
 	def do_filter(self, args, opts=None):
 		"Output residues having intensity >= cut-off"
 		self.stdout.write("%s\n" % " ".join([str(pos) for pos in self.titration.filtered]))
 
-	@options([])
+
+	@options([], arg_desc="[all] [filtered] [complete] [incomplete] [positions_slice]")
 	def do_select(self, args, opts=None):
-		"Select a subset of residues"
+		"""
+		Select a subset of residues, either from : 
+		 - a predefined set of residues
+		 - 1 or more slices of residue positions, with python-ish syntax.
+		   e.g : ':100' matches positions from start to 100
+		         '110:117' matches positions from 100 to 117 (excluded)
+				 '105 112:115' matches positions 105 and 112 to 115 (excluded)
+		You may mix argument types, like select filtered residues + res #100 to #110 excluded :
+			>> select filtered 100:110
+		Non existant residues are skipped with a warning message.
+		Finally, selection is additive only, each selected element adds up to previous selection. 
+		If you want to clear the current selection, use deselect command.
+		"""
 		argMap = {
 			"all" : self.titration.residues,
 			"filtered" : self.titration.filtered,
@@ -148,9 +160,20 @@ class ShiftShell(Cmd):
 		selection += self.parse_residue_slice(args)
 		self.titration.select_residues(*selection)
 
+
 	@options([])
 	def do_deselect(self, args, opts=None):
-		"Deselect a subset of residues"
+		"""
+		Remove a subset of residues from current selection, specifying either : 
+		 - a predefined set of residues
+		 - 1 or more slices of residue positions, with python-ish syntax.
+		   e.g : ':100' matches positions from start to 100
+		         '110:117' matches positions from 100 to 117 (excluded)
+				 '105 112:115' matches positions 105 and 112 to 115 (excluded)
+		You may mix argument types, like deselect filtered residues + res #100 to #110 excluded :
+			>> deselect filtered 100:110
+		Deselection will silently ignore on currently non-selected residue.
+		"""
 		argMap = {
 			"all" : self.titration.residues,
 			"filtered" : self.titration.filtered,
