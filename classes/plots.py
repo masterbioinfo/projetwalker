@@ -10,16 +10,16 @@ class BaseHist(object):
 	Base histogram class, providing interface to a matplotlib figure.
 	"""
 	# flag for open/closed state
-	closed = True
+	
 	cutOff = None
-	bars = list()
-	selected = dict()
 
 	def __init__(self, xAxis, yAxis):
 		"Init new matplotlib figure, setup widget, events, and layout"
 		self.figure = plt.figure()
 		self.xAxis, self.yAxis = list(xAxis), list(yAxis)
-
+		self.closed = True
+		self.selected = dict()
+		self.bars = list()
 		# Tick every 10
 		self.positionTicks=range(min(xAxis) - max(xAxis) % 5, max(xAxis)+10, 10)
 		
@@ -37,6 +37,7 @@ class BaseHist(object):
 		self.init_close_event()
 		cutOffStr = "Cut-off : %.4f" if self.cutOff is not None else "Cut-off : %s"
 		self.cutOffText = self.figure.text(0.13, 0.9, cutOffStr % self.cutOff)
+		
 		# initial draw
 		self.figure.canvas.draw()
 
@@ -92,7 +93,7 @@ class BaseHist(object):
 		"""
 		Listener method to be connected to cursor widget
 		"""
-		self.cutOff = cutOff
+		type(self).cutOff = cutOff
 		cutOffStr = "Cut-off : %.4f" if self.cutOff is not None else "Cut-off : %s"
 		self.cutOffText.set_text(cutOffStr % self.cutOff)
 		#print("CutOff : %s" % self.cutOff)
@@ -104,9 +105,8 @@ class BaseHist(object):
 		Triggers change of cut off cursor value, allowing to update figure content.
 		kwargs are passed to cursor widget set_cutoff method.
 		"""
-		if self.closed :
-			self.cutOff = cutOff
-		else:
+		type(self).cutOff = cutOff
+		if not self.closed:
 			self.cursor.set_cutoff(cutOff)
 
 	def draw(self):
