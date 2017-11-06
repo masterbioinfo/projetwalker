@@ -29,14 +29,6 @@ class Titration(object):
 	Contains a list of aminoacid objects
 	Provides methods for accessing each titration step datas.
 	"""
-
-	residues = dict() # all residues {position:AminoAcid object}
-	complete = dict() # complete data residues
-	incomplete = set() # incomplete data res
-	intensities = list() # 2D array of intensities
-	positions = list() # list of residues positions
-	steps = 0 # titration steps counter
-	cutOff = None
 	# accepted file path pattern
 	rePath = re.compile(r'(.+/)?(.*[^\d]+)(?P<step>[0-9]+)\.list')
 	# accepted lines pattern
@@ -44,8 +36,7 @@ class Titration(object):
 	# ignored lines pattern
 	reLineIgnore = re.compile(r"^\d.*")
 	# source paths
-	source = None
-	dirPath = None
+	
 
 	def __init__(self, source, name=None, cutOff = None):
 		"""
@@ -56,6 +47,15 @@ class Titration(object):
 
 		# Placeholder for naming saved titrations
 		self.name = name or "Unnamed Titration"
+		self.residues = dict() # all residues {position:AminoAcid object}
+		self.complete = dict() # complete data residues
+		self.incomplete = set() # incomplete data res
+		self.intensities = list() # 2D array of intensities
+		self.positions = list() # list of residues positions
+		self.steps = 0 # titration steps counter
+		self.cutOff = None
+		self.source = None
+		self.dirPath = None
 		# init plots
 		self.stackedHist = None
 		self.hist = dict()
