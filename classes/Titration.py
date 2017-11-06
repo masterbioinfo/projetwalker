@@ -127,6 +127,12 @@ class Titration(object):
 		else:
 			return []
 
+	def set_name(self, name):
+		"Sets Titration instance name"
+		self.name = str(name)
+		return self.name
+
+
 	def setCutOff(self, cutOff):
 		"Sets cut off for all titration steps"
 		try:
