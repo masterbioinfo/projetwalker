@@ -29,8 +29,23 @@ class Titration(object):
 	Contains a list of aminoacid objects
 	Provides methods for accessing each titration step datas.
 	"""
-	complete = list()
-	incomplete = set()
+
+	residues = dict() # all residues {position:AminoAcid object}
+	complete = dict() # complete data residues
+	incomplete = set() # incomplete data res
+	intensities = list() # 2D array of intensities
+	positions = list() # list of residues positions
+	steps = 0 # titration steps counter
+	cutOff = None
+	# accepted file path pattern
+	rePath = re.compile(r'(.+/)?(.*[^\d]+)(?P<step>[0-9]+)\.list')
+	# accepted lines pattern
+	reLine = re.compile(r"^(?P<position>\d+)(\S*)?\s+(?P<chemShiftH>\d+\.\d+)\s+(?P<chemShiftN>\d+\.\d+)$")
+	# ignored lines pattern
+	reLineIgnore = re.compile(r"^\d.*")
+	# source paths
+	source = None
+	dirPath = None
 
 	def __init__(self, source, name=None, cutOff = None):
 		"""
@@ -41,21 +56,14 @@ class Titration(object):
 
 		# Placeholder for naming saved titrations
 		self.name = name or "Unnamed Titration"
-		# number of titration steps
-		self.steps  = 0
 		# init plots
 		self.stackedHist = None
 		self.hist = dict()
 		self.positionTicks = None
-		# init residues {position:AminoAcid object}
-		self.residues = dict()
-		# init cutoff
-		self.cutOff = None
 
 		## FILE PATH PROCESSING
 		# keep track of source path
 		self.source = source
-		self.dirPath = None
 		# fetch all .list files in source dir
 		try:
 			if type(source) is list: # or use provided source as files
@@ -92,25 +100,21 @@ class Titration(object):
 		self.parseTitrationFile(titrationFile)
 		self.steps += 1 # increase number of titration steps
 		# filter complete residues as list and sort them by positions
-		self.complete = sorted([ residue for residue in self.residues.values() if residue.validate(self.steps) ], key=lambda a: a.position)
+		self.complete = dict([(pos, res) for pos, res in self.residues.items() if res.validate(self.steps)])
 		# incomplete residues
-		self.incomplete = set(self.residues.values()) - set(self.complete)
+		self.incomplete = set(self.residues.values()) - set(self.complete.values())
 		print("\t\t%s incomplete residue out of %s" % (
 			 len(self.incomplete), len(self.complete)), file=sys.stderr)
 
 		# Recalculate (position, chem shift intensity) coordinates for histogram plot
 		self.intensities = [] # 2D array, by titration step then residu position
-		self.positions = []
-		for step in range(self.steps - 1): # intensity is null for reference step
-			self.intensities.append( [ residue.chemShiftIntensity[step] for residue in self.complete ] )
-		for residue in self.complete:
-			self.positions.append(residue.position)
-
+		for step in range(self.steps - 1): # intensity is null for reference step, ignoring
+			self.intensities.append([residue.chemShiftIntensity[step] for residue in self.complete.values()])
 		# Update graph settings according to step change
-		self.positionTicks = range(self.positions[0] - self.positions[0] % 5, self.positions[-1] + 10, 10)
+		self.positionTicks = range(min(self.complete) - min(self.complete) % 5, max(self.complete)+ 10, 10)
 		# generate colors for each titration step
 		self.colors = plt.cm.get_cmap('hsv', self.steps)
-
+		# close stale stacked hist
 		if self.stackedHist and not self.stackedHist.closed:
 			self.stackedHist.close()
 
@@ -118,10 +122,10 @@ class Titration(object):
 	@property
 	def filtered(self):
 		"Returns list of filtered residue having last intensity >= cutoff value"
-		if self.cutOff:
-			return  [residue for residue in self.complete if residue.chemShiftIntensity[self.steps-2] >= self.cutOff]
+		if self.cutOff is not None:
+			return  [res for res in self.complete.values() if res.chemShiftIntensity[self.steps-2] >= self.cutOff]
 		else:
-			return self.complete
+			return []
 
 	def setCutOff(self, cutOff):
 		"Sets cut off for all titration steps"
@@ -172,8 +176,8 @@ class Titration(object):
 		Returns the titration step number if found, IOError is raised otherwise
 		"""
 		try:
-			rePath = re.compile(r'(.+/)?(.*[^\d]+)(?P<step>[0-9]+)\.list') # expected path format
-			matching = rePath.match(filePath) # attempt to match
+			
+			matching = self.rePath.match(filePath) # attempt to match
 			if matching:
 				if verifyStep and int(matching.group("step")) != self.steps:
 					raise IOError("File %s expected to contain data for titration step #%s.\
@@ -198,32 +202,25 @@ class Titration(object):
 		"""
 		try :
 			with open(titrationFile, "r", encoding = "utf-8") as titration:
-
-				# expected line format
-
-				reLine = re.compile(r"^(?P<pos>\d+)N-H\s+(?P<csH>\d+\.\d+)\s+(?P<csN>\d+\.\d+)$")
-				reLineIgnore = re.compile(r"^\d.*")
-
 				for lineNb, line in enumerate(titration) :
 					line = line.strip()
-
-					# check for ignoring empty lines and header lines
-					if reLineIgnore.match(line):
-
+					# ignore empty lines and header lines
+					if self.reLineIgnore.match(line):
 						# attempt to match to expected format
-						lineMatch = reLine.match(line)
+						lineMatch = self.reLine.match(line)
 						if lineMatch: # parse as dict
-							chemShift = dict(zip(("position", "chemShiftH", "chemShiftN"),
-													lineMatch.groups() ))
-
+							chemShift = lineMatch.groupdict()
+							# Convert parsed str to number types 
+							for castFunc, key in zip((float, float, int), sorted(chemShift)):
+								chemShift[key] = castFunc(chemShift[key])
 							# add or update residue
-							if self.residues.get(chemShift["position"]):
+							position = chemShift["position"]
+							if self.residues.get(position):
 								# update AminoAcid object in residues dict
-								self.residues[chemShift["position"]].addShift(**chemShift)
+								self.residues[position].addShift(**chemShift)
 							else:
 								# create AminoAcid object in residues dict
-								self.residues[chemShift["position"]] = AminoAcid(**chemShift)
-
+								self.residues[position] = AminoAcid(**chemShift)
 						else:
 							# non parsable, non ignorable line
 							raise ValueError("Could not parse file %s at line %s" % (titrationFile, lineNb))
@@ -240,13 +237,12 @@ class Titration(object):
 		Call the getHistogram function to show corresponding histogram plots.
 		"""
 		if not step: # plot stacked histograms of all steps
-			# close stacked hist
+			# close stacked hist if needed
 			if self.stackedHist and not self.stackedHist.closed:
 				self.stackedHist.close()
 			# replace stacked hist with new hist
-			hist = MultiHist(self.positions,self.intensities)
+			hist = MultiHist(self.complete,self.intensities)
 			self.stackedHist = hist
-			self.stackedHist.addCutOffListener(self.setCutOff, mouseUpdateOnly=True)
 		else: # plot specific titration step
 			# allow accession using python-ish negative index
 			step = step if step >= 0 else self.steps + step
@@ -254,9 +250,10 @@ class Titration(object):
 			if self.hist.get(step) and not self.hist[step].closed:
 				self.hist[step].close()
 			# plot new hist
-			hist = Hist(self.positions, self.intensities[step-1], step=step)
+			hist = Hist(self.complete, self.intensities[step-1], step=step)
 			self.hist[step] = hist
-			self.hist[step].addCutOffListener(self.setCutOff, mouseUpdateOnly=True)
+		# add cutoff change event handling
+		hist.addCutOffListener(self.setCutOff, mouseUpdateOnly=True)
 		if show:
 			hist.show()
 		if showCutOff and self.cutOff:
@@ -271,8 +268,8 @@ class Titration(object):
 		If using `split` option, each residue is plotted in its own subplot.
 		"""
 		argMap = {
-			"all" : self.residues, # might be error prone because of missing data
-			"complete" : self.complete,
+			"all" : self.residues.values(), # might be error prone because of missing data
+			"complete" : self.complete.values(),
 			"filtered" : self.filtered
 			#"selected" : self.selected
 		} 
@@ -282,7 +279,7 @@ class Titration(object):
 			else:
 				raise ValueError("Invalid argument : %s" % residues)
 		else:
-			residueSet = self.complete # using complete residues by default
+			residueSet = self.complete.values() # using complete residues by default
 		fig = plt.figure()
 
 		# set title
