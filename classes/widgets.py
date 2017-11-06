@@ -154,6 +154,24 @@ class WatchableWidgetMixin(object):
 		self.cnt += 1
 		return cid
 
+	def on_mouse_update(self, func):
+		"""
+		When the widget value is changed __from mouse events__, 
+		call *func* with the new widget value
+		Parameters
+		----------
+		func : callable
+			Function to call when widget is changed.
+		Returns
+		-------
+		cid : int
+			Connection id (which can be used to disconnect *func*)
+		"""
+		cid = self.cnt
+		self.mouse_observers[cid] = func
+		self.cnt += 1
+		return cid
+
 	def disconnect(self, cid):
 		"""
 		Remove the observer with connection id *cid*
@@ -164,6 +182,7 @@ class WatchableWidgetMixin(object):
 		"""
 		try:
 			del self.observers[cid]
+			del self.mouse_observers[cid]
 		except KeyError:
 			pass
 
@@ -203,20 +222,4 @@ class CutOffCursor(MultiDraggableCursor, WatchableWidgetMixin):
 		self.update_lines(None, cutOff)
 
 
-	def on_mouse_update(self, func):
-		"""
-		When the widget value is changed __from mouse events__, 
-		call *func* with the new widget value
-		Parameters
-		----------
-		func : callable
-			Function to call when widget is changed.
-		Returns
-		-------
-		cid : int
-			Connection id (which can be used to disconnect *func*)
-		"""
-		cid = self.cnt
-		self.mouse_observers[cid] = func
-		self.cnt += 1
-		return cid
+
