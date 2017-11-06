@@ -142,9 +142,10 @@ class ShiftShell(Cmd):
 		Select a subset of residues, either from : 
 		 - a predefined set of residues
 		 - 1 or more slices of residue positions, with python-ish syntax.
-		   e.g : ':100' matches positions from start to 100
-		         '110:117' matches positions from 100 to 117 (excluded)
-				 '105 112:115' matches positions 105 and 112 to 115 (excluded)
+		Examples : 
+			':100' matches positions from start to 100
+			'110:117' matches positions from 100 to 117 (excluded)
+			'105 112:115' matches positions 105 and 112 to 115 (excluded)
 		You may mix argument types, like select filtered residues + res #100 to #110 excluded :
 			>> select filtered 100:110
 		Non existant residues are skipped with a warning message.
