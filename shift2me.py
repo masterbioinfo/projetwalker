@@ -28,14 +28,17 @@ from classes.command import ShiftShell
 
 
 args = docopt(__doc__)
-print(args)
-#Enter experimentals files :
+#print(args)
+
+# Build titration instance
 if args["<file.list>"]:
 	titration = Titration(args["<file.list>"], cutOff=args["--cut-off"])
 elif args["<dir>"]:
 	titration = Titration(args["<dir>"], cutOff=args["--cut-off"])
 
-#Cutoff selection by the user.
+# Turn off MPL interactive mode
 plt.ioff()
+# Init CLI
 cli = ShiftShell(titration = titration)
+# Start main loop
 cli.cmdloop()

@@ -43,36 +43,43 @@ class Titration(object):
 		self.name = name or "Unnamed Titration"
 		# number of titration steps
 		self.steps  = 0
-
-		## FILE PATH PROCESSING
-		# keep track of source data
-		self.source = source
-		# fetch all .list files in source dir
-		if type(source) is list: # or use provided source as files
-			self.files = source
-			self.dirPath = os.path.dirname(source[0])
-		elif os.path.isdir(source):
-			self.files = [ os.path.join(self.source, titrationFile) for titrationFile in os.listdir(source) if ".list" in titrationFile ]
-			self.dirPath = os.path.abspath(source)
-		elif os.path.isfile(source):
-			return self.load(source)
-		# sort files by ascending titration number
-		self.files.sort(key=lambda path: self.validateFilePath(path))
-
-		## PLOTTING
+		# init plots
 		self.stackedHist = None
 		self.hist = dict()
 		self.positionTicks = None
-
-		## FILE PARSING
 		# init residues {position:AminoAcid object}
 		self.residues = dict()
-		# and fill it by parsing files
+		# init cutoff
+		self.cutOff = None
+
+		## FILE PATH PROCESSING
+		# keep track of source path
+		self.source = source
+		self.dirPath = None
+		# fetch all .list files in source dir
+		try:
+			if type(source) is list: # or use provided source as files
+				self.files = source
+				self.dirPath = os.path.dirname(source[0])
+			elif os.path.isdir(source):
+				self.files = [ os.path.join(self.source, titrationFile) for titrationFile in os.listdir(source) if ".list" in titrationFile ]
+				self.dirPath = os.path.abspath(source)
+				if len(self.files) < 1:
+					raise ValueError("Directory %s does not contain any `.list` titration file." % self.dirPath)
+			elif os.path.isfile(source):
+				return self.load(source)
+		except ValueError as error:
+			print("%s" % error, file=sys.stderr)
+			exit(1)
+		
+		# sort files by ascending titration number
+		self.files.sort(key=lambda path: self.validateFilePath(path))
+
+		## FILE PARSING
 		for titrationFile in self.files:
 			self.add_step(titrationFile)
 		
 		## INIT CUTOFF
-		self.cutOff = None
 		if cutOff:
 			self.setCutOff(cutOff)
 
