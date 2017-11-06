@@ -104,10 +104,94 @@ class ShiftShell(Cmd):
 			self.do_help("shiftmap")
 			self.stdout.write("")
 
+	@options([], arg_desc="( filtered | selected | complete | incomplete )")
+	def do_print(self, args, opts=None):
+		"Output specific titration infos to standard output"
+		argMap = {
+			"filtered" : self.titration.filtered,
+			"selected" : self.titration.selected,
+			"complete" : self.titration.complete,
+			"incomplete" : self.titration.incomplete
+		}
+		for arg in args:
+			try:
+				if arg in argMap:
+					self.stdout.write("%s\n" % " ".join([str(pos) for pos in argMap[arg]]))
+				else:
+					raise ValueError("Skipping invalid argument %s" % arg)
+			except ValueError as error:
+				sys.stderr.write("%s\n" % error)
+				pass
 
-	def do_filter(self,args):
+			
+
+	@options([])
+	def do_filter(self, args, opts=None):
 		"Output residues having intensity >= cut-off"
-		self.stdout.write("%s\n" % ";".join([str(res.position) for res in self.titration.filtered]))
+		self.stdout.write("%s\n" % " ".join([str(pos) for pos in self.titration.filtered]))
+
+	@options([])
+	def do_select(self, args, opts=None):
+		"Select a subset of residues"
+		argMap = {
+			"all" : self.titration.residues,
+			"filtered" : self.titration.filtered,
+			"complete" : self.titration.complete,
+			"incomplete" : self.titration.incomplete
+		}
+		selection = []
+		for arg in args:
+			if arg in argMap:
+				args.remove(arg)
+				selection += list(argMap[arg])
+
+		selection += self.parse_residue_slice(args)
+		self.titration.select_residues(*selection)
+
+	@options([])
+	def do_deselect(self, args, opts=None):
+		"Deselect a subset of residues"
+		argMap = {
+			"all" : self.titration.residues,
+			"filtered" : self.titration.filtered,
+			"complete" : self.titration.complete,
+			"incomplete" : self.titration.incomplete
+		}
+		selection = []
+		for arg in args:
+			if arg in argMap:
+				args.remove(arg)
+				selection += list(argMap[arg])
+		selection += self.parse_residue_slice(args)
+		self.titration.deselect_residues(*selection)
+
+	def parse_residue_slice(self, sliceList):
+		"""
+		Parses a list of residue position slices
+		a list element might describe an arbitrary of ';' separated slices
+		slices are expanded the same as python slice, i.e 5:8 will yield 5,6,7
+		5: will yield all positions from 5 to last.
+		"""
+		selection = []
+		for mainArg in sliceList:
+			altSplitArg = mainArg.split(';')
+			for arg in altSplitArg:
+				arg = arg.split(':')
+				arg = [ int(subArg) if subArg else None for subArg in arg]
+				if len(arg) > 1:
+					if all(subArg is None for subArg in arg):
+						break
+					elif arg[0] is None:
+						selection += range(min(self.titration.residues), arg[1])
+					elif arg[1] is None:
+						selection += range(arg[0], max(self.titration.residues))
+					else:
+						selection += range(arg[0], arg[1])
+				elif len(arg) == 1:
+					selection += arg
+				else:
+					break
+		return selection
 
 	def do_summary(self, args):
 		"Prints a summary of current titration state"
@@ -119,6 +203,7 @@ class ShiftShell(Cmd):
 	arg_desc = '<float>')
 	def do_cutoff(self, args, opts=None):
 		try:
+			print(args)
 			if not args :
 				self.stdout.write("Cut-off=%s\n" % self.titration.cutOff)
 			else:
@@ -152,6 +237,11 @@ class ShiftShell(Cmd):
 		residueSetArgs = ['all', 'complete', 'filtered', 'selected']
 		return self.complete_arg_set(text, line, residueSetArgs)
 
+	def complete_print(self, text, line ,begidx, endidx):
+		"Completer for shiftmap command"
+		residueSetArgs = ['incomplete', 'complete', 'filtered', 'selected']
+		return self.complete_arg_set(text, line, residueSetArgs)
+
 	def complete_flag_path(self, shortFlag, longFlag, text, line ,begidx, endidx):
 		# accept --flag=, flag=, --flag, flag
 		longFlag = '--'+longFlag.strip('--=')+'='
@@ -165,6 +255,14 @@ class ShiftShell(Cmd):
 		elif text.startswith(longFlag[:3]):
 			return [longFlag]
 		return []
+
+	def complete_select(self, text, line ,begidx, endidx):
+		"Completer for select command"
+		residueSetArgs = ['incomplete', 'complete', 'filtered', 'all']
+		return self.complete_arg_set(text, line, residueSetArgs)
+
+	def complete_deselect(self, text, line ,begidx, endidx):
+		return self.complete_select(text, line ,begidx, endidx)
 
 	def _listdir(self, root):
 		"List directory 'root' appending the path separator to subdirs."

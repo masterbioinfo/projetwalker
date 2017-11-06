@@ -49,9 +49,9 @@ class Titration(object):
 		self.name = name or "Unnamed Titration"
 		self.residues = dict() # all residues {position:AminoAcid object}
 		self.complete = dict() # complete data residues
-		self.incomplete = set() # incomplete data res
+		self.incomplete = dict() # incomplete data res
+		self.selected = dict()
 		self.intensities = list() # 2D array of intensities
-		self.positions = list() # list of residues positions
 		self.steps = 0 # titration steps counter
 		self.cutOff = None
 		self.source = None
@@ -99,9 +99,16 @@ class Titration(object):
 		self.parse_titration_file(titrationFile)
 		self.steps += 1 # increase number of titration steps
 		# filter complete residues as list and sort them by positions
-		self.complete = dict([(pos, res) for pos, res in self.residues.items() if res.validate(self.steps)])
-		# incomplete residues
-		self.incomplete = set(self.residues.values()) - set(self.complete.values())
+		for pos in range(min(self.residues), max(self.residues)):
+			if pos not in self.residues:
+				self.residues[pos] = AminoAcid(position=pos)
+		self.complete = dict()
+		for pos, res in self.residues.items():
+			if res.validate(self.steps):
+				self.complete[pos] = res
+			else:
+				self.incomplete[pos] = res
+				
 		print("\t\t%s incomplete residue out of %s" % (
 			 len(self.incomplete), len(self.complete)), file=sys.stderr)
 
@@ -120,7 +127,7 @@ class Titration(object):
 	def filtered(self):
 		"Returns list of filtered residue having last intensity >= cutoff value"
 		if self.cutOff is not None:
-			return  [res for res in self.complete.values() if res.chemShiftIntensity[self.steps-2] >= self.cutOff]
+			return  dict([(res.position,res) for res in self.complete.values() if res.chemShiftIntensity[self.steps-2] >= self.cutOff])
 		else:
 			return []
 
@@ -129,6 +136,28 @@ class Titration(object):
 		self.name = str(name)
 		return self.name
 
+	def select_residues(self, *positions):
+		"Select a subset of residues"
+		for pos in positions:
+			try:
+				self.selected[pos] = self.residues[pos]
+			except KeyError:
+				print("Residue at position %s does not exist. Skipping selection." % pos, file=sys.stderr)
+				continue
+		return self.selected
+		
+
+	def deselect_residues(self, *positions):
+		"Deselect some residues. Calling with no arguments will deselect all."
+		try:
+			if not positions:
+				self.selected = dict()
+			else:
+				for pos in positions:
+					self.selected.pop(pos)
+			return self.selected
+		except KeyError:
+			pass
 
 	def set_cutoff(self, cutOff):
 		"Sets cut off for all titration steps"
@@ -271,18 +300,20 @@ class Titration(object):
 		If using `split` option, each residue is plotted in its own subplot.
 		"""
 		argMap = {
-			"all" : self.residues.values(), # might be error prone because of missing data
-			"complete" : self.complete.values(),
-			"filtered" : self.filtered
-			#"selected" : self.selected
+			"all" : list(self.residues.values()), # might be error prone because of missing data
+			"complete" : list(self.complete.values()),
+			"filtered" : list(self.filtered.values()),
+			"selected" : list(self.selected.values())
 		} 
 		if residues:
 			if argMap.get(residues):
-				residueSet = argMap[residues]
+				residueSet = [res for res in argMap[residues] if res.position not in self.incomplete]
+				if not residueSet: return
 			else:
 				raise ValueError("Invalid argument : %s" % residues)
 		else:
 			residueSet = self.complete.values() # using complete residues by default
+		
 		fig = plt.figure()
 
 		# set title
@@ -331,10 +362,11 @@ class Titration(object):
 				im=plt.scatter(residue.chemShiftH, residue.chemShiftN, 
 								facecolors='none', cmap=self.colors, 
 								c = range(self.steps), alpha=0.2)
-			fig.subplots_adjust(left=0.12, top=0.90,
-								right=0.95,bottom=0.15) # make room for legend
+			fig.subplots_adjust(left=0.15, top=0.90,
+								right=0.85,bottom=0.15) # make room for legend
 			# Add colorbar legend for titration steps
-			plt.colorbar().set_label("Titration steps")
+			cbar_ax = fig.add_axes([0.90, 0.15, 0.02, 0.75])
+			fig.colorbar(mappable=im, cax=cbar_ax).set_label("Titration steps")
 
 		fig.show()
 		return fig
