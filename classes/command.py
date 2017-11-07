@@ -11,7 +11,7 @@ class ShiftShell(Cmd):
 			"Type help or ? to list commands.\n"
 	prompt = ">> "
 	file = None
-	cutOff = None
+	cutoff = None
 	
 	def __init__(self, *args, **kwargs):
 		self.allow_cli_args = False
@@ -249,10 +249,10 @@ class ShiftShell(Cmd):
 		try:
 			print(args)
 			if not args :
-				self.stdout.write("Cut-off=%s\n" % self.titration.cutOff)
+				self.stdout.write("Cut-off=%s\n" % self.titration.cutoff)
 			else:
-				cutOff = float(args[0])
-				self.titration.set_cutoff(cutOff)
+				cutoff = float(args[0])
+				self.titration.set_cutoff(cutoff)
 			if opts.plot:
 				self.titration.plot_hist(-1)
 		except (TypeError, IndexError) as error:

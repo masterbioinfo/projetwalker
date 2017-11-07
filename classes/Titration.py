@@ -283,7 +283,7 @@ class Titration(BaseTitration):
 	# source paths
 	
 
-	def __init__(self, source, name=None, cutOff = None, initFile=None, **kwargs):
+	def __init__(self, source, name=None, cutoff = None, initFile=None, **kwargs):
 		"""
 		Load titration files, check their integrity
 		`source` is either a directory containing `.list` file, or is a list of `.list` files
@@ -297,7 +297,7 @@ class Titration(BaseTitration):
 		self.selected = dict()
 		self.intensities = list() # 2D array of intensities
 		self.steps = 0 # titration steps counter, handled by parent class
-		self.cutOff = None
+		self.cutoff = None
 		self.source = None
 		self.dirPath = None
 		# init plots
@@ -328,8 +328,8 @@ class Titration(BaseTitration):
 		
 		
 		## INIT CUTOFF
-		if cutOff:
-			self.set_cutoff(cutOff)
+		if cutoff:
+			self.set_cutoff(cutoff)
 
 		## finish
 		if not self.name:
@@ -375,22 +375,22 @@ class Titration(BaseTitration):
 		if self.stackedHist and not self.stackedHist.closed:
 			self.stackedHist.close()
 
-	def set_cutoff(self, cutOff):
+	def set_cutoff(self, cutoff):
 		"Sets cut off for all titration steps"
 		try:
 			# check cut off validity and store it
-			cutOff = float(cutOff)
-			self.cutOff = cutOff
+			cutoff = float(cutoff)
+			self.cutoff = cutoff
 			# update cutoff in open hists
 			for hist in self.hist.values():
-				hist.set_cutoff(cutOff)
+				hist.set_cutoff(cutoff)
 			if self.stackedHist:
-				self.stackedHist.set_cutoff(cutOff)
-			#sys.stdout.write("\r\nCut-off=%s\r\n>> " % cutOff)
-			return self.cutOff
+				self.stackedHist.set_cutoff(cutoff)
+			#sys.stdout.write("\r\nCut-off=%s\r\n>> " % cutoff)
+			return self.cutoff
 		except TypeError as err:
 			print("Invalid cut-off value : {error}\n".format(error=err), file=sys.stderr)
-			return self.cutOff
+			return self.cutoff
 
 	def validate_filepath(self, filePath, verifyStep=False):
 		"""
@@ -483,8 +483,8 @@ class Titration(BaseTitration):
 		hist.add_cutoff_listener(self.set_cutoff, mouseUpdateOnly=True)
 		if show:
 			hist.show()
-		if showCutOff and self.cutOff:
-			hist.set_cutoff(self.cutOff)
+		if showCutOff and self.cutoff:
+			hist.set_cutoff(self.cutoff)
 		return hist
 
 	def plot_shiftmap(self, residues=None, split = False):
@@ -729,8 +729,8 @@ class Titration(BaseTitration):
 	@property
 	def filtered(self):
 		"Returns list of filtered residue having last intensity >= cutoff value"
-		if self.cutOff is not None:
-			return dict([(res.position,res) for res in self.complete.values() if res.chemShiftIntensity[self.steps-2] >= self.cutOff])
+		if self.cutoff is not None:
+			return dict([(res.position,res) for res in self.complete.values() if res.chemShiftIntensity[self.steps-2] >= self.cutoff])
 		else:
 			return []
 
@@ -750,7 +750,7 @@ class Titration(BaseTitration):
 		summary += "--------------------------------------------\n"
 		summary += "Source dir :\t{dir}\n".format(dir=self.dirPath)
 		summary += "Steps :\t\t{steps} (reference step 0 to {last})\n".format(steps=self.steps, last=self.steps -1)
-		summary += "Cut-off :\t{cutoff}\n".format(cutoff=self.cutOff)
+		summary += "Cut-off :\t{cutoff}\n".format(cutoff=self.cutoff)
 		summary += "Total residues :\t\t{res}\n".format(res=len(self.residues))
 		summary += " - Complete residues :\t\t{complete}\n".format(complete=len(self.complete))
 		summary += " - Incomplete residues :\t{incomplete}\n".format(incomplete=len(self.incomplete))

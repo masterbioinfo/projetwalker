@@ -11,7 +11,7 @@ class BaseHist(object):
 	"""
 	# flag for open/closed state
 	
-	cutOff = None
+	cutoff = None
 
 	def __init__(self, xAxis, yAxis):
 		"Init new matplotlib figure, setup widget, events, and layout"
@@ -35,8 +35,8 @@ class BaseHist(object):
 		# Init cursor widget and connect it
 		self.init_cursor()
 		self.init_close_event()
-		cutOffStr = "Cut-off : %.4f" if self.cutOff is not None else "Cut-off : %s"
-		self.cutOffText = self.figure.text(0.13, 0.9, cutOffStr % self.cutOff)
+		cutoffStr = "Cut-off : %.4f" if self.cutoff is not None else "Cut-off : %s"
+		self.cutoffText = self.figure.text(0.13, 0.9, cutoffStr % self.cutoff)
 		
 		# initial draw
 		self.figure.canvas.draw()
@@ -49,7 +49,7 @@ class BaseHist(object):
 	def on_draw(self, event):
 		"Prevent cut off hiding, e.g on window resize"
 		self.cursor.visible = True
-		self.cursor.update_lines(None, self.cutOff)
+		self.cursor.update_lines(None, self.cutoff)
 
 	def handle_close(self, event):
 		"Set closed state to true on window close"
@@ -67,8 +67,8 @@ class BaseHist(object):
 									color='r', linestyle='--', lw=0.8,
 									horizOn=True, vertOn=False )
 		self.cursor.on_changed(self.on_cutoff_update)
-		if self.cutOff:
-			self.set_cutoff(self.cutOff)
+		if self.cutoff:
+			self.set_cutoff(self.cutoff)
 
 	def show(self):
 		"Show figure and set open/closed state"
@@ -89,25 +89,25 @@ class BaseHist(object):
 		else:
 			self.cursor.on_changed(func)
 
-	def on_cutoff_update(self, cutOff):
+	def on_cutoff_update(self, cutoff):
 		"""
 		Listener method to be connected to cursor widget
 		"""
-		type(self).cutOff = cutOff
-		cutOffStr = "Cut-off : %.4f" if self.cutOff is not None else "Cut-off : %s"
-		self.cutOffText.set_text(cutOffStr % self.cutOff)
-		#print("CutOff : %s" % self.cutOff)
+		type(self).cutoff = cutoff
+		cutoffStr = "Cut-off : %.4f" if self.cutoff is not None else "Cut-off : %s"
+		self.cutoffText.set_text(cutoffStr % self.cutoff)
+		#print("CutOff : %s" % self.cutoff)
 		self.draw()
 
-	def set_cutoff(self, cutOff):
+	def set_cutoff(self, cutoff):
 		"""
 		Cut off setter.
 		Triggers change of cut off cursor value, allowing to update figure content.
 		kwargs are passed to cursor widget set_cutoff method.
 		"""
-		type(self).cutOff = cutOff
+		type(self).cutoff = cutoff
 		if not self.closed:
-			self.cursor.set_cutoff(cutOff)
+			self.cursor.set_cutoff(cutoff)
 
 	def draw(self):
 		"""
@@ -115,8 +115,8 @@ class BaseHist(object):
 		"""
 		for ax, axBar in zip(self.figure.axes, self.bars):
 			for bar in axBar:
-				if self.cutOff:
-					if bar.get_height() >= self.cutOff: # show high intensity residues
+				if self.cutoff:
+					if bar.get_height() >= self.cutoff: # show high intensity residues
 						if not self.selected.get(bar):
 							bar.set_facecolor('orange')
 							self.selected[bar] = 1
