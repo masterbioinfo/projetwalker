@@ -15,6 +15,8 @@ import os
 import pickle
 import re
 import sys
+import csv
+import json
 from math import *
 
 import matplotlib.pyplot as plt
@@ -25,7 +27,7 @@ from classes.AminoAcid import AminoAcid
 from classes.plots import Hist, MultiHist
 from classes.widgets import CutOffCursor
 
-
+"""
 class TitrationStep(object):
 	steps = 0
 
@@ -35,10 +37,128 @@ class TitrationStep(object):
 
 	def __del__(self):
 		type(self).steps -= 1
+"""
+
+class BaseTitration(object):
+
+	def __init__(self, *args, **kwargs):
+		self.analyte = {
+			"name" : "",
+			"concentration" : 0
+		}
+		self.titrant = {
+			"name" : "",
+			"concentration" : 0
+		}
+		self.startVol = 0
+		self.analyteStartVol = 0
+		self.steps = 0
+		self.volumeAdded = list()
+
+		self.add_step(0)
+
+	def add_step(self, volume):
+		self.steps += 1
+		self.volumeAdded.append(float(volume))
+
+	@property 
+	def is_consistent(self):
+		return True if len(self.volumeAddedself) == self.steps else False
+
+	@property
+	def volTitrant(self):
+		volCumul = []
+		for vol in self.volumeAdded:
+			volCumul.append(sum(volCumul) + vol)
+		return volCumul
+
+	@property
+	def volTotal(self):
+		return [vol + self.startVol for vol in self.volTitrant]
+
+	@property
+	def concentrationAnalyte(self):
+		return [self.analyteStartVol*self.analyte['concentration'] / volTot for volTot in self.volTotal]
+
+	@property
+	def concentrationTitrant(self):
+		return [volTitrantStep*self.titrant['concentration'] / volTot for volTitrantStep, volTot in zip(self.volTitrant, self.volTotal)]
+
+	@property
+	def concentrationRatio(self):
+		return [concTitrant/concAnalyte for concTitrant, concAnalyte in zip(self.concentrationTitrant, self.concentrationAnalyte)]
+
+	@property
+	def as_init_dict(self):
+		return {
+			'titrant' : self.titrant,
+			'analyte' : self.analyte,
+			'start_volume': {
+				"analyte" : self.analyteStartVol,
+				"total" : self.startVol
+			}
+		}
+	"""
+	def dump_steps(self):
+		dictDump = list()
+		for step in range(self.steps):
+			dictDump.append(self.step_as_dict(step))
+		return dictDump
+	"""
+
+	def step_as_dict(self, step):
+		dictStep = dict()
+		dictStep["step"] = step
+		dictStep["vol added (%s)" % self.titrant['name']] = self.volumeAdded[step]
+		dictStep["vol %s" % self.titrant['name']] = self.volTitrant[step]
+		dictStep["vol total"] = self.volTotal[step]
+		dictStep["[%s] µM" % self.analyte['name']] = self.concentrationAnalyte[step]
+		dictStep["[%s] µM" % self.titrant['name']] = self.concentrationTitrant[step]
+		dictStep["[%s]/[%s]" % (self.titrant['name'], self.analyte['name'])] = self.concentrationRatio[step]
+		return dictStep
+
+	def load_init_file(self, file):
+		try:
+			fileHandle = open(file, 'r') if file else sys.stdout
+			with fileHandle as initFile:
+				initDict = json.load(initFile)
+			self.titrant = initDict['titrant']
+			self.analyte = initDict['analyte']
+			self.name = initDict.get('name') or self.name
+			self.analyteStartVol = initDict['start_volume']['analyte']
+			self.startVol = initDict['start_volume']['total']
+		except IOError as fileError:
+			print("%s" % error, file=sys.stderr)
+		except IndexError as parseError:
+			print("Missing data in init file. Please check it is accurately formatted as JSON. %s" % parseError)
+
+	def dump_init_file(self, file=None):
+		try: 
+			fileHandle = open(file, 'w') if file else sys.stdout
+			with fileHandle as initFile:
+				json.dump(self.as_init_dict, initFile)
+		except IOError as fileError:
+			print("%s" % error, file=sys.stderr)
 
 
+	def csv(self, file=None):
+		try: 
+			fileHandle = open(file, 'w', newline='') if file else sys.stdout
+			with fileHandle as output:
+				fieldnames = ["step","vol added (%s)" % self.titrant['name'], 
+								"vol %s" % self.titrant['name'], "vol total",
+								"[%s] µM" % self.analyte['name'],
+								"[%s] µM" % self.titrant['name'],
+								"[%s]/[%s]" % (self.titrant['name'], self.analyte['name'])]
+				writer = csv.DictWriter(output, fieldnames=fieldnames)
 
-class Titration(object):
+				writer.writeheader()
+				for row in self.step_as_dict:
+					writer.writerow(row)
+		except (IOError, IndexError) as error:
+			print("%s" % error, file=sys.stderr)
+
+class Titration(BaseTitration):
 	"""
 	Class Titration.
 	Contains a list of aminoacid objects
@@ -67,13 +187,15 @@ class Titration(object):
 		self.incomplete = dict() # incomplete data res
 		self.selected = dict()
 		self.intensities = list() # 2D array of intensities
-		self.steps = 0 # titration steps counter
+		self.steps = 0 # titration steps counter, handled by parent class
 		self.cutOff = None
 		self.source = None
 		self.dirPath = None
 		# init plots
 		self.stackedHist = None
 		self.hist = dict()
+
+		#super().__init__()
 
 		## FILE PATH PROCESSING
 		# keep track of source path
@@ -109,7 +231,7 @@ class Titration(object):
 
 
 ##---------------------
-##	Titration 
+##	Titration + RMN Analysis
 ##---------------------
 
 	def add_step(self, titrationFile):
@@ -160,9 +282,6 @@ class Titration(object):
 		except TypeError as err:
 			sys.stderr.write("Invalid cut-off value : %s\n" % err)
 			return self.cutOff
-
-
-
 
 	def validate_filepath(self, filePath, verifyStep=False):
 		"""
