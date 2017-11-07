@@ -60,7 +60,7 @@ class BaseTitration(object):
 		"Sets Titration instance name"
 		self.name = str(name)
 		return self.name
-	
+
 	def add_step(self, volume = None):
 		self.steps += 1
 		if volume is not None:
@@ -189,21 +189,20 @@ class BaseTitration(object):
 			print("Could not convert value to number : %s" % typeError)
 			return None
 		except IOError as fileError:
-			print("%s" % error, file=sys.stderr)
+			print("{error}".format(fileError), file=sys.stderr)
 			return None
 		except KeyError as parseError:
 			print("Missing required data in init file. Please check it is accurately formatted as JSON.")
-			print("Hint: %s" % parseError)
+			print("Hint: {error}".format(parseError), file=sys.stderr)
 			return None
 		except ValueError as valError:
-			print("{error}".format(valError))
+			print("{error}".format(valError), file=sys.stderr)
 			return None
 
 	def load_init_file(self, initFile):
 		initDict = self.check_init_file(initFile)
 		if initDict is None: 
 			return
-		print(initDict)
 		self.titrant = initDict['titrant']
 		self.analyte = initDict['analyte']
 		self.name = initDict.get('name') or self.name
@@ -311,25 +310,10 @@ class Titration(BaseTitration):
 		self.source = source
 		# fetch all .list files in source dir
 		try:
-			if type(source) is list: # or use provided source as files
-				self.files = source
-				self.dirPath = os.path.dirname(source[0])
-			elif os.path.isdir(source):
-				self.dirPath = os.path.abspath(source)
-				self.files = [ os.path.join(self.dirPath, titrationFile) for titrationFile in os.listdir(self.dirPath) if titrationFile.endswith(".list") ]
-				initFileList = [ os.path.join(self.dirPath, ini) for ini in os.listdir(self.dirPath) if ini.endswith(".ini") ]
-				if len(initFileList) > 1:
-					raise ValueError("More than one `.ini` file found in {source}. Please remove the extra files.".format(self.dirPath))
-				elif initFileList:
-					self.initFile = initFileList.pop()
-				if len(self.files) < 1:
-					raise ValueError("Directory %s does not contain any `.list` titration file." % self.dirPath)
-			elif os.path.isfile(source):
-				return self.load(source)
+			self.extract_source()
 		except ValueError as error:
 			print("%s" % error, file=sys.stderr)
 			exit(1)
-		
 		# sort files by ascending titration number
 		self.files.sort(key=lambda path: self.validate_filepath(path))
 
@@ -352,9 +336,10 @@ class Titration(BaseTitration):
 			self.name = "Unnamed Titration"
 
 
-##---------------------
+## --------------------------------
 ##	Titration + RMN Analysis
-##---------------------
+## --------------------------------
+		
 
 	def add_step(self, titrationFile, volume=None):
 		"Adds a titration step described in `titrationFile`"
@@ -468,9 +453,9 @@ class Titration(BaseTitration):
 			exit(1)
 
 
-##------------------------
+## ------------------------
 ##	Plotting
-##------------------------
+## ------------------------
 
 	def plot_hist (self, step = None, showCutOff = True,
 								scale=True, show=True):
@@ -643,7 +628,6 @@ class Titration(BaseTitration):
 					fontsize=7, ha=horAlign, va=vertAlign)
 
 
-
 	def scale_split_shiftmap(self, residueSet, axes):
 		"Scales subplots when plotting splitted shift map"
 		xMaxRange, yMaxRange = np.array(self.get_max_range_NH(residueSet)) * 1.5
@@ -656,9 +640,30 @@ class Titration(BaseTitration):
 			ax.set_ylim(yMiddle - yMaxRange/2, yMiddle + yMaxRange/2)
 
 
-##-------------------------
+## -------------------------
 ##	Utils
-##-------------------------
+## -------------------------
+
+	def extract_source(self):
+		"""
+		Handles source data depending on type (file list, directory, saved file).
+		Should be called only on __init__()
+		"""
+		if type(source) is list: # or use provided source as files
+			self.files = source
+			self.dirPath = os.path.dirname(source[0])
+		elif os.path.isdir(source):
+			self.dirPath = os.path.abspath(source)
+			self.files = [ os.path.join(self.dirPath, titrationFile) for titrationFile in os.listdir(self.dirPath) if titrationFile.endswith(".list") ]
+			initFileList = [ os.path.join(self.dirPath, ini) for ini in os.listdir(self.dirPath) if ini.endswith(".ini") ]
+			if len(initFileList) > 1:
+				raise ValueError("More than one `.ini` file found in {source}. Please remove the extra files.".format(self.dirPath))
+			elif initFileList:
+				self.initFile = initFileList.pop()
+			if len(self.files) < 1:
+				raise ValueError("Directory %s does not contain any `.list` titration file." % self.dirPath)
+		elif os.path.isfile(source):
+			return self.load(source)
 
 	def select_residues(self, *positions):
 		"Select a subset of residues"
@@ -717,9 +722,9 @@ class Titration(BaseTitration):
 			sys.stderr.write("Could not load titration : %s\n" % loadError)
 
 
-##--------------------------
+## --------------------------
 ##	Properties
-##--------------------------
+## --------------------------
 
 	@property
 	def filtered(self):
@@ -740,9 +745,9 @@ class Titration(BaseTitration):
 	@property
 	def summary(self):
 		"Returns a short summary of current titration status as string."
-		summary =   "--------------------------------------------\n"
+		summary =  "--------------------------------------------\n"
 		summary += "> %s\n" % self.name
-		summary +=  "--------------------------------------------\n"
+		summary += "--------------------------------------------\n"
 		summary += "Source dir :\t%s\n" % self.dirPath
 		summary += "Steps :\t\t%s (reference step 0 to %s)\n" % (self.steps, self.steps -1)
 		summary += "Cut-off :\t%s\n" % self.cutOff
@@ -750,5 +755,5 @@ class Titration(BaseTitration):
 		summary += " - Complete residues :\t\t%s\n" % len(self.complete)
 		summary += " - Incomplete residues :\t%s\n" % len(self.incomplete)
 		summary += " - Filtered residues :\t\t%s\n" % len(self.filtered)
-		summary +=  "--------------------------------------------\n"
+		summary += "--------------------------------------------\n"
 		return summary
