@@ -11,17 +11,20 @@ The class provides matplotlib wrapping functions, allowing to display the data f
 as well as setting a cut-off to filter residues having high intensity values.
 """
 
+import os
+import pickle
+import re
+import sys
+from math import *
+
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.ticker import FormatStrFormatter
 
-import numpy as num
-from math import *
-import os, re, sys
-import pickle
-
 from classes.AminoAcid import AminoAcid
-from classes.widgets import CutOffCursor
 from classes.plots import Hist, MultiHist
+from classes.widgets import CutOffCursor
+
 
 class TitrationStep(object):
 	steps = 0
@@ -104,6 +107,11 @@ class Titration(object):
 
 		self.protLigRatio = list()
 
+
+##---------------------
+##	Titration 
+##---------------------
+
 	def add_step(self, titrationFile):
 		"Adds a titration step described in `titrationFile`"
 		print("[Step %s]\tLoading file %s" % (self.steps, titrationFile), file=sys.stderr)
@@ -135,37 +143,6 @@ class Titration(object):
 		# close stale stacked hist
 		if self.stackedHist and not self.stackedHist.closed:
 			self.stackedHist.close()
-
-
-
-
-	def set_name(self, name):
-		"Sets Titration instance name"
-		self.name = str(name)
-		return self.name
-
-	def select_residues(self, *positions):
-		"Select a subset of residues"
-		for pos in positions:
-			try:
-				self.selected[pos] = self.residues[pos]
-			except KeyError:
-				print("Residue at position %s does not exist. Skipping selection." % pos, file=sys.stderr)
-				continue
-		return self.selected
-		
-
-	def deselect_residues(self, *positions):
-		"Deselect some residues. Calling with no arguments will deselect all."
-		try:
-			if not positions:
-				self.selected = dict()
-			else:
-				for pos in positions:
-					self.selected.pop(pos)
-			return self.selected
-		except KeyError:
-			pass
 
 	def set_cutoff(self, cutOff):
 		"Sets cut off for all titration steps"
@@ -248,6 +225,10 @@ class Titration(object):
 			exit(1)
 
 
+##------------------------
+##	Plotting
+##------------------------
+
 	def plot_hist (self, step = None, showCutOff = True,
 								scale=True, show=True):
 		"""
@@ -295,6 +276,9 @@ class Titration(object):
 			split = False
 			residueSet = self.complete.values() # using complete residues by default
 		
+		if len(residueSet) > 64 and split:
+			raise ValueError("Refusing to plot so many (%s) residues in split mode. Sorry." % len(residueSet))
+
 		fig = plt.figure()
 
 		# set title
@@ -324,13 +308,13 @@ class Titration(object):
 
 			# scale
 			self.scale_split_shiftmap(residueSet, axes)
+			# annotate
 			for index, ax in enumerate(axes.flat):
 				if index < len(residueSet):
 					self.annotate_chemshift(residueSet[index], ax)
 
 			# display them nicely
 			fig.tight_layout()
-
 			# Add colorbar legend for titration steps using last plot cell data
 			fig.subplots_adjust(left=0.12, top=0.9,
 								right=0.85,bottom=0.15) # make room for legend
@@ -380,39 +364,27 @@ class Titration(object):
 		else:
 			print("No Ligand-to-Protein concentration ratio found.")
 
-	def protLigCalcul(self, protInitConc, ligInitConc, totVol, protVol, ligVol, overwrite = False):
-		if overwrite:
-			self.protLigRatio = list()
-		for index in range(0,len(protVol)):
-			protFinalConc = protInitConc*protVol[index]/totVol[index]
-			ligFinalConc = ligInitConc*(ligVol)/totVol[index]
-			self.protLigRatio.append(protFinalConc/ligFinalConc)
-		if len(self.protLigRatio) == self.steps:
-			del(self.protLigRatio[0])
-		print(" ".join(map(str,self.protLigRatio)))
-		return self.protLigRatio
-
 	def annotate_chemshift(self, residue, ax):
 		"Adds chem shift vector and residue position for current residue in current subplot"
 		xlim, ylim = ax.get_xlim(), ax.get_ylim()
 		xrange, yrange = (xlim[1] - xlim[0], ylim[1] - ylim[0])
 		
-		shiftVector = num.array(residue.arrow[2:])
-		orthoVector = num.array([1.0,1.0])
+		shiftVector = np.array(residue.arrow[2:])
+		orthoVector = np.array([1.0,1.0])
 		# make orthogonal
-		orthoVector -= orthoVector.dot(shiftVector) * shiftVector / num.linalg.norm(shiftVector)**2
+		orthoVector -= orthoVector.dot(shiftVector) * shiftVector / np.linalg.norm(shiftVector)**2
 		# scale ratio
-		orthoVector *= num.array([xrange/yrange, 1.0])
+		orthoVector *= np.array([xrange/yrange, 1.0])
 		# normalize
-		orthoVector /= (num.linalg.norm(orthoVector) * 10)
+		orthoVector /= (np.linalg.norm(orthoVector) * 10)
 		
 		"""
 		# plot using mpl arrow
-		ax.arrow(*num.array(residue.arrow[:2]) + x, *residue.arrow[2:],
+		ax.arrow(*np.array(residue.arrow[:2]) + x, *residue.arrow[2:],
 				head_width=0.07, head_length=0.1, fc='red', ec='red', lw=0.5,
 				length_includes_head=True, linestyle='-', alpha=0.7, overhang=0.7)
 		"""
-		arrowStart = num.array(residue.arrow[:2]) + orthoVector
+		arrowStart = np.array(residue.arrow[:2]) + orthoVector
 		ax.annotate("", xy=arrowStart + shiftVector, xytext=arrowStart,
     				arrowprops=dict(arrowstyle="->", fc="red", ec='red', lw=0.5))
 		"""
@@ -427,14 +399,11 @@ class Titration(object):
 					xycoords='data', textcoords='data', 
 					fontsize=7, ha=horAlign, va=vertAlign)
 
-	def get_max_range_NH(self, residueSet):
-		"Returns max range tuple for N and H among residues in residueSet"
-		return (max([res.rangeH for res in residueSet]),
-				max([res.rangeN for res in residueSet]))
+
 
 	def scale_split_shiftmap(self, residueSet, axes):
 		"Scales subplots when plotting splitted shift map"
-		xMaxRange, yMaxRange = num.array(self.get_max_range_NH(residueSet)) * 1.5
+		xMaxRange, yMaxRange = np.array(self.get_max_range_NH(residueSet)) * 1.5
 		for ax in axes.flat:
 			currentXRange = ax.get_xlim()
 			currentYRange = ax.get_ylim()
@@ -442,6 +411,56 @@ class Titration(object):
 			yMiddle = sum(currentYRange) / 2
 			ax.set_xlim(xMiddle - xMaxRange/2, xMiddle + xMaxRange/2)
 			ax.set_ylim(yMiddle - yMaxRange/2, yMiddle + yMaxRange/2)
+
+
+##-------------------------
+##	Utils
+##-------------------------
+
+	def select_residues(self, *positions):
+		"Select a subset of residues"
+		for pos in positions:
+			try:
+				self.selected[pos] = self.residues[pos]
+			except KeyError:
+				print("Residue at position %s does not exist. Skipping selection." % pos, file=sys.stderr)
+				continue
+		return self.selected
+		
+
+	def deselect_residues(self, *positions):
+		"Deselect some residues. Calling with no arguments will deselect all."
+		try:
+			if not positions:
+				self.selected = dict()
+			else:
+				for pos in positions:
+					self.selected.pop(pos)
+			return self.selected
+		except KeyError:
+			pass
+
+	def set_name(self, name):
+		"Sets Titration instance name"
+		self.name = str(name)
+		return self.name
+
+	def protLigCalcul(self, protInitConc, ligInitConc, totVol, protVol, ligVol, overwrite = False):
+		if overwrite:
+			self.protLigRatio = list()
+		for index in range(0,len(protVol)):
+			protFinalConc = protInitConc*protVol[index]/totVol[index]
+			ligFinalConc = ligInitConc*(ligVol)/totVol[index]
+			self.protLigRatio.append(protFinalConc/ligFinalConc)
+		if len(self.protLigRatio) == self.steps:
+			del(self.protLigRatio[0])
+		print(" ".join(map(str,self.protLigRatio)))
+		return self.protLigRatio
+
+	def get_max_range_NH(self, residueSet):
+		"Returns max range tuple for N and H among residues in residueSet"
+		return (max([res.rangeH for res in residueSet]),
+				max([res.rangeN for res in residueSet]))
 
 	def save(self, path):
 		"Save method for titration object"

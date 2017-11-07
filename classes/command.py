@@ -114,7 +114,7 @@ class ShiftShell(Cmd):
 				if argMap.get(args[0]):
 					fig = self.titration.plot_shiftmap(argMap[args[0]], split=opts.split)
 				else:
-					raise ValueError("Invalid argument : %s" % args[0])
+					raise ValueError("Invalid argument : %s. Use `shiftmap -h` for help." % args[0])
 
 			else:
 				fig = self.titration.plot_shiftmap(split=opts.split)
@@ -122,8 +122,7 @@ class ShiftShell(Cmd):
 				fig.savefig(opts.export, dpi=fig.dpi)
 		except ValueError as invalidArgErr:
 			sys.stderr.write("%s\n" % invalidArgErr)
-			self.do_help("shiftmap")
-			self.stdout.write("")
+			#self.do_help("shiftmap")
 
 	@options([], arg_desc="( filtered | selected | complete | incomplete )")
 	def do_print(self, args, opts=None):
@@ -139,7 +138,7 @@ class ShiftShell(Cmd):
 				if arg in argMap:
 					self.stdout.write("%s\n" % " ".join([str(pos) for pos in argMap[arg]]))
 				else:
-					raise ValueError("Skipping invalid argument %s" % arg)
+					raise ValueError("Skipping invalid argument %s." % arg)
 			except ValueError as error:
 				sys.stderr.write("%s\n" % error)
 				pass
