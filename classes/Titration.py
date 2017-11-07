@@ -183,20 +183,20 @@ class BaseTitration(object):
 				if volume <= 0:
 					raise ValueError("Invalid volume ({vol}) for {volKey}".format(vol=volume, volKey=volumeKey))
 			if  volAnalyte > volTotal:
-				raise ValueError("Initial analyte volume ({analite}) cannot be greater than total volume {total}".format(volAnalyte, volTotal))
+				raise ValueError("Initial analyte volume ({analyte}) cannot be greater than total volume {total}".format(analyte=volAnalyte, total=volTotal))
 			return initDict
 		except TypeError as typeError:
 			print("Could not convert value to number : %s" % typeError)
 			return None
 		except IOError as fileError:
-			print("{error}".format(fileError), file=sys.stderr)
+			print("{error}".format(error=fileError), file=sys.stderr)
 			return None
 		except KeyError as parseError:
 			print("Missing required data in init file. Please check it is accurately formatted as JSON.")
-			print("Hint: {error}".format(parseError), file=sys.stderr)
+			print("Hint: {error}".format(error=parseError), file=sys.stderr)
 			return None
 		except ValueError as valError:
-			print("{error}".format(valError), file=sys.stderr)
+			print("{error}".format(error=valError), file=sys.stderr)
 			return None
 
 	def load_init_file(self, initFile):
@@ -219,7 +219,7 @@ class BaseTitration(object):
 			with fileHandle as initHandle:
 				json.dump(self.as_init_dict, initHandle, indent=2)
 		except IOError as fileError:
-			print("%s" % error, file=sys.stderr)
+			print("{error}".format(error=fileError), file=sys.stderr)
 			return
 
 	def load_volumes_file(self, volFile, **kwargs):
@@ -233,10 +233,10 @@ class BaseTitration(object):
 					volumes.append(float(line))
 			return self.set_volumes(*volumes, **kwargs)
 		except IOError as fileError:
-			print("{error}".format(fileError), file=sys.stderr)
+			print("{error}".format(error=fileError), file=sys.stderr)
 			return
 		except TypeError as typeError:
-			print("Could not convert line {line} to float value.".format(line))
+			print("Could not convert line {line} to float value.".format(line=line))
 			return
 
 	def csv(self, file=None):
@@ -244,12 +244,12 @@ class BaseTitration(object):
 			fileHandle = open(file, 'w', newline='') if file else sys.stdout
 			with fileHandle as output:
 				fieldnames = [	"#step",
-								"vol added %s (µL)" % self.titrant['name'], 
-								"vol %s (µL)" % self.titrant['name'], 
+								"vol added {titrant} (µL)".format(titrant=self.titrant['name']), 
+								"vol {titrant} (µL)".format(titrant=self.titrant['name']),)
 								"vol total (µL)",
-								"[%s] (µM)" % self.analyte['name'],
-								"[%s] (µM)" % self.titrant['name'],
-								"[%s]/[%s]" % (self.titrant['name'], self.analyte['name'])	]
+								"[{analyte}] (µM)".format(analyte=self.analyte['name']),
+								"[{titrant}] (µM)".format(titrant=self.titrant['name']),
+								"[{titrant}]/[{analyte}]".format(titrant=self.titrant['name'], analyte=self.analyte['name')	]
 
 				writer = csv.DictWriter(output, fieldnames=fieldnames, delimiter='\t')
 
@@ -257,7 +257,7 @@ class BaseTitration(object):
 				for step in range(self.steps):
 					writer.writerow(self.step_as_dict(step))
 		except (IOError, IndexError) as error:
-			print("%s" % error, file=sys.stderr)
+			print("{error}".format(error=error), file=sys.stderr)
 			return
 
 
@@ -312,7 +312,7 @@ class Titration(BaseTitration):
 		try:
 			self.extract_source()
 		except ValueError as error:
-			print("%s" % error, file=sys.stderr)
+			print("{error}".format(error=error), file=sys.stderr)
 			exit(1)
 		# sort files by ascending titration number
 		self.files.sort(key=lambda path: self.validate_filepath(path))
@@ -343,7 +343,7 @@ class Titration(BaseTitration):
 
 	def add_step(self, titrationFile, volume=None):
 		"Adds a titration step described in `titrationFile`"
-		print("[Step %s]\tLoading file %s" % (self.steps, titrationFile), file=sys.stderr)
+		print("[Step {step}]\tLoading file {titration_file}".format(step=self.steps, titration_file=titrationFile), file=sys.stderr)
 		# verify file
 		step = self.validate_filepath(titrationFile, verifyStep=True)
 		# parse it
@@ -362,8 +362,8 @@ class Titration(BaseTitration):
 			else:
 				self.incomplete[pos] = res
 				
-		print("\t\t%s incomplete residue out of %s" % (
-			 len(self.incomplete), len(self.complete)), file=sys.stderr)
+		print("\t\t{incomplete} incomplete residue out of {total}".format(
+			 incomplete=len(self.incomplete), total=len(self.complete)), file=sys.stderr)
 
 		# Recalculate (position, chem shift intensity) coordinates for histogram plot
 		self.intensities = [] # 2D array, by titration step then residu position
@@ -389,7 +389,7 @@ class Titration(BaseTitration):
 			#sys.stdout.write("\r\nCut-off=%s\r\n>> " % cutOff)
 			return self.cutOff
 		except TypeError as err:
-			sys.stderr.write("Invalid cut-off value : %s\n" % err)
+			print("Invalid cut-off value : {error}\n".format(error=err), file=sys.stderr)
 			return self.cutOff
 
 	def validate_filepath(self, filePath, verifyStep=False):
@@ -410,9 +410,9 @@ class Titration(BaseTitration):
 				return int(matching.group("step"))
 			else:
 				# found incorrect line format
-				raise IOError("Refusing to parse file %s : please check it is named like *[0-9]+.list" % filePath)
+				raise IOError("Refusing to parse file {file} : please check it is named like *[0-9]+.list".format(file=filePath))
 		except IOError as err:
-			sys.stderr.write("%s\n" % err )
+			print("{error}\n".format(error=err), file=sys.stderr )
 			exit(1)
 
 
@@ -446,10 +446,10 @@ class Titration(BaseTitration):
 								self.residues[position] = AminoAcid(**chemShift)
 						else:
 							# non parsable, non ignorable line
-							raise ValueError("Could not parse file %s at line %s" % (titrationFile, lineNb))
+							raise ValueError("Could not parse file {file} at line {line}".format(file=titrationFile, line=lineNb))
 
 		except (IOError, ValueError) as error:
-			sys.stderr.write("%s\n" % error)
+			print("{error}\n".format(error=error), file=sys.stderr)
 			exit(1)
 
 
@@ -505,7 +505,7 @@ class Titration(BaseTitration):
 			residueSet = self.complete.values() # using complete residues by default
 		
 		if len(residueSet) > 64 and split:
-			raise ValueError("Refusing to plot so many (%s) residues in split mode. Sorry." % len(residueSet))
+			raise ValueError("Refusing to plot so many ({count}) residues in split mode. Sorry.".format(count=len(residueSet)))
 
 		fig = plt.figure()
 
@@ -657,11 +657,11 @@ class Titration(BaseTitration):
 			self.files = [ os.path.join(self.dirPath, titrationFile) for titrationFile in os.listdir(self.dirPath) if titrationFile.endswith(".list") ]
 			initFileList = [ os.path.join(self.dirPath, ini) for ini in os.listdir(self.dirPath) if ini.endswith(".ini") ]
 			if len(initFileList) > 1:
-				raise ValueError("More than one `.ini` file found in {source}. Please remove the extra files.".format(self.dirPath))
+				raise ValueError("More than one `.ini` file found in {source}. Please remove the extra files.".format(source=self.dirPath))
 			elif initFileList:
 				self.initFile = initFileList.pop()
 			if len(self.files) < 1:
-				raise ValueError("Directory %s does not contain any `.list` titration file." % self.dirPath)
+				raise ValueError("Directory {dir} does not contain any `.list` titration file.".format(dir=self.dirPath))
 		elif os.path.isfile(source):
 			return self.load(source)
 
@@ -671,7 +671,7 @@ class Titration(BaseTitration):
 			try:
 				self.selected[pos] = self.residues[pos]
 			except KeyError:
-				print("Residue at position %s does not exist. Skipping selection." % pos, file=sys.stderr)
+				print("Residue at position {pos} does not exist. Skipping selection.".format(pos=pos), file=sys.stderr)
 				continue
 		return self.selected
 		
@@ -707,7 +707,7 @@ class Titration(BaseTitration):
 			self.stackedHist = stackedHist
 			self.hist= hist
 		except IOError as fileError:
-			sys.stderr.write("Could not save titration : %s\n" % fileError)
+			print("Could not save titration : {error}\n".format(error=fileError), file=sys.stderr)
 
 	def load(self, path):
 		"Loads previously saved titration in place of current instance"
@@ -717,9 +717,9 @@ class Titration(BaseTitration):
 				if type(self) == Titration:
 					return self
 				else:
-					raise ValueError("%s does not contain a Titration object" % path)
+					raise ValueError("{file} does not contain a Titration object".format(file=path))
 		except (ValueError, IOError) as loadError:
-			sys.stderr.write("Could not load titration : %s\n" % loadError)
+			print("Could not load titration : {error}\n".format(error=loadError), file=sys.stderr)
 
 
 ## --------------------------
@@ -730,7 +730,7 @@ class Titration(BaseTitration):
 	def filtered(self):
 		"Returns list of filtered residue having last intensity >= cutoff value"
 		if self.cutOff is not None:
-			return  dict([(res.position,res) for res in self.complete.values() if res.chemShiftIntensity[self.steps-2] >= self.cutOff])
+			return dict([(res.position,res) for res in self.complete.values() if res.chemShiftIntensity[self.steps-2] >= self.cutOff])
 		else:
 			return []
 
@@ -746,14 +746,14 @@ class Titration(BaseTitration):
 	def summary(self):
 		"Returns a short summary of current titration status as string."
 		summary =  "--------------------------------------------\n"
-		summary += "> %s\n" % self.name
+		summary += "> {name}\n".format(name=self.name)
 		summary += "--------------------------------------------\n"
-		summary += "Source dir :\t%s\n" % self.dirPath
-		summary += "Steps :\t\t%s (reference step 0 to %s)\n" % (self.steps, self.steps -1)
-		summary += "Cut-off :\t%s\n" % self.cutOff
-		summary += "Total residues :\t\t%s\n" % len(self.residues)
-		summary += " - Complete residues :\t\t%s\n" % len(self.complete)
-		summary += " - Incomplete residues :\t%s\n" % len(self.incomplete)
-		summary += " - Filtered residues :\t\t%s\n" % len(self.filtered)
+		summary += "Source dir :\t{dir}\n".format(dir=self.dirPath)
+		summary += "Steps :\t\t{steps} (reference step 0 to {last})\n".format(steps=self.steps, last=self.steps -1)
+		summary += "Cut-off :\t{cutoff}\n".format(cutoff=self.cutOff)
+		summary += "Total residues :\t\t{res}\n".format(res=len(self.residues))
+		summary += " - Complete residues :\t\t{complete}\n".format(complete=len(self.complete))
+		summary += " - Incomplete residues :\t{incomplete}\n".format(incomplete=len(self.incomplete))
+		summary += " - Filtered residues :\t\t{filtered}\n".format(filtered=len(self.filtered))
 		summary += "--------------------------------------------\n"
 		return summary
