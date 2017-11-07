@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- encoding: utf-8 -*-
 """	
-Shift2Me : 2D-NMR chemical shifts analysis for  	ein interactions.
+Shift2Me : 2D-NMR chemical shifts analysis for protein interactions.
 
 Usage: 
 	shift2me.py [-t <file.json>] [-c <cutoff>] <file.list> <file.list> ... 
@@ -37,12 +37,13 @@ if args["--jsonFile"]:
 	jsonFile = args["--jsonFile"]
 	expdatas = BaseTitration()
 	expdatas.dump_init_file(file = jsonFile)
-	#print (expdatas.analyte)
-	print("**Script will continue after you fill and close this file**")
-	os.system('gedit experimental.json')
+	print (expdatas.analyte)
+	print("**Script will end after you fill and close this file**")
+	os.system('gedit ' + str(jsonFile))
 	#os.system('nano experimental.json')
 	expdatas.load_init_file(file = jsonFile)
 	#print (expdatas.analyte)
+	exit()
 
 if args["<file.list>"]:
 	titration = Titration(args["<file.list>"], cutOff=args["--cut-off"])
