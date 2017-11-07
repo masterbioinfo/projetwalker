@@ -12,7 +12,7 @@ Usage:
 Options:
   -c <cutoff>, --cut-off=<cutoff>   				Set default cutoff at <cutoff> (float).
   -i <titration.ini>, --init-file=<titration.ini>  	Initialize titration from file.ini (JSON format)
-  -t <file.ini>, --template=<file.ini> 	Initialize a file to be filled with experimental datas
+  -t <file.ini>, --template=<file.ini> 				Initialize a template titration.ini file, to be filled with titration parameters.
   -h --help                        	 				Print help and usage
 
 This program can calculate chemicals shifts of 15N and 1H during a portein protein interaction in fonction of titation of the secondary protein. 
