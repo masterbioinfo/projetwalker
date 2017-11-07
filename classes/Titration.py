@@ -337,6 +337,10 @@ class Titration(object):
 
 
 	def plot_titration(self, residue):
+		"""Titration curve of a residue as a scatter plot (intensity, protLigRatio).
+		Each color is assigned to a titration step.
+		Residue is an integer of the residue position.
+		"""
 		
 		if self.protLigRatio is not None:
 			intensitiesPerResidu = self.complete[int(residue)].chemShiftIntensity
@@ -446,6 +450,11 @@ class Titration(object):
 		return self.name
 
 	def protLigCalcul(self, protInitConc, ligInitConc, totVol, protVol, ligVol, overwrite = False):
+		"""Calculate a P/L concentration ratio for each titration step.
+		Takes initial ligand and protein concentrations, total and protein volumes lists for each step and a ligand volume for all steps.
+		Overwrite option enables to remove previous ratio to write a new one.
+		Returns a list of ratio in protLigRatio attribut.
+		"""
 		if overwrite:
 			self.protLigRatio = list()
 		for index in range(0,len(protVol)):
