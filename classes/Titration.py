@@ -27,49 +27,107 @@ from classes.AminoAcid import AminoAcid
 from classes.plots import Hist, MultiHist
 from classes.widgets import CutOffCursor
 
-"""
-class TitrationStep(object):
-	steps = 0
 
-	def __init__(self, titration, volumeAdded):
-		self.id = type(self).steps
-		type(self).steps += 1
-
-	def __del__(self):
-		type(self).steps -= 1
-"""
 
 class BaseTitration(object):
 
-	def __init__(self, *args, **kwargs):
+	def __init__(self, initFile=None):
+		self.isInit = False
 		self.analyte = {
-			"name" : "",
+			"name" : "analyte",
 			"concentration" : 0
 		}
 		self.titrant = {
-			"name" : "",
+			"name" : "titrant",
 			"concentration" : 0
 		}
 		self.startVol = 0
 		self.analyteStartVol = 0
+
 		self.steps = 0
 		self.volumeAdded = list()
+		self.volumePending = list()
+		if initFile is not None:
+			self.load_init_file(initFile)
+			self.add_step(0)
 
-		self.add_step(0)
 
-	def add_step(self, volume):
+## -------------------------------------------------
+## 		Manipulation methods
+## -------------------------------------------------
+
+	def add_step(self, volume = None):
 		self.steps += 1
-		self.volumeAdded.append(float(volume))
+		if volume is not None:
+			self.volumePending[0] = volume
+		if self.volumePending:
+			self.volumeAdded.append(self.volumePending.pop(0))
+		return self.volumePending
+	
+	def set_volumes(self, *volumes, updateSteps=False):
+		volumes = sorted(map(float, volumes))
+		if not volumes:
+			return
+		if not volumes[0] == 0:  # first volume must be 0 (reference)
+			volumes.insert(0, 0)
+		self.volumePending = volumes
+		self.volumeAdded = []
+		if updateSteps:
+			while self.add_step():
+				pass
+		return self.volumePending
+
+	def add_volumes(self, *volumes, updateSteps=False):
+		if not self.volumePending and not volumes[0] == 0:
+			volumes.insert(0,0)  # first volume must be 0 (reference)
+			self.volumePending += volumes
+		if updateSteps:
+			while self.add_step():
+				pass
+		return self.volumePending
+
+	def flush_pending(self):
+		self.volumePending = []
+		return self.volumePending
+
+	def step_as_dict(self, step):
+		dictStep = dict()
+		dictStep["#step"] = step
+		dictStep["vol added %s (µL)" % self.titrant['name']] = self.volumeAdded[step]
+		dictStep["vol %s (µL)" % self.titrant['name']] = self.volTitrant[step]
+		dictStep["vol total (µL)"] = self.volTotal[step]
+		dictStep["[%s] (µM)" % self.analyte['name']] = self.concentrationAnalyte[step]
+		dictStep["[%s] (µM)" % self.titrant['name']] = self.concentrationTitrant[step]
+		dictStep["[%s]/[%s]" % (self.titrant['name'], self.analyte['name'])] = self.concentrationRatio[step]
+		return dictStep
+
+## -----------------------------------------------------
+## 		Properties
+## -----------------------------------------------------
+
+	@property
+	def pending(self):
+		return self.volumePending if self.volumePending else None
+
+	@property
+	def status(self):
+		statusStr = ""
+		if not self.isInit:
+			return None
+		for step in range(self.steps):
+			statusStr += "{stepdict}\n".format(stepdict=str(self.step_as_dict(step)))
+		statusStr += "Pending volumes : {pending}".format(pending=self.pending)
+		return statusStr
 
 	@property 
 	def is_consistent(self):
-		return True if len(self.volumeAddedself) == self.steps else False
+		return True if len(self.volumeAdded) == self.steps else False
 
 	@property
 	def volTitrant(self):
-		volCumul = []
-		for vol in self.volumeAdded:
-			volCumul.append(sum(volCumul) + vol)
+		volCumul = [0]
+		for vol in self.volumeAdded[1:]:
+			volCumul.append(volCumul[-1] + vol)
 		return volCumul
 
 	@property
@@ -96,67 +154,114 @@ class BaseTitration(object):
 			'start_volume': {
 				"analyte" : self.analyteStartVol,
 				"total" : self.startVol
-			}
+			},
+			'add_volumes': self.volumeAdded + self.volumePending
 		}
-	"""
-	def dump_steps(self):
-		dictDump = list()
-		for step in range(self.steps):
-			dictDump.append(self.step_as_dict(step))
-		return dictDump
-	"""
 
-	def step_as_dict(self, step):
-		dictStep = dict()
-		dictStep["step"] = step
-		dictStep["vol added (%s)" % self.titrant['name']] = self.volumeAdded[step]
-		dictStep["vol %s" % self.titrant['name']] = self.volTitrant[step]
-		dictStep["vol total"] = self.volTotal[step]
-		dictStep["[%s] µM" % self.analyte['name']] = self.concentrationAnalyte[step]
-		dictStep["[%s] µM" % self.titrant['name']] = self.concentrationTitrant[step]
-		dictStep["[%s]/[%s]" % (self.titrant['name'], self.analyte['name'])] = self.concentrationRatio[step]
-		return dictStep
+## -----------------------------------------------------
+## 		Input/output
+## -----------------------------------------------------
 
-	def load_init_file(self, file):
+	def check_init_file(self, initFile):
 		try:
-			fileHandle = open(file, 'r') if file else sys.stdout
-			with fileHandle as initFile:
-				initDict = json.load(initFile)
-			self.titrant = initDict['titrant']
-			self.analyte = initDict['analyte']
-			self.name = initDict.get('name') or self.name
-			self.analyteStartVol = initDict['start_volume']['analyte']
-			self.startVol = initDict['start_volume']['total']
+			with open(initFile, 'r') as initHandle:
+				initDict = json.load(initHandle)
+			for role in ['titrant', 'analyte']:
+				concentration = float(initDict[role]['concentration'])
+				if concentration <=0:
+					raise ValueError("Invalid concentration ({conc}) for {role}".format(conc=concentration, role=role))
+			
+			volAnalyte = float(initDict['start_volume']['analyte'])
+			volTotal = float(initDict['start_volume']['total'])
+			for volume in (volAnalyte, volTotal):
+				if volume <= 0:
+					raise ValueError("Invalid volume ({vol}) for {volKey}".format(vol=volume, volKey=volumeKey))
+			if  volAnalyte > volTotal:
+				raise ValueError("Initial analyte volume ({analite}) cannot be greater than total volume {total}".format(volAnalyte, volTotal))
+			return initDict
+		except TypeError as typeError:
+			print("Could not convert value to number : %s" % typeError)
+			return None
 		except IOError as fileError:
 			print("%s" % error, file=sys.stderr)
-		except IndexError as parseError:
-			print("Missing data in init file. Please check it is accurately formatted as JSON. %s" % parseError)
+			return None
+		except KeyError as parseError:
+			print("Missing required data in init file. Please check it is accurately formatted as JSON.")
+			print("Hint: %s" % parseError)
+			return None
+		except ValueError as valError:
+			print("{error}".format(valError))
+			return None
 
-	def dump_init_file(self, file=None):
+	def load_init_file(self, initFile):
+		initDict = self.check_init_file(initFile)
+		if initDict is None: 
+			return
+		print(initDict)
+		self.titrant = initDict['titrant']
+		self.analyte = initDict['analyte']
+		self.name = initDict.get('name') or self.name
+		self.analyteStartVol = initDict['start_volume']['analyte']
+		self.startVol = initDict['start_volume']['total']
+		if initDict.get('add_volumes'):
+			self.set_volumes(*initDict['add_volumes'])
+		self.isInit = True
+		return self.isInit
+
+	def dump_init_file(self, initFile=None):
 		try: 
-			fileHandle = open(file, 'w') if file else sys.stdout
-			with fileHandle as initFile:
-				json.dump(self.as_init_dict, initFile)
+			fileHandle = open(initFile, 'w') if initFile else sys.stdout
+			with fileHandle as initHandle:
+				json.dump(self.as_init_dict, initHandle, indent=2)
 		except IOError as fileError:
 			print("%s" % error, file=sys.stderr)
+			return
 
+	def load_volumes_file(self, volFile, **kwargs):
+		try:
+			with open(volFile, 'r') as volHandle:
+				volumes = []
+				for line in volHandle:
+					line = line.strip()
+					if not line or line.startswith('#'): 
+						continue # ignore comments and empty lines
+					volumes.append(float(line))
+			return self.set_volumes(*volumes, **kwargs)
+		except IOError as fileError:
+			print("{error}".format(fileError), file=sys.stderr)
+			return
+		except TypeError as typeError:
+			print("Could not convert line {line} to float value.".format(line))
+			return
 
 	def csv(self, file=None):
 		try: 
 			fileHandle = open(file, 'w', newline='') if file else sys.stdout
 			with fileHandle as output:
-				fieldnames = ["step","vol added (%s)" % self.titrant['name'], 
-								"vol %s" % self.titrant['name'], "vol total",
-								"[%s] µM" % self.analyte['name'],
-								"[%s] µM" % self.titrant['name'],
-								"[%s]/[%s]" % (self.titrant['name'], self.analyte['name'])]
-				writer = csv.DictWriter(output, fieldnames=fieldnames)
+				fieldnames = [	"#step",
+								"vol added %s (µL)" % self.titrant['name'], 
+								"vol %s (µL)" % self.titrant['name'], 
+								"vol total (µL)",
+								"[%s] (µM)" % self.analyte['name'],
+								"[%s] (µM)" % self.titrant['name'],
+								"[%s]/[%s]" % (self.titrant['name'], self.analyte['name'])	]
+
+				writer = csv.DictWriter(output, fieldnames=fieldnames, delimiter='\t')
 
 				writer.writeheader()
-				for row in self.step_as_dict:
-					writer.writerow(row)
+				for step in range(self.steps):
+					writer.writerow(self.step_as_dict(step))
 		except (IOError, IndexError) as error:
 			print("%s" % error, file=sys.stderr)
+			return
+
+
+
+
+##----------------------------------------------------------------------------------------------------------
+## 		Classe titration
+##----------------------------------------------------------------------------------------------------------
+
 
 class Titration(BaseTitration):
 	"""
@@ -173,7 +278,7 @@ class Titration(BaseTitration):
 	# source paths
 	
 
-	def __init__(self, source, name=None, cutOff = None):
+	def __init__(self, source, name=None, cutOff = None, initFile=None, **kwargs):
 		"""
 		Load titration files, check their integrity
 		`source` is either a directory containing `.list` file, or is a list of `.list` files
@@ -194,7 +299,6 @@ class Titration(BaseTitration):
 		# init plots
 		self.stackedHist = None
 		self.hist = dict()
-
 		#super().__init__()
 
 		## FILE PATH PROCESSING
@@ -206,8 +310,13 @@ class Titration(BaseTitration):
 				self.files = source
 				self.dirPath = os.path.dirname(source[0])
 			elif os.path.isdir(source):
-				self.files = [ os.path.join(self.source, titrationFile) for titrationFile in os.listdir(source) if ".list" in titrationFile ]
 				self.dirPath = os.path.abspath(source)
+				self.files = [ os.path.join(self.dirPath, titrationFile) for titrationFile in os.listdir(self.dirPath) if titrationFile.endswith(".list") ]
+				initFileList = [ os.path.join(self.dirPath, ini) for ini in os.listdir(self.dirPath) if ini.endswith(".ini") ]
+				if len(initFileList) > 1:
+					raise ValueError("More than one `.ini` file found in {source}. Please remove the extra files.".format(self.dirPath))
+				elif initFileList:
+					self.initFile = initFileList.pop()
 				if len(self.files) < 1:
 					raise ValueError("Directory %s does not contain any `.list` titration file." % self.dirPath)
 			elif os.path.isfile(source):
@@ -219,9 +328,15 @@ class Titration(BaseTitration):
 		# sort files by ascending titration number
 		self.files.sort(key=lambda path: self.validate_filepath(path))
 
+		## TITRATION PARAMETERS
+		BaseTitration.__init__(self)
+		if initFile : self.initFile = initFile
+		if self.initFile: self.load_init_file(self.initFile)
+
 		## FILE PARSING
 		for titrationFile in self.files:
 			self.add_step(titrationFile)
+		
 		
 		## INIT CUTOFF
 		if cutOff:
@@ -234,14 +349,16 @@ class Titration(BaseTitration):
 ##	Titration + RMN Analysis
 ##---------------------
 
-	def add_step(self, titrationFile):
+	def add_step(self, titrationFile, volume=None):
 		"Adds a titration step described in `titrationFile`"
 		print("[Step %s]\tLoading file %s" % (self.steps, titrationFile), file=sys.stderr)
 		# verify file
 		step = self.validate_filepath(titrationFile, verifyStep=True)
 		# parse it
 		self.parse_titration_file(titrationFile)
-		self.steps += 1 # increase number of titration steps
+
+		super().add_step(volume)
+
 		# filter complete residues as list and sort them by positions
 		for pos in range(min(self.residues), max(self.residues)):
 			if pos not in self.residues:
@@ -294,9 +411,9 @@ class Titration(BaseTitration):
 			matching = self.rePath.match(filePath) # attempt to match
 			if matching:
 				if verifyStep and int(matching.group("step")) != self.steps:
-					raise IOError("File %s expected to contain data for titration step #%s.\
+					raise IOError("File {file} expected to contain data for titration step #{step}.\
 				 Are you sure this is the file you want ? \
-				 In this case it must be named like *[0-9]+.list" % (titrationFile, self.steps))
+				 In this case it must be named like *{step}.list".format(file=titrationFile, step=self.steps))
 				# retrieve titration step number parsed from file name
 				return int(matching.group("step"))
 			else:
