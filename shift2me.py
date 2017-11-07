@@ -6,11 +6,13 @@ Shift2Me : 2D-NMR chemical shifts analysis for protein interactions.
 Usage: 
 	shift2me.py [-c <cutoff>] [-i <titration.ini>] <file.list> <file.list> ... 
 	shift2me.py [-c <cutoff>] [-i <titration.ini>] ( <dir> | <saved_job> )
+	shift2me.py -t <file.json>
 	shift2me.py -h
 
 Options:
   -c <cutoff>, --cut-off=<cutoff>   				Set default cutoff at <cutoff> (float).
   -i <titration.ini>, --init-file=<titration.ini>  	Initialize titration from file.ini (JSON format)
+  -t <file.ini>, --template=<file.ini> 	Initialize a file to be filled with experimental datas
   -h --help                        	 				Print help and usage
 
 This program can calculate chemicals shifts of 15N and 1H during a portein protein interaction in fonction of titation of the secondary protein. 
@@ -24,7 +26,7 @@ Authors : Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY and Rainier-Nu
 
 from docopt import docopt
 from matplotlib import pyplot as plt
-from classes.Titration import Titration
+from classes.Titration import BaseTitration, Titration
 from classes.command import ShiftShell
 
 
@@ -32,6 +34,13 @@ args = docopt(__doc__)
 #print(args)
 
 # Build titration instance
+if args["--template"]:
+	jsonFile = args["--template"]
+	templateBuilder = BaseTitration()
+	templateBuilder.dump_init_file(initFile = jsonFile)
+	print("Generated template .ini file : {file}".format(file=jsonFile))
+	exit()
+
 if args["<file.list>"]:
 	titration = Titration(args["<file.list>"], cutOff=args["--cut-off"])
 elif args["<dir>"]:

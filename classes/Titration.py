@@ -33,6 +33,7 @@ class BaseTitration(object):
 
 	def __init__(self, initFile=None):
 		self.isInit = False
+		self.name = "Unnamed Titration"
 		self.analyte = {
 			"name" : "analyte",
 			"concentration" : 0
@@ -55,7 +56,11 @@ class BaseTitration(object):
 ## -------------------------------------------------
 ## 		Manipulation methods
 ## -------------------------------------------------
-
+	def set_name(self, name):
+		"Sets Titration instance name"
+		self.name = str(name)
+		return self.name
+	
 	def add_step(self, volume = None):
 		self.steps += 1
 		if volume is not None:
@@ -149,6 +154,7 @@ class BaseTitration(object):
 	@property
 	def as_init_dict(self):
 		return {
+			'name' : self.name,
 			'titrant' : self.titrant,
 			'analyte' : self.analyte,
 			'start_volume': {
@@ -285,8 +291,7 @@ class Titration(BaseTitration):
 		Separate complete vs incomplete data
 		"""
 
-		# Placeholder for naming saved titrations
-		self.name = name or "Unnamed Titration"
+		self.name = ""
 		self.residues = dict() # all residues {position:AminoAcid object}
 		self.complete = dict() # complete data residues
 		self.incomplete = dict() # incomplete data res
@@ -342,7 +347,9 @@ class Titration(BaseTitration):
 		if cutOff:
 			self.set_cutoff(cutOff)
 
-		self.protLigRatio = list()
+		## finish
+		if not self.name:
+			self.name = "Unnamed Titration"
 
 
 ##---------------------
@@ -675,23 +682,6 @@ class Titration(BaseTitration):
 			return self.selected
 		except KeyError:
 			pass
-
-	def set_name(self, name):
-		"Sets Titration instance name"
-		self.name = str(name)
-		return self.name
-
-	def protLigCalcul(self, protInitConc, ligInitConc, totVol, protVol, ligVol, overwrite = False):
-		if overwrite:
-			self.protLigRatio = list()
-		for index in range(0,len(protVol)):
-			protFinalConc = protInitConc*protVol[index]/totVol[index]
-			ligFinalConc = ligInitConc*(ligVol)/totVol[index]
-			self.protLigRatio.append(protFinalConc/ligFinalConc)
-		if len(self.protLigRatio) == self.steps:
-			del(self.protLigRatio[0])
-		print(" ".join(map(str,self.protLigRatio)))
-		return self.protLigRatio
 
 	def get_max_range_NH(self, residueSet):
 		"Returns max range tuple for N and H among residues in residueSet"
