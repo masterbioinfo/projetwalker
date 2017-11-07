@@ -103,9 +103,19 @@ class ShiftShell(Cmd):
 		Plot chemical shifts for H and N atoms for each residue at each titration step.
 		Invocation with no arguments will plot all residues with complete data.
 		"""
+		argMap = {
+			"all" : list(self.titration.residues.values()), # might be error prone because of missing data
+			"complete" : list(self.titration.complete.values()),
+			"filtered" : list(self.titration.filtered.values()),
+			"selected" : list(self.titration.selected.values())
+		} 
 		try:
 			if args:
-				fig = self.titration.plot_shiftmap(args[0], split=opts.split)
+				if argMap.get(args[0]):
+					fig = self.titration.plot_shiftmap(argMap[args[0]], split=opts.split)
+				else:
+					raise ValueError("Invalid argument : %s" % args[0])
+
 			else:
 				fig = self.titration.plot_shiftmap(split=opts.split)
 			if opts.export:

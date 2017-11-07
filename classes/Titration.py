@@ -23,6 +23,18 @@ from classes.AminoAcid import AminoAcid
 from classes.widgets import CutOffCursor
 from classes.plots import Hist, MultiHist
 
+class TitrationStep(object):
+	steps = 0
+
+	def __init__(self, titration, volumeAdded):
+		self.id = type(self).steps
+		type(self).steps += 1
+
+	def __del__(self):
+		type(self).steps -= 1
+
+
+
 class Titration(object):
 	"""
 	Class Titration.
@@ -125,13 +137,7 @@ class Titration(object):
 			self.stackedHist.close()
 
 
-	@property
-	def filtered(self):
-		"Returns list of filtered residue having last intensity >= cutoff value"
-		if self.cutOff is not None:
-			return  dict([(res.position,res) for res in self.complete.values() if res.chemShiftIntensity[self.steps-2] >= self.cutOff])
-		else:
-			return []
+
 
 	def set_name(self, name):
 		"Sets Titration instance name"
@@ -178,29 +184,7 @@ class Titration(object):
 			sys.stderr.write("Invalid cut-off value : %s\n" % err)
 			return self.cutOff
 
-	@property
-	def sortedSteps(self):
-		"""
-		Sorted list of titration steps, beginning at step 1.
-		Reference step 0 is ignored.
-		"""
-		return sorted(range(1,self.steps))
 
-	@property
-	def summary(self):
-		"Returns a short summary of current titration status as string."
-		summary =   "--------------------------------------------\n"
-		summary += "> %s\n" % self.name
-		summary +=  "--------------------------------------------\n"
-		summary += "Source dir :\t%s\n" % self.dirPath
-		summary += "Steps :\t\t%s (reference step 0 to %s)\n" % (self.steps, self.steps -1)
-		summary += "Cut-off :\t%s\n" % self.cutOff
-		summary += "Total residues :\t\t%s\n" % len(self.residues)
-		summary += " - Complete residues :\t\t%s\n" % len(self.complete)
-		summary += " - Incomplete residues :\t%s\n" % len(self.incomplete)
-		summary += " - Filtered residues :\t\t%s\n" % len(self.filtered)
-		summary +=  "--------------------------------------------\n"
-		return summary
 
 
 	def validate_filepath(self, filePath, verifyStep=False):
@@ -301,19 +285,14 @@ class Titration(object):
 		`residue` argument should be an iterable of AminoAcid objects.
 		If using `split` option, each residue is plotted in its own subplot.
 		"""
-		argMap = {
-			"all" : list(self.residues.values()), # might be error prone because of missing data
-			"complete" : list(self.complete.values()),
-			"filtered" : list(self.filtered.values()),
-			"selected" : list(self.selected.values())
-		} 
+		
 		if residues:
-			if argMap.get(residues):
-				residueSet = [res for res in argMap[residues] if res.position not in self.incomplete]
-				if not residueSet: return
-			else:
-				raise ValueError("Invalid argument : %s" % residues)
+			residueSet = [res for res in residues if res.position not in self.incomplete]
+			if not residueSet: return
+		elif split and self.filtered:
+			residueSet = self.filtered.values()
 		else:
+			split = False
 			residueSet = self.complete.values() # using complete residues by default
 		
 		fig = plt.figure()
@@ -322,8 +301,7 @@ class Titration(object):
 		fig.suptitle('Chemical shifts 2D map')
 		# set common xlabel and ylabel
 		fig.text(0.5, 0.04, 'H Chemical Shift', ha='center')
-		fig.text(0.04, 0.5, 'N Chemical Shift', 
-				va='center', rotation='vertical')
+		fig.text(0.04, 0.5, 'N Chemical Shift', va='center', rotation='vertical')
 		if split and len(residueSet) > 1:
 			# create an array of cells with squared shape
 			axes = fig.subplots(nrows=ceil(sqrt(len(residueSet))),
@@ -335,9 +313,9 @@ class Titration(object):
 					res = residueSet[index]
 					# Trace chem shifts for current residu in new graph cell
 					im = ax.scatter(res.chemShiftH, res.chemShiftN,
-									facecolors='none', cmap=self.colors, c = range(self.steps),
-									alpha=0.2)
-					#ax.set_title("Residue %s " % res.position, fontsize=10)
+									facecolors='none', cmap=self.colors, 
+									c = range(self.steps), alpha=0.2)
+					# ax.set_title("Residue %s " % res.position, fontsize=10)
 					# print xticks as 2 post-comma digits float
 					ax.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
 					ax.tick_params(labelsize=8)
@@ -417,36 +395,37 @@ class Titration(object):
 	def annotate_chemshift(self, residue, ax):
 		"Adds chem shift vector and residue position for current residue in current subplot"
 		xlim, ylim = ax.get_xlim(), ax.get_ylim()
-		xrange = xlim[1] - xlim[0]
-		yrange = ylim[1] - ylim[0]
-		#print(xrange,yrange)
-		x=num.array([1.0,1.0])
-		#x=num.array([1.0,1.0])
-		k=num.array(residue.arrow[2:])
-		#print(x,k)
-		x -= x.dot(k) * k / num.linalg.norm(k)**2
-		x *= num.array([xrange/yrange, 1.0])
-		x /= (num.linalg.norm(x) * 10)
+		xrange, yrange = (xlim[1] - xlim[0], ylim[1] - ylim[0])
 		
-		#print(x, sqrt(sum(x ** 2)))
+		shiftVector = num.array(residue.arrow[2:])
+		orthoVector = num.array([1.0,1.0])
+		# make orthogonal
+		orthoVector -= orthoVector.dot(shiftVector) * shiftVector / num.linalg.norm(shiftVector)**2
+		# scale ratio
+		orthoVector *= num.array([xrange/yrange, 1.0])
+		# normalize
+		orthoVector /= (num.linalg.norm(orthoVector) * 10)
+		
 		"""
+		# plot using mpl arrow
 		ax.arrow(*num.array(residue.arrow[:2]) + x, *residue.arrow[2:],
 				head_width=0.07, head_length=0.1, fc='red', ec='red', lw=0.5,
 				length_includes_head=True, linestyle='-', alpha=0.7, overhang=0.7)
 		"""
-		arrowStart = num.array(residue.arrow[:2]) + x
-		ax.annotate("", xy=arrowStart + k, xytext=num.array(residue.arrow[:2]) + x,
-    		arrowprops=dict(arrowstyle="->", fc="red", ec='red', lw=0.5))
+		arrowStart = num.array(residue.arrow[:2]) + orthoVector
+		ax.annotate("", xy=arrowStart + shiftVector, xytext=arrowStart,
+    				arrowprops=dict(arrowstyle="->", fc="red", ec='red', lw=0.5))
 		"""
+		# show orthogonal vector
 		ax.arrow(*residue.arrow[:2], *x, head_width=0.02, head_length=0.02, fc='black', ec='green', 
 				length_includes_head=True, linestyle=':', alpha=0.6, overhang=0.5)
-"""
+		"""
 		horAlign = "left" if x[0] <=0 else "right"
 		vertAlign = "top" if x[1] >=0 else "bottom"
-		ax.annotate(
-			str(residue.position),
-			xy=residue.chemShift[0], xytext=residue.chemShift[0]-0.8*x,
-			xycoords='data', textcoords='data', fontsize=7,ha=horAlign, va=vertAlign)
+		ax.annotate(str(residue.position), xy=residue.chemShift[0], 
+					xytext=residue.chemShift[0]-0.8*orthoVector,
+					xycoords='data', textcoords='data', 
+					fontsize=7, ha=horAlign, va=vertAlign)
 
 	def get_max_range_NH(self, residueSet):
 		"Returns max range tuple for N and H among residues in residueSet"
@@ -492,3 +471,39 @@ class Titration(object):
 		except (ValueError, IOError) as loadError:
 			sys.stderr.write("Could not load titration : %s\n" % loadError)
 
+
+##--------------------------
+##	Properties
+##--------------------------
+
+	@property
+	def filtered(self):
+		"Returns list of filtered residue having last intensity >= cutoff value"
+		if self.cutOff is not None:
+			return  dict([(res.position,res) for res in self.complete.values() if res.chemShiftIntensity[self.steps-2] >= self.cutOff])
+		else:
+			return []
+
+	@property
+	def sortedSteps(self):
+		"""
+		Sorted list of titration steps, beginning at step 1.
+		Reference step 0 is ignored.
+		"""
+		return sorted(range(1,self.steps))
+
+	@property
+	def summary(self):
+		"Returns a short summary of current titration status as string."
+		summary =   "--------------------------------------------\n"
+		summary += "> %s\n" % self.name
+		summary +=  "--------------------------------------------\n"
+		summary += "Source dir :\t%s\n" % self.dirPath
+		summary += "Steps :\t\t%s (reference step 0 to %s)\n" % (self.steps, self.steps -1)
+		summary += "Cut-off :\t%s\n" % self.cutOff
+		summary += "Total residues :\t\t%s\n" % len(self.residues)
+		summary += " - Complete residues :\t\t%s\n" % len(self.complete)
+		summary += " - Incomplete residues :\t%s\n" % len(self.incomplete)
+		summary += " - Filtered residues :\t\t%s\n" % len(self.filtered)
+		summary +=  "--------------------------------------------\n"
+		return summary
