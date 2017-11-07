@@ -124,7 +124,7 @@ class BaseTitration(object):
 				initDict = json.load(initFile)
 			self.titrant = initDict['titrant']
 			self.analyte = initDict['analyte']
-			self.name = initDict.get('name') or self.name
+			#self.name = initDict.get('name') or self.name
 			self.analyteStartVol = initDict['start_volume']['analyte']
 			self.startVol = initDict['start_volume']['total']
 		except IOError as fileError:
