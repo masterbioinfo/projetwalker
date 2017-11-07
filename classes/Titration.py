@@ -90,6 +90,8 @@ class Titration(object):
 		if cutOff:
 			self.set_cutoff(cutOff)
 
+		self.protLigRatio = list()
+
 	def add_step(self, titrationFile):
 		"Adds a titration step described in `titrationFile`"
 		print("[Step %s]\tLoading file %s" % (self.steps, titrationFile), file=sys.stderr)
@@ -374,28 +376,43 @@ class Titration(object):
 
 	def plot_titration(self, residue):
 		
-		intensitiesPerResidu = self.complete[int(residue)].chemShiftIntensity
-		steps = [ step for step in range(1,self.steps) ]
-		
-		fig = plt.figure()
-		# set title
-		fig.suptitle('Titration Curve of residue ' + str(residue), fontsize=13)
-		# set common xlabel and ylabel
-		fig.text(0.5, 0.04, 'Ligand-to-Protein Concentration Ratio', ha='center', fontsize=11)
-		fig.text(0.04, 0.5, 'Intensity (ppm)', 
-				va='center', rotation='vertical', fontsize=11)
-		im=plt.scatter(steps, intensitiesPerResidu, 
-						facecolors='none', cmap=self.colors, 
-						c = steps, alpha=0.2)
-		fig.subplots_adjust(left=0.12, top=0.90,
-							right=0.85,bottom=0.14) # make room for legend
-		# Add colorbar legend for titration steps
-		cbar_ax = fig.add_axes([0.90, 0.15, 0.02, 0.75])
-		fig.colorbar(mappable=im, cax=cbar_ax).set_label("Titration steps")
+		if self.protLigRatio is not None:
+			intensitiesPerResidu = self.complete[int(residue)].chemShiftIntensity
+			steps = [ step for step in range(1,self.steps) ]
+			
+			fig = plt.figure()
+			# set title
+			fig.suptitle('Titration Curve of residue ' + str(residue), fontsize=13)
+			# set common xlabel and ylabel
+			fig.text(0.5, 0.04, 'Ligand-to-Protein Concentration Ratio', ha='center', fontsize=11)
+			fig.text(0.04, 0.5, 'Intensity (ppm)', 
+					va='center', rotation='vertical', fontsize=11)
+			im=plt.scatter(self.protLigRatio, intensitiesPerResidu, 
+							facecolors='none', cmap=self.colors, 
+							c = steps, alpha=0.2)
+			fig.subplots_adjust(left=0.12, top=0.90,
+								right=0.85,bottom=0.14) # make room for legend
+			# Add colorbar legend for titration steps
+			cbar_ax = fig.add_axes([0.90, 0.15, 0.02, 0.75])
+			fig.colorbar(mappable=im, cax=cbar_ax).set_label("Titration steps")
 
-		fig.show()
-		return fig
+			fig.show()
+			return fig
 
+		else:
+			print("No Ligand-to-Protein concentration ratio found.")
+
+	def protLigCalcul(self, protInitConc, ligInitConc, totVol, protVol, ligVol, overwrite = False):
+		if overwrite:
+			self.protLigRatio = list()
+		for index in range(0,len(protVol)):
+			protFinalConc = protInitConc*protVol[index]/totVol[index]
+			ligFinalConc = ligInitConc*(ligVol)/totVol[index]
+			self.protLigRatio.append(protFinalConc/ligFinalConc)
+		if len(self.protLigRatio) == self.steps:
+			del(self.protLigRatio[0])
+		print(" ".join(map(str,self.protLigRatio)))
+		return self.protLigRatio
 
 	def annotate_chemshift(self, residue, ax):
 		"Adds chem shift vector and residue position for current residue in current subplot"

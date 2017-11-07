@@ -61,6 +61,11 @@ class ShiftShell(Cmd):
 		"""
 		pass
 
+	def do_ratio(self, arg):
+		volTot = [200,202,204,208,212,216,221,229,239,249,259]
+		volProt = [0,2,4,8,12,16,21,29,39,49,59]
+		self.titration.protLigCalcul(2000, 375, volTot, volProt, 45, overwrite = True)
+
 	@options([],arg_desc='(residue residue ...)')
 	def do_titration(self, arg, opts=None):
 		"Show titration curve of one or several residues."
