@@ -10,10 +10,9 @@ class ShiftShell(Cmd):
 	intro = "Welcome to Shift2Me !\n"\
 			"Type help or ? to list commands.\n"
 	prompt = ">> "
-	file = None
-	cutoff = None
 	
 	def __init__(self, *args, **kwargs):
+		self.cutoff=None
 		self.allow_cli_args = False
 		self.titration = kwargs.get('titration')
 		
@@ -21,6 +20,9 @@ class ShiftShell(Cmd):
 		self.active = self.titration
 		self.settable.update({'active' : "Current working titration"})
 		"""
+		self.name = self.titration.name
+		self.settable.update({'name': 'Titration name'})
+
 		Cmd.__init__(self)
 		self._set_prompt()
 
@@ -34,15 +36,30 @@ class ShiftShell(Cmd):
 
 		self.intro = self.titration.summary + "\n"+ self.intro
 
+
 	def _set_prompt(self):
 		"""Set prompt so it displays the current working directory."""
 		self.cwd = os.getcwd().strip("'")
-		self.prompt = self.colorize("[shift2me]", 'magenta') + " >> "
+		self.prompt = self.colorize("[shift2me] ", 'magenta') + self.colorize("'"+self.name+"'", "green") + " >> "
 
-	@options([],arg_desc='<titration_file_##.list>')
+	def postcmd(self, stop, line):
+		"""
+		Hook method executed just after a command dispatch is finished.
+		:param stop: bool - if True, the command has indicated the application should exit
+		:param line: str - the command line text for this command
+		:return: bool - if this is True, the application will exit after this command and the postloop() will run
+		"""
+		"""Override this so prompt always displays cwd."""
+		self._set_prompt()
+		return stop
+
+	def _onchange_name(self, old, new):
+		self.titration.set_name(new)
+
+	@options([make_option('-v', '--volume', help="Volume of titrant solution to add titration step")],arg_desc='<titration_file_##.list>')
 	def do_add_step(self, arg, opts=None):
 		"Add a titration file as next step"
-		self.titration.add_step(arg[0])
+		self.titration.add_step(arg[0], opts.volume)
 
 	def do_save_job(self, arg):
 		"Saves active titration to binary file"
@@ -189,7 +206,7 @@ class ShiftShell(Cmd):
 		 - a predefined set of residues
 		 - 1 or more slices of residue positions, with python-ish syntax.
 		   e.g : ':100' matches positions from start to 100
-		         '110:117' matches positions from 100 to 117 (excluded)
+				 '110:117' matches positions from 100 to 117 (excluded)
 				 '105 112:115' matches positions 105 and 112 to 115 (excluded)
 		You may mix argument types, like deselect filtered residues + res #100 to #110 excluded :
 			>> deselect filtered 100:110

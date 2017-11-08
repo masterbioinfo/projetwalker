@@ -245,11 +245,11 @@ class BaseTitration(object):
 			with fileHandle as output:
 				fieldnames = [	"#step",
 								"vol added {titrant} (µL)".format(titrant=self.titrant['name']), 
-								"vol {titrant} (µL)".format(titrant=self.titrant['name']),)
+								"vol {titrant} (µL)".format(titrant=self.titrant['name']),
 								"vol total (µL)",
 								"[{analyte}] (µM)".format(analyte=self.analyte['name']),
 								"[{titrant}] (µM)".format(titrant=self.titrant['name']),
-								"[{titrant}]/[{analyte}]".format(titrant=self.titrant['name'], analyte=self.analyte['name')	]
+								"[{titrant}]/[{analyte}]".format(titrant=self.titrant['name'], analyte=self.analyte['name'])	]
 
 				writer = csv.DictWriter(output, fieldnames=fieldnames, delimiter='\t')
 
@@ -307,10 +307,10 @@ class Titration(BaseTitration):
 
 		## FILE PATH PROCESSING
 		# keep track of source path
-		self.source = source
+		
 		# fetch all .list files in source dir
 		try:
-			self.extract_source()
+			self.extract_source(source)
 		except ValueError as error:
 			print("{error}".format(error=error), file=sys.stderr)
 			exit(1)
@@ -644,7 +644,7 @@ class Titration(BaseTitration):
 ##	Utils
 ## -------------------------
 
-	def extract_source(self):
+	def extract_source(self, source):
 		"""
 		Handles source data depending on type (file list, directory, saved file).
 		Should be called only on __init__()
@@ -664,6 +664,8 @@ class Titration(BaseTitration):
 				raise ValueError("Directory {dir} does not contain any `.list` titration file.".format(dir=self.dirPath))
 		elif os.path.isfile(source):
 			return self.load(source)
+		self.source = source
+		return self.files
 
 	def select_residues(self, *positions):
 		"Select a subset of residues"
