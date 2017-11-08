@@ -100,6 +100,10 @@ class ShiftShell(Cmd):
 			self.volumes += volumes
 		else:
 			self.do_help("add_volumes")
+	
+	def do_flush_volumes(self,arg):
+		"Remove titrant solution volumes currently not associated with a step."
+		self.titration.flush_pending()
 
 	def do_save_job(self, arg):
 		"Saves active titration to binary file"
