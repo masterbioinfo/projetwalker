@@ -1,0 +1,10 @@
+Pour des checkbox multiples, ...
+
+https://plot.ly/dash/getting-started
+
+https://blog.dominodatalab.com/interactive-dashboards-in-jupyter/
+
+http://biopython.org/
+http://www.blopig.com/blog/tag/py3dmol/
+https://3dmol.csb.pitt.edu/doc/tutorial-url.html
+http://3dmol.csb.pitt.edu/
