@@ -8,8 +8,7 @@ class ShiftShell(Cmd):
 	"""
 	Command line interface wrapper for Titration
 	"""
-	intro = "Welcome to Shift2Me !\n"\
-			"Type help or ? to list commands.\n"
+	intro = "Type help or ? to list commands.\n"
 	prompt = ">> "
 	quiet=True
 	
@@ -48,7 +47,11 @@ class ShiftShell(Cmd):
 		self.complete_make_init=self.path_complete
 		self.complete_init=self.path_complete
 
-		self.intro = self.titration.summary + "\n"+ self.intro
+		introStr = "\n\n"
+		introStr += "\tWelcome to Shift2Me !\n" 
+		introStr += self.titration.summary + "\n"
+		introStr += self.intro
+		self.intro = introStr
 
 
 	def _onchange_name(self, old, new):
