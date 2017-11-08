@@ -1,3 +1,4 @@
+
 #!/usr/bin/python3
 
 import sys, os
@@ -115,6 +116,9 @@ class ShiftShell(Cmd):
 		"""
 
 		self.poutput(self.titration.csv(arg))
+
+	def do_status(self, arg):
+		self.poutput(self.titration.status)
 
 	def do_save_job(self, arg):
 		"Saves active titration to binary file"

@@ -118,13 +118,36 @@ class BaseTitration(object):
 		return self.volumePending if self.volumePending else None
 
 	@property
+	def added(self):
+		return self.volumeAdded if self.volumeAdded else None
+
+	@property
 	def status(self):
 		statusStr = ""
 		if not self.isInit:
 			return None
-		for step in range(self.steps):
-			statusStr += "{stepdict}\n".format(stepdict=str(self.step_as_dict(step)))
-		statusStr += "Pending volumes : {pending}".format(pending=self.pending)
+		statusStr += "------- Initial parameters -----------------\n"
+		statusStr += "[{name}] :\t{concentration} µM\n".format(**self.titrant)
+		statusStr += "[{name}] :\t{concentration} µM\n".format(**self.analyte)
+		statusStr += "{name} volume  :\t{volume} µL\n".format(**self.analyte, volume=self.analyteStartVol)
+		statusStr += "Initial volume :\t{volume} µL\n".format(volume=self.startVol)
+		statusStr += "\n"
+		statusStr += "------- Current status ---------------------\n"
+		statusStr += "Current steps :\t\t{steps}\n".format(steps=list(range(self.steps)))
+		statusStr += "Added volumes (µL):\t{added}\n".format(added=self.added)
+		statusStr += "Cumulated volumes (µL):\t{cumul}\n".format(cumul=self.volTitrant)
+		statusStr += "Total volume (µL):\t{total}\n".format(total=self.volTotal)
+		statusStr += "\n"
+		statusStr += "[{name}] (µM):\n\t{conc}\n".format(
+			name = self.titrant['name'], conc=[round(c, 4) for c in self.concentrationTitrant])
+		statusStr += "[{name}] (µM):\n\t{conc}\n".format(
+			name = self.analyte['name'], conc=[round(c, 4) for c in self.concentrationAnalyte])
+		statusStr += "[{titrant}]/[{analyte}] :\n\t".format(	titrant=self.titrant['name'], 
+															analyte=self.analyte['name'])
+		statusStr += "{ratio}\n".format(ratio=[round(ratio,4) for ratio in self.concentrationRatio])
+		statusStr += "\n"
+		statusStr += "------- Pending-----------------------------\n"
+		statusStr += "Pending volumes(µL):\t{pending}".format(pending=self.pending)
 		return statusStr
 
 	@property 
