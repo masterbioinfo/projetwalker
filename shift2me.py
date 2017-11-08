@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # -*- encoding: utf-8 -*-
-"""	
+"""
 Shift2Me : 2D-NMR chemical shifts analysis for protein interactions.
 
 Usage: 
@@ -35,16 +35,16 @@ args = docopt(__doc__)
 
 # Build titration instance
 if args["--template"]:
-	jsonFile = args["--template"]
-	templateBuilder = BaseTitration()
-	templateBuilder.dump_init_file(initFile = jsonFile)
-	print("Generated template .json file : {file}".format(file=jsonFile))
-	exit()
+    jsonFile = args["--template"]
+    templateBuilder = BaseTitration()
+    templateBuilder.dump_init_file(initFile = jsonFile)
+    print("Generated template .json file : {file}".format(file=jsonFile))
+    exit()
 
 if args["<file.list>"]:
-	titration = Titration(args["<file.list>"], cutoff=args["--cut-off"])
+    titration = Titration(args["<file.list>"], cutoff=args["--cut-off"])
 elif args["<dir>"]:
-	titration = Titration(args["<dir>"], cutoff=args["--cut-off"])
+    titration = Titration(args["<dir>"], cutoff=args["--cut-off"])
 
 # Turn off MPL interactive mode
 plt.ioff()
