@@ -105,6 +105,17 @@ class ShiftShell(Cmd):
 		"Remove titrant solution volumes currently not associated with a step."
 		self.titration.flush_pending()
 
+	@options([], arg_desc="[<path/to/file.csv>]")
+	def do_concentrations(self, arg):
+		"""
+		Prints each titration step experimental conditions, such as volumes and concentration of each molecule.
+		Format is `tab` separated CSV table. You may redirect its output :
+		 $ concentrations path/to/file.csv
+		 $ concentrations > path/to/file.csv
+		"""
+
+		self.poutput(self.titration.csv(arg))
+
 	def do_save_job(self, arg):
 		"Saves active titration to binary file"
 		self.titration.save(arg)

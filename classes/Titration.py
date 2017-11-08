@@ -101,12 +101,12 @@ class BaseTitration(object):
 	def step_as_dict(self, step):
 		dictStep = dict()
 		dictStep["#step"] = step
-		dictStep["vol added %s (µL)" % self.titrant['name']] = self.volumeAdded[step]
-		dictStep["vol %s (µL)" % self.titrant['name']] = self.volTitrant[step]
+		dictStep["vol added {titrant} (µL)".format(titrant=self.titrant['name']) ] = self.volumeAdded[step]
+		dictStep["vol {titrant} (µL)".format(titrant=self.titrant['name']) ] = self.volTitrant[step]
 		dictStep["vol total (µL)"] = self.volTotal[step]
-		dictStep["[%s] (µM)" % self.analyte['name']] = self.concentrationAnalyte[step]
-		dictStep["[%s] (µM)" % self.titrant['name']] = self.concentrationTitrant[step]
-		dictStep["[%s]/[%s]" % (self.titrant['name'], self.analyte['name'])] = self.concentrationRatio[step]
+		dictStep["[{analyte}] (µM)".format(analyte=self.analyte['name']) ] = round(self.concentrationAnalyte[step], 4)
+		dictStep["[{titrant}] (µM)".format(titrant=self.titrant['name']) ] = round(self.concentrationTitrant[step], 4)
+		dictStep["[{titrant}]/[{analyte}]".format(titrant=self.titrant['name'], analyte=self.analyte['name']) ] = round(self.concentrationRatio[step], 4)
 		return dictStep
 
 ## -----------------------------------------------------
@@ -209,7 +209,7 @@ class BaseTitration(object):
 		self.titrant = initDict['titrant']
 		self.analyte = initDict['analyte']
 		self.name = initDict.get('name') or self.name
-		self.analyteStartVol = initDict['start_volume']['analyte']
+		self.analyteStartVol = float(initDict['start_volume']['analyte'])
 		self.startVol = initDict['start_volume']['total']
 		if initDict.get('add_volumes'):
 			self.set_volumes(initDict['add_volumes'])
@@ -218,9 +218,10 @@ class BaseTitration(object):
 
 	def dump_init_file(self, initFile=None):
 		try: 
-			fileHandle = open(initFile, 'w') if initFile else sys.stdout
-			with fileHandle as initHandle:
-				json.dump(self.as_init_dict, initHandle, indent=2)
+			fh = open(initFile, 'w', newline='') if initFile else sys.stdout
+			json.dump(self.as_init_dict, initHandle, indent=2)
+			if fh is not sys.stdout:
+				fh.close()
 		except IOError as fileError:
 			print("{error}".format(error=fileError), file=sys.stderr)
 			return
@@ -244,21 +245,22 @@ class BaseTitration(object):
 
 	def csv(self, file=None):
 		try: 
-			fileHandle = open(file, 'w', newline='') if file else sys.stdout
-			with fileHandle as output:
-				fieldnames = [	"#step",
-								"vol added {titrant} (µL)".format(titrant=self.titrant['name']), 
-								"vol {titrant} (µL)".format(titrant=self.titrant['name']),
-								"vol total (µL)",
-								"[{analyte}] (µM)".format(analyte=self.analyte['name']),
-								"[{titrant}] (µM)".format(titrant=self.titrant['name']),
-								"[{titrant}]/[{analyte}]".format(titrant=self.titrant['name'], analyte=self.analyte['name'])	]
+			fh = open(file, 'w', newline='') if file else sys.stdout
+			fieldnames = [	"#step",
+							"vol added {titrant} (µL)".format(titrant=self.titrant['name']), 
+							"vol {titrant} (µL)".format(titrant=self.titrant['name']),
+							"vol total (µL)",
+							"[{analyte}] (µM)".format(analyte=self.analyte['name']),
+							"[{titrant}] (µM)".format(titrant=self.titrant['name']),
+							"[{titrant}]/[{analyte}]".format(titrant=self.titrant['name'], analyte=self.analyte['name'])	]
 
-				writer = csv.DictWriter(output, fieldnames=fieldnames, delimiter='\t')
+			writer = csv.DictWriter(fh, fieldnames=fieldnames, delimiter='\t')
 
-				writer.writeheader()
-				for step in range(self.steps):
-					writer.writerow(self.step_as_dict(step))
+			writer.writeheader()
+			for step in range(self.steps):
+				writer.writerow(self.step_as_dict(step))
+			if fh is not sys.stdout:
+				fh.close()
 		except (IOError, IndexError) as error:
 			print("{error}".format(error=error), file=sys.stderr)
 			return
