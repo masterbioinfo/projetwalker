@@ -10,6 +10,7 @@ class ShiftShell(Cmd):
 	intro = "Welcome to Shift2Me !\n"\
 			"Type help or ? to list commands.\n"
 	prompt = ">> "
+	quiet=True
 	
 	def __init__(self, *args, **kwargs):
 		self.cutoff=None
@@ -20,9 +21,13 @@ class ShiftShell(Cmd):
 		self.active = self.titration
 		self.settable.update({'active' : "Current working titration"})
 		"""
+		# environment attributes
 		self.name = self.titration.name
+		if self.titration:
+			self.volumes = self.titration.volumeAdded + self.titration.volumePending
 		self.settable.update({'name': 'Titration name'})
-
+		self.settable.update({'volumes': 'Volumes of titrant solution added at each step'})
+		self.titrationEnv = ['name', 'volumes']
 		Cmd.__init__(self)
 		self._set_prompt()
 
@@ -37,10 +42,28 @@ class ShiftShell(Cmd):
 		self.intro = self.titration.summary + "\n"+ self.intro
 
 
+	def _onchange_name(self, old, new):
+		self.titration.set_name(new)
+
+	def _onchange_volumes(self, old, new):
+		volumes = []
+		digitString = ""
+		for vol in new:
+			if vol.isdigit() or vol.strip in ['.', ',']:
+				digitString += vol
+			else:
+				volumes.append(float(digitString))
+				digitString = ""
+		if volumes:
+			if not volumes[0] == 0:
+				volumes[0] = 0
+			self.volumes = volumes
+			self.titration.set_volumes(*volumes)
+
 	def _set_prompt(self):
 		"""Set prompt so it displays the current working directory."""
 		self.cwd = os.getcwd().strip("'")
-		self.prompt = self.colorize("[shift2me] ", 'magenta') + self.colorize("'"+self.name+"'", "green") + " >> "
+		self.prompt = self.colorize("[shift2me] ", 'magenta') + self.colorize("'"+self.name+"'", "green") + " $ "
 
 	def postcmd(self, stop, line):
 		"""
@@ -53,8 +76,7 @@ class ShiftShell(Cmd):
 		self._set_prompt()
 		return stop
 
-	def _onchange_name(self, old, new):
-		self.titration.set_name(new)
+	
 
 	@options([make_option('-v', '--volume', help="Volume of titrant solution to add titration step")],arg_desc='<titration_file_##.list>')
 	def do_add_step(self, arg, opts=None):
@@ -142,7 +164,7 @@ class ShiftShell(Cmd):
 			#self.do_help("shiftmap")
 
 	@options([], arg_desc="( filtered | selected | complete | incomplete )")
-	def do_print(self, args, opts=None):
+	def do_residues(self, args, opts=None):
 		"Output specific titration infos to standard output"
 		argMap = {
 			"filtered" : self.titration.filtered,
@@ -287,7 +309,7 @@ class ShiftShell(Cmd):
 		if flagComplete: return flagComplete
 
 		histArgs = list( map(str, self.titration.sortedSteps) ) + ['all']
-		return self.complete_arg_set(text, line, histArgs)
+		return self._complete_arg_set(text, line, histArgs)
 
 
 	def complete_shiftmap(self, text, line ,begidx, endidx):
@@ -296,12 +318,12 @@ class ShiftShell(Cmd):
 		if flagComplete: return flagComplete
 
 		residueSetArgs = ['all', 'complete', 'filtered', 'selected']
-		return self.complete_arg_set(text, line, residueSetArgs)
+		return self._complete_arg_set(text, line, residueSetArgs)
 
-	def complete_print(self, text, line ,begidx, endidx):
+	def complete_residue(self, text, line ,begidx, endidx):
 		"Completer for shiftmap command"
 		residueSetArgs = ['incomplete', 'complete', 'filtered', 'selected']
-		return self.complete_arg_set(text, line, residueSetArgs)
+		return self._complete_arg_set(text, line, residueSetArgs)
 
 	def complete_flag_path(self, shortFlag, longFlag, text, line ,begidx, endidx):
 		# accept --flag=, flag=, --flag, flag
@@ -320,7 +342,7 @@ class ShiftShell(Cmd):
 	def complete_select(self, text, line ,begidx, endidx):
 		"Completer for select command"
 		residueSetArgs = ['incomplete', 'complete', 'filtered', 'all']
-		return self.complete_arg_set(text, line, residueSetArgs)
+		return self._complete_arg_set(text, line, residueSetArgs)
 
 	def complete_deselect(self, text, line ,begidx, endidx):
 		return self.complete_select(text, line ,begidx, endidx)
@@ -352,7 +374,7 @@ class ShiftShell(Cmd):
 		# exact file match terminates this completion
 		return [path + ' ']
 
-	def complete_arg_set(self, text, line, argSet):
+	def _complete_arg_set(self, text, line, argSet):
 		"Completion logic for commands accepting predefined set of arguments"
 		# Last word is an exact match with args
 		if text in argSet:
@@ -363,3 +385,72 @@ class ShiftShell(Cmd):
 				return []
 		# Arg matches with many allowed args
 		return [ arg+' ' for arg in argSet if arg.startswith(text) ]
+
+	def complete_set(self, text, line,begidx, endidx):
+		return self._complete_arg_set(text, line, self.titrationEnv)
+
+	def complete_show(self, text, line,begidx, endidx):
+		return self._complete_arg_set(text, line, self.titrationEnv)
+
+## --------------------------------------------------
+## 		Library function rewrite
+## --------------------------------------------------
+
+	def do_set(self, arg):
+		"""Sets a settable parameter.
+		Accepts abbreviated parameter names so long as there is no ambiguity.
+		Call without arguments for a list of settable parameters with their values.
+		"""
+		try:
+			statement, param_name, val = arg.parsed.raw.split(None, 2)
+			val = val.strip()
+			param_name = param_name.strip().lower()
+			if param_name not in self.settable:
+				hits = [p for p in self.settable if p.startswith(param_name)]
+				if len(hits) == 1:
+					param_name = hits[0]
+				else:
+					return self.do_show(param_name)
+			current_val = getattr(self, param_name)
+			if (val[0] == val[-1]) and val[0] in ("'", '"'):
+				val = val[1:-1]
+			else:
+				val = self._cast(current_val, val)
+			setattr(self, param_name, val)
+			# self.poutput('%s - was: %s\nnow: %s\n' % (param_name, current_val, val))
+			if current_val != val:
+				try:
+					onchange_hook = getattr(self, '_onchange_%s' % param_name)
+					onchange_hook(old=current_val, new=val)
+				except AttributeError:
+					pass
+		except (ValueError, AttributeError):
+			self.do_show(arg)
+
+	def _cast(self, current, new):
+		"""Tries to force a new value into the same type as the current when trying to set the value for a parameter.
+		:param current: current value for the parameter, type varies
+		:param new: str - new value
+		:return: new value with same type as current, or the current value if there was an error casting
+		"""
+		typ = type(current)
+		if typ == bool:
+			try:
+				return bool(int(new))
+			except (ValueError, TypeError):
+				pass
+			try:
+				new = new.lower()
+			except AttributeError:
+				pass
+			if (new == 'on') or (new[0] in ('y', 't')):
+				return True
+			if (new == 'off') or (new[0] in ('n', 'f')):
+				return False
+		else:
+			try:
+				return typ(new)
+			except (ValueError, TypeError):
+				pass
+		print("Problem setting parameter (now %s) to %s; incorrect type?" % (current, new))
+		return current
