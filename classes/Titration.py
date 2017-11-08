@@ -62,14 +62,17 @@ class BaseTitration(object):
 		return self.name
 
 	def add_step(self, volume = None):
+		if len(self.volumeAdded) > self.steps:
+			self.volumeAdded[self.steps] = volume
+		else:
+			if volume is not None:
+				self.volumePending[0] = volume
+			if self.volumePending:
+				self.volumeAdded.append(self.volumePending.pop(0))
 		self.steps += 1
-		if volume is not None:
-			self.volumePending[0] = volume
-		if self.volumePending:
-			self.volumeAdded.append(self.volumePending.pop(0))
 		return self.volumePending
-	
-	def set_volumes(self, *volumes, updateSteps=False):
+
+	def set_volumes(self, volumes, updateSteps=False):
 		volumes = sorted(map(float, volumes))
 		if not volumes:
 			return
@@ -82,7 +85,7 @@ class BaseTitration(object):
 				pass
 		return self.volumePending
 
-	def add_volumes(self, *volumes, updateSteps=False):
+	def add_volumes(self, volumes, updateSteps=False):
 		if not self.volumePending and not volumes[0] == 0:
 			volumes.insert(0,0)  # first volume must be 0 (reference)
 			self.volumePending += volumes
@@ -209,7 +212,7 @@ class BaseTitration(object):
 		self.analyteStartVol = initDict['start_volume']['analyte']
 		self.startVol = initDict['start_volume']['total']
 		if initDict.get('add_volumes'):
-			self.set_volumes(*initDict['add_volumes'])
+			self.set_volumes(initDict['add_volumes'])
 		self.isInit = True
 		return self.isInit
 
@@ -231,7 +234,7 @@ class BaseTitration(object):
 					if not line or line.startswith('#'): 
 						continue # ignore comments and empty lines
 					volumes.append(float(line))
-			return self.set_volumes(*volumes, **kwargs)
+			return self.set_volumes(volumes, **kwargs)
 		except IOError as fileError:
 			print("{error}".format(error=fileError), file=sys.stderr)
 			return

@@ -25,14 +25,19 @@ class ShiftShell(Cmd):
 		self.name = self.titration.name
 		if self.titration:
 			self.volumes = self.titration.volumeAdded + self.titration.volumePending
-		self.settable.update({'name': 'Titration name'})
-		self.settable.update({'volumes': 'Volumes of titrant solution added at each step'})
+		self.settable.update({
+			'name': 'Titration name',
+			'volumes': 'Volumes of titrant solution added at each step'
+			})
 		self.titrationEnv = ['name', 'volumes']
 		Cmd.__init__(self)
 		self._set_prompt()
 
 		# Exclude irrelevant cmds from help menu
-		self.exclude_from_help += ['do__relative_load', 'do_cmdenvironment', 'do_edit', 'do_run']
+		self.exclude_from_help += [	'do__relative_load', 
+									'do_cmdenvironment', 
+									'do_edit', 
+									'do_run' ]
 
 		# Set path completion for save/load
 		self.complete_save_job=self.path_complete
@@ -56,9 +61,9 @@ class ShiftShell(Cmd):
 				digitString = ""
 		if volumes:
 			if not volumes[0] == 0:
-				volumes[0] = 0
+				volumes.insert(0,0)
 			self.volumes = volumes
-			self.titration.set_volumes(*volumes)
+			self.titration.set_volumes(volumes)
 
 	def _set_prompt(self):
 		"""Set prompt so it displays the current working directory."""
@@ -80,8 +85,21 @@ class ShiftShell(Cmd):
 
 	@options([make_option('-v', '--volume', help="Volume of titrant solution to add titration step")],arg_desc='<titration_file_##.list>')
 	def do_add_step(self, arg, opts=None):
-		"Add a titration file as next step"
-		self.titration.add_step(arg[0], opts.volume)
+		"Add a titration file as next step. Associate a volume to this step with -v option."
+		if arg:
+			self.titration.add_step(arg[0], opts.volume)
+		else:
+			self.do_help("add_step")
+	
+	@options([], arg_desc="<vol(µL)> [<vol(µL)> ...]")
+	def do_add_volumes(self, arg, opts=None):
+		"Add volumes to currently existing volumes in titration."
+		if arg:
+			volumes = list(map(float, arg))
+			self.titration.add_volumes(volumes)
+			self.volumes += volumes
+		else:
+			self.do_help("add_volumes")
 
 	def do_save_job(self, arg):
 		"Saves active titration to binary file"
@@ -99,11 +117,6 @@ class ShiftShell(Cmd):
 		 - a binary file of previously saved titration
 		"""
 		pass
-
-	def do_ratio(self, arg):
-		volTot = [200,202,204,208,212,216,221,229,239,249,259]
-		volProt = [0,2,4,8,12,16,21,29,39,49,59]
-		self.titration.protLigCalcul(2000, 375, volTot, volProt, 45, overwrite = True)
 
 	@options([],arg_desc='(residue residue ...)')
 	def do_titration(self, arg, opts=None):
