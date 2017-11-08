@@ -318,7 +318,7 @@ class Titration(BaseTitration):
 	# accepted file path pattern
 	rePath = re.compile(r'(.+/)?(.*[^\d]+)(?P<step>[0-9]+)\.list')
 	# accepted lines pattern
-	reLine = re.compile(r"^(?P<position>\d+)(\S*)?\s+(?P<chemShiftH>\d+\.\d+)\s+(?P<chemShiftN>\d+\.\d+)$")
+	reLine = re.compile(r"^(?P<position>\d+)(\S*)?\s+(?P<chemshiftH>\d+\.\d+)\s+(?P<chemshiftN>\d+\.\d+)$")
 	# ignored lines pattern
 	reLineIgnore = re.compile(r"^\d.*")
 	# source paths
@@ -409,7 +409,7 @@ class Titration(BaseTitration):
 		# Recalculate (position, chem shift intensity) coordinates for histogram plot
 		self.intensities = [] # 2D array, by titration step then residu position
 		for step in range(self.steps - 1): # intensity is null for reference step, ignoring
-			self.intensities.append([residue.chemShiftIntensity[step] for residue in self.complete.values()])
+			self.intensities.append([residue.chemshiftIntensity[step] for residue in self.complete.values()])
 		# generate colors for each titration step
 		self.colors = plt.cm.get_cmap('hsv', self.steps)
 		# close stale stacked hist
@@ -473,18 +473,18 @@ class Titration(BaseTitration):
 						# attempt to match to expected format
 						lineMatch = self.reLine.match(line)
 						if lineMatch: # parse as dict
-							chemShift = lineMatch.groupdict()
+							chemshift = lineMatch.groupdict()
 							# Convert parsed str to number types 
-							for castFunc, key in zip((float, float, int), sorted(chemShift)):
-								chemShift[key] = castFunc(chemShift[key])
+							for castFunc, key in zip((float, float, int), sorted(chemshift)):
+								chemshift[key] = castFunc(chemshift[key])
 							# add or update residue
-							position = chemShift["position"]
+							position = chemshift["position"]
 							if self.residues.get(position):
 								# update AminoAcid object in residues dict
-								self.residues[position].add_chemshift(**chemShift)
+								self.residues[position].add_chemshift(**chemshift)
 							else:
 								# create AminoAcid object in residues dict
-								self.residues[position] = AminoAcid(**chemShift)
+								self.residues[position] = AminoAcid(**chemshift)
 						else:
 							# non parsable, non ignorable line
 							raise ValueError("Could not parse file {file} at line {line}".format(file=titrationFile, line=lineNb))
@@ -530,7 +530,7 @@ class Titration(BaseTitration):
 
 	def plot_shiftmap(self, residues=None, split = False):
 		"""
-		Plot measured chemical shifts for each residue as a scatter plot of (chemShiftH, chemShiftN).
+		Plot measured chemical shifts for each residue as a scatter plot of (chemshiftH, chemshiftN).
 		Each color is assigned to a titration step.
 		`residue` argument should be an iterable of AminoAcid objects.
 		If using `split` option, each residue is plotted in its own subplot.
@@ -565,7 +565,7 @@ class Titration(BaseTitration):
 				if index < len(residueSet):
 					res = residueSet[index]
 					# Trace chem shifts for current residu in new graph cell
-					im = ax.scatter(res.chemShiftH, res.chemShiftN,
+					im = ax.scatter(res.chemshiftH, res.chemshiftN,
 									facecolors='none', cmap=self.colors, 
 									c = range(self.steps), alpha=0.2)
 					# ax.set_title("Residue %s " % res.position, fontsize=10)
@@ -592,7 +592,7 @@ class Titration(BaseTitration):
 
 		else: # Trace global chem shifts map
 			for residue in residueSet :
-				im=plt.scatter(residue.chemShiftH, residue.chemShiftN, 
+				im=plt.scatter(residue.chemshiftH, residue.chemshiftN, 
 								facecolors='none', cmap=self.colors, 
 								c = range(self.steps), alpha=0.2)
 			fig.subplots_adjust(left=0.15, top=0.90,
@@ -606,32 +606,36 @@ class Titration(BaseTitration):
 
 
 	def plot_titration(self, residue):
-		
-		if self.protLigRatio is not None:
-			intensitiesPerResidu = self.complete[int(residue)].chemShiftIntensity
-			steps = [ step for step in range(1,self.steps) ]
-			
-			fig = plt.figure()
-			# set title
-			fig.suptitle('Titration Curve of residue ' + str(residue), fontsize=13)
-			# set common xlabel and ylabel
-			fig.text(0.5, 0.04, 'Ligand-to-Protein Concentration Ratio', ha='center', fontsize=11)
-			fig.text(0.04, 0.5, 'Intensity (ppm)', 
-					va='center', rotation='vertical', fontsize=11)
-			im=plt.scatter(self.protLigRatio, intensitiesPerResidu, 
-							facecolors='none', cmap=self.colors, 
-							c = steps, alpha=0.2)
-			fig.subplots_adjust(left=0.12, top=0.90,
-								right=0.85,bottom=0.14) # make room for legend
-			# Add colorbar legend for titration steps
-			cbar_ax = fig.add_axes([0.90, 0.15, 0.02, 0.75])
-			fig.colorbar(mappable=im, cax=cbar_ax).set_label("Titration steps")
+		xAxis = self.concentrationRatio
+		yAxis = [0] + list(residue.chemshiftIntensity)
+		fig = plt.figure()
+		# set title
+		fig.suptitle('Titration curve of residue {pos}'.format(pos=residue.position, fontsize=13))
+		# set common xlabel and ylabel
+		plt.xlabel("[{titrant}]/[{analyte}]".format(
+			titrant=self.titrant['name'], analyte=self.analyte['name']))
 
-			fig.show()
-			return fig
+		fig.text(0.04, 0.5, 'Chem Shift Intensity', 
+				va='center', rotation='vertical', fontsize=11)
+		im = plt.scatter(xAxis, yAxis, alpha=1)
+		"""
+		z = np.polyfit(xAxis, yAxis, 4)
+		f = np.poly1d(z)
 
-		else:
-			print("No Ligand-to-Protein concentration ratio found.")
+		xnew = np.linspace(0,max(xAxis),100)
+		ynew = f(xnew)
+		plt.plot(xnew, ynew)
+		"""
+		"""
+		fig.subplots_adjust(left=0.12, top=0.90,
+							right=0.85,bottom=0.14) # make room for legend
+		# Add colorbar legend for titration steps
+		cbar_ax = fig.add_axes([0.90, 0.15, 0.02, 0.75])
+		fig.colorbar(mappable=im, cax=cbar_ax).set_label("Titration steps")
+		"""
+		fig.show()
+		return fig
+
 
 	def annotate_chemshift(self, residue, ax):
 		"Adds chem shift vector and residue position for current residue in current subplot"
@@ -663,8 +667,8 @@ class Titration(BaseTitration):
 		"""
 		horAlign = "left" if x[0] <=0 else "right"
 		vertAlign = "top" if x[1] >=0 else "bottom"
-		ax.annotate(str(residue.position), xy=residue.chemShift[0], 
-					xytext=residue.chemShift[0]-0.8*orthoVector,
+		ax.annotate(str(residue.position), xy=residue.chemshift[0], 
+					xytext=residue.chemshift[0]-0.8*orthoVector,
 					xycoords='data', textcoords='data', 
 					fontsize=7, ha=horAlign, va=vertAlign)
 
@@ -773,7 +777,7 @@ class Titration(BaseTitration):
 	def filtered(self):
 		"Returns list of filtered residue having last intensity >= cutoff value"
 		if self.cutoff is not None:
-			return dict([(res.position,res) for res in self.complete.values() if res.chemShiftIntensity[self.steps-2] >= self.cutoff])
+			return dict([(res.position,res) for res in self.complete.values() if res.chemshiftIntensity[self.steps-2] >= self.cutoff])
 		else:
 			return []
 

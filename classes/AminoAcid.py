@@ -46,16 +46,16 @@ class AminoAcid(object):
 	def __init__(self, **kwargs):
 		"""
 		Initialize AminoAcid object, only required argument is position.
-		If chemShiftH and chemShiftN are provided, use them to start both chemical shift lists.
+		If chemshiftH and chemshiftN are provided, use them to start both chemical shift lists.
 		"""
 		self.position = int(kwargs["position"])
-		self.chemShiftH = [float(kwargs["chemShiftH"])] if kwargs.get("chemShiftH") else []
-		self.chemShiftN = [float(kwargs["chemShiftN"])] if kwargs.get("chemShiftN") else []
+		self.chemshiftH = [float(kwargs["chemshiftH"])] if kwargs.get("chemshiftH") else []
+		self.chemshiftN = [float(kwargs["chemshiftN"])] if kwargs.get("chemshiftN") else []
 		self._deltaChemShiftH = None
 		self._deltaChemShiftN = None
-		self._chemShiftIntensity = None
+		self._chemshiftIntensity = None
 	def __str__(self):
-		return str((self.position, self.chemShiftH, self.chemShiftN))
+		return str((self.position, self.chemshiftH, self.chemshiftN))
 
 	def __repr__(self):
 		return self.__str__()
@@ -65,16 +65,16 @@ class AminoAcid(object):
 		Append chemical shifts to object's lists of chemical shifts
 		If one of the values is missing, None or 0, it is ignored.
 		"""
-		if kwargs.get("chemShiftH") and float(kwargs["chemShiftH"]) != 0:
-			self.chemShiftH.append(float(kwargs["chemShiftH"]))
-		if kwargs.get("chemShiftN") and float(kwargs["chemShiftN"]) != 0:
-			self.chemShiftN.append(float(kwargs["chemShiftN"]))
+		if kwargs.get("chemshiftH") and float(kwargs["chemshiftH"]) != 0:
+			self.chemshiftH.append(float(kwargs["chemshiftH"]))
+		if kwargs.get("chemshiftN") and float(kwargs["chemshiftN"]) != 0:
+			self.chemshiftN.append(float(kwargs["chemshiftN"]))
 
 	def validate(self, titrationSteps):
 		"""
 		Checks wether an AminoAcid object contains all chemical shift data (1 for each titration step)
 		"""
-		return True if len(self.chemShiftH) == len(self.chemShiftN) == titrationSteps else False
+		return True if len(self.chemshiftH) == len(self.chemshiftN) == titrationSteps else False
 
 	@property
 	def deltaChemShiftH(self):
@@ -82,7 +82,7 @@ class AminoAcid(object):
 		Calculates distance to the reference for each chemical shift only once for hydrogen.
 		"""
 		try :
-			self._deltaChemShiftH = tuple([dH - self.chemShiftH[0] for dH in self.chemShiftH[1:]])
+			self._deltaChemShiftH = tuple([dH - self.chemshiftH[0] for dH in self.chemshiftH[1:]])
 			return self._deltaChemShiftH
 		except IndexError as missingDataError:
 			sys.stderr.write("Could not calculate chem shift variation for residue %s : missing H chem shift data" % self.position)
@@ -95,7 +95,7 @@ class AminoAcid(object):
 		Calculates distance to the reference for each chemical shift only once for nitrogen.
 		"""
 		try:
-			self._deltaChemShiftN = tuple([dN - self.chemShiftN[0] for dN in self.chemShiftN[1:]])
+			self._deltaChemShiftN = tuple([dN - self.chemshiftN[0] for dN in self.chemshiftN[1:]])
 			return self._deltaChemShiftN
 		except IndexError as missingDataError:
 			sys.stderr.write("Could not calculate chem shift variation for residue %s : missing N chem shift data" % self.position)
@@ -109,33 +109,33 @@ class AminoAcid(object):
 		return tuple(zip(self.deltaChemShiftH, self.deltaChemShiftN))
 
 	@property
-	def chemShift(self):
+	def chemshift(self):
 		"Tuple of tuples (chem shift H, chem shift N) for each titration step"
-		return tuple(zip(self.chemShiftH,self.chemShiftN))
+		return tuple(zip(self.chemshiftH,self.chemshiftN))
 
 	@property 
-	def chemShiftIntensity(self):
+	def chemshiftIntensity(self):
 		"""
 		Calculate chemical shift intensity at each titration step from chemical shift values for hydrogen and nitrogen. 
 		"""
-		self._chemShiftIntensity = tuple([math.sqrt(ddH**2 + (ddN/5)**2) for (ddH, ddN) in self.deltaChemShift])
-		return self._chemShiftIntensity
+		self._chemshiftIntensity = tuple([math.sqrt(ddH**2 + (ddN/5)**2) for (ddH, ddN) in self.deltaChemShift])
+		return self._chemshiftIntensity
 
 
 	@property
 	def arrow(self):
 		"Chem shift vector start/end coords calculated on first and last step chem shift data"
-		return (self.chemShiftH[0],
-				self.chemShiftN[0], 
-				(self.chemShiftH[-1] - self.chemShiftH[0]), 
-				(self.chemShiftN[-1] - self.chemShiftN[0]))
+		return (self.chemshiftH[0],
+				self.chemshiftN[0], 
+				(self.chemshiftH[-1] - self.chemshiftH[0]), 
+				(self.chemshiftN[-1] - self.chemshiftN[0]))
 
 	@property
 	def rangeH(self):
 		"Distance between max and min H chem shift"
-		return max(self.chemShiftH) - min(self.chemShiftH)
+		return max(self.chemshiftH) - min(self.chemshiftH)
 
 	@property
 	def rangeN(self):
 		"Distance between max and min N chem shift"
-		return max(self.chemShiftN) - min(self.chemShiftN)
+		return max(self.chemshiftN) - min(self.chemshiftN)
