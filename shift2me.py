@@ -4,15 +4,15 @@
 Shift2Me : 2D-NMR chemical shifts analysis for protein interactions.
 
 Usage: 
-	shift2me.py [-c <cutoff>] [-i <titration.ini>] <file.list> <file.list> ... 
-	shift2me.py [-c <cutoff>] [-i <titration.ini>] ( <dir> | <saved_job> )
+	shift2me.py [-c <cutoff>] [-i <titration.json>] <file.list> <file.list> ... 
+	shift2me.py [-c <cutoff>] [-i <titration.json>] ( <dir> | <saved_job> )
 	shift2me.py -t <file.json>
 	shift2me.py -h
 
 Options:
   -c <cutoff>, --cut-off=<cutoff>   				Set default cutoff at <cutoff> (float).
-  -i <titration.ini>, --init-file=<titration.ini>  	Initialize titration from file.ini (JSON format)
-  -t <file.ini>, --template=<file.ini> 				Initialize a template titration.ini file, to be filled with titration parameters.
+  -i <titration.json>, --init-file=<titration.json>  	Initialize titration from file.json (JSON format)
+  -t <file.json>, --template=<file.json> 				Initialize a template titration.json file, to be filled with titration parameters.
   -h --help                        	 				Print help and usage
 
 This program can calculate chemicals shifts of 15N and 1H during a portein protein interaction in fonction of titation of the secondary protein. 
@@ -38,7 +38,7 @@ if args["--template"]:
 	jsonFile = args["--template"]
 	templateBuilder = BaseTitration()
 	templateBuilder.dump_init_file(initFile = jsonFile)
-	print("Generated template .ini file : {file}".format(file=jsonFile))
+	print("Generated template .json file : {file}".format(file=jsonFile))
 	exit()
 
 if args["<file.list>"]:

@@ -121,12 +121,15 @@ class ShiftShell(Cmd):
 		self.poutput(self.titration.csv(arg))
 
 	def do_status(self, arg):
+		"Outputs titration parameters, and current status of protocole."
 		self.poutput(self.titration.status, '\n\n')
 
 	def do_make_init(self, arg):
+		"Outputs titration parameters. Argument may be a file path to write into. Defaults to stdout."
 		self.titration.dump_init_file(arg)
 
 	def do_init(self, arg):
+		"Load a .json file describing titration parameters"
 		self.titration.load_init_file(arg)
 
 	def do_save_job(self, arg):

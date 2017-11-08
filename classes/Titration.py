@@ -262,6 +262,7 @@ class BaseTitration(object):
 			return
 
 	def load_volumes_file(self, volFile, **kwargs):
+		"Unused method"
 		try:
 			with open(volFile, 'r') as volHandle:
 				volumes = []
@@ -695,9 +696,9 @@ class Titration(BaseTitration):
 		elif os.path.isdir(source):
 			self.dirPath = os.path.abspath(source)
 			self.files = [ os.path.join(self.dirPath, titrationFile) for titrationFile in os.listdir(self.dirPath) if titrationFile.endswith(".list") ]
-			initFileList = [ os.path.join(self.dirPath, ini) for ini in os.listdir(self.dirPath) if ini.endswith(".ini") ]
+			initFileList = [ os.path.join(self.dirPath, ini) for ini in os.listdir(self.dirPath) if ini.endswith(".json") ]
 			if len(initFileList) > 1:
-				raise ValueError("More than one `.ini` file found in {source}. Please remove the extra files.".format(source=self.dirPath))
+				raise ValueError("More than one `.json` file found in {source}. Please remove the extra files.".format(source=self.dirPath))
 			elif initFileList:
 				self.initFile = initFileList.pop()
 			if len(self.files) < 1:
