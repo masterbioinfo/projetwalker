@@ -44,6 +44,9 @@ class ShiftShell(Cmd):
 		self.complete_save_job=self.path_complete
 		self.complete_load_job=self.path_complete
 		self.complete_add_step=self.path_complete
+		self.complete_concentrations=self.path_complete
+		self.complete_make_init=self.path_complete
+		self.complete_init=self.path_complete
 
 		self.intro = self.titration.summary + "\n"+ self.intro
 
@@ -118,7 +121,13 @@ class ShiftShell(Cmd):
 		self.poutput(self.titration.csv(arg))
 
 	def do_status(self, arg):
-		self.poutput(self.titration.status)
+		self.poutput(self.titration.status, '\n\n')
+
+	def do_make_init(self, arg):
+		self.titration.dump_init_file(arg)
+
+	def do_init(self, arg):
+		self.titration.load_init_file(arg)
 
 	def do_save_job(self, arg):
 		"Saves active titration to binary file"

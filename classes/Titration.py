@@ -83,6 +83,8 @@ class BaseTitration(object):
 		if updateSteps:
 			while self.add_step():
 				pass
+		else:
+			self.consume_pending()
 		return self.volumePending
 
 	def add_volumes(self, volumes, updateSteps=False):
@@ -92,10 +94,18 @@ class BaseTitration(object):
 		if updateSteps:
 			while self.add_step():
 				pass
+		else:
+			self.consume_pending()
 		return self.volumePending
 
 	def flush_pending(self):
 		self.volumePending = []
+		return self.volumePending
+
+	def consume_pending(self):
+		extraSteps = self.steps - len(self.volumeAdded)
+		self.volumeAdded += self.volumePending[:extraSteps]
+		self.volumePending = self.volumePending[extraSteps:]
 		return self.volumePending
 
 	def step_as_dict(self, step):
@@ -138,16 +148,16 @@ class BaseTitration(object):
 		statusStr += "Cumulated volumes (µL):\t{cumul}\n".format(cumul=self.volTitrant)
 		statusStr += "Total volume (µL):\t{total}\n".format(total=self.volTotal)
 		statusStr += "\n"
-		statusStr += "[{name}] (µM):\n\t{conc}\n".format(
+		statusStr += "[{name}] (µM):\n\t\t{conc}\n".format(
 			name = self.titrant['name'], conc=[round(c, 4) for c in self.concentrationTitrant])
-		statusStr += "[{name}] (µM):\n\t{conc}\n".format(
+		statusStr += "[{name}] (µM):\n\t\t{conc}\n".format(
 			name = self.analyte['name'], conc=[round(c, 4) for c in self.concentrationAnalyte])
-		statusStr += "[{titrant}]/[{analyte}] :\n\t".format(	titrant=self.titrant['name'], 
+		statusStr += "[{titrant}]/[{analyte}] :\n\t\t".format(	titrant=self.titrant['name'], 
 															analyte=self.analyte['name'])
 		statusStr += "{ratio}\n".format(ratio=[round(ratio,4) for ratio in self.concentrationRatio])
 		statusStr += "\n"
 		statusStr += "------- Pending-----------------------------\n"
-		statusStr += "Pending volumes(µL):\t{pending}".format(pending=self.pending)
+		statusStr += "Pending volumes (µL):\t{pending}\n".format(pending=self.pending)
 		return statusStr
 
 	@property 
@@ -241,8 +251,10 @@ class BaseTitration(object):
 
 	def dump_init_file(self, initFile=None):
 		try: 
+			initDict = {"_description" : "This file defines a titration's initial parameters."}
 			fh = open(initFile, 'w', newline='') if initFile else sys.stdout
-			json.dump(self.as_init_dict, initHandle, indent=2)
+			initDict.update(self.as_init_dict)
+			json.dump(initDict, fh, indent=2)
 			if fh is not sys.stdout:
 				fh.close()
 		except IOError as fileError:
