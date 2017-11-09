@@ -33,6 +33,7 @@ class BaseTitration(object):
 
     def __init__(self, initFile=None):
         self.isInit = False
+        self.initFile = None
         self.name = "Unnamed Titration"
         self.analyte = {
             "name" : "analyte",
@@ -236,6 +237,7 @@ class BaseTitration(object):
             return None
 
     def load_init_file(self, initFile):
+        print("[Init]\t\tLoading titration protocole from {init}".format(init=initFile))
         initDict = self.check_init_file(initFile)
         if initDict is None: 
             return
@@ -246,6 +248,7 @@ class BaseTitration(object):
         self.startVol = initDict['start_volume']['total']
         if initDict.get('add_volumes'):
             self.set_volumes(initDict['add_volumes'])
+        self.initFile=initFile
         self.isInit = True
         return self.isInit
 
@@ -346,6 +349,8 @@ class Titration(BaseTitration):
         self.hist = dict()
         #super().__init__()
 
+        BaseTitration.__init__(self)
+
         ## FILE PATH PROCESSING
         # keep track of source path
         
@@ -359,9 +364,10 @@ class Titration(BaseTitration):
         self.files.sort(key=lambda path: self.validate_filepath(path))
 
         ## TITRATION PARAMETERS
-        BaseTitration.__init__(self)
-        if initFile : self.initFile = initFile
-        if self.initFile: self.load_init_file(self.initFile)
+        if initFile : 
+            self.load_init_file(initFile)
+        elif self.initFile:
+            self.load_init_file(self.initFile)
 
         ## FILE PARSING
         for titrationFile in self.files:

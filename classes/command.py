@@ -10,7 +10,7 @@ class ShiftShell(Cmd):
     """
     intro = "Type help or ? to list commands.\n"
     prompt = ">> "
-    quiet=True
+    #quiet=True
     
     def __init__(self, *args, **kwargs):
         self.cutoff=None
@@ -125,7 +125,12 @@ class ShiftShell(Cmd):
 
     def do_status(self, arg):
         "Outputs titration parameters, and current status of protocole."
-        self.poutput(self.titration.status, '\n\n')
+        status = self.titration.status
+        if status is not None:
+            self.poutput(self.titration.status, '\n\n')
+        else:
+            self.pfeedback("Titration parameters are not set. Please load a parameters.json file.")
+            self.pfeedback("See `help init`")
 
     def do_make_init(self, arg):
         "Outputs titration parameters. Argument may be a file path to write into. Defaults to stdout."
