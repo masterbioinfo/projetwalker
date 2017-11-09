@@ -113,15 +113,18 @@ class ShiftShell(Cmd):
         self.titration.flush_pending()
 
     @options([], arg_desc="[<path/to/file.csv>]")
-    def do_concentrations(self, arg):
+    def do_concentrations(self, arg, opts=None):
         """
         Prints each titration step experimental conditions, such as volumes and concentration of each molecule.
         Format is `tab` separated CSV table. You may redirect its output :
          $ concentrations path/to/file.csv
          $ concentrations > path/to/file.csv
         """
-
-        self.poutput(self.titration.csv(arg))
+        if self.titration.isInit:
+            self.poutput(self.titration.csv(arg))
+        else:
+            self.pfeedback("Titration parameters are not set. Please load a parameters.json file.")
+            self.pfeedback("See `help init`")
 
     def do_status(self, arg):
         "Outputs titration parameters, and current status of protocole."
@@ -344,7 +347,6 @@ class ShiftShell(Cmd):
     arg_desc = '<float>')
     def do_cutoff(self, args, opts=None):
         try:
-            print(args)
             if not args :
                 self.stdout.write("Cut-off=%s\n" % self.titration.cutoff)
             else:

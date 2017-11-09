@@ -233,7 +233,7 @@ class BaseTitration(object):
             print("Hint: {error}".format(error=parseError), file=sys.stderr)
             return None
         except ValueError as valError:
-            print("{error}".format(error=valError), file=sys.stderr)
+            print("Error : {error}".format(error=valError), file=sys.stderr)
             return None
 
     def load_init_file(self, initFile):
@@ -671,8 +671,8 @@ class Titration(BaseTitration):
         ax.arrow(*residue.arrow[:2], *x, head_width=0.02, head_length=0.02, fc='black', ec='green', 
                 length_includes_head=True, linestyle=':', alpha=0.6, overhang=0.5)
         """
-        horAlign = "left" if x[0] <=0 else "right"
-        vertAlign = "top" if x[1] >=0 else "bottom"
+        horAlign = "left" if orthoVector[0] <=0 else "right"
+        vertAlign = "top" if orthoVector[1] >=0 else "bottom"
         ax.annotate(str(residue.position), xy=residue.chemshift[0], 
                     xytext=residue.chemshift[0]-0.8*orthoVector,
                     xycoords='data', textcoords='data', 
