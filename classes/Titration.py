@@ -137,6 +137,9 @@ class BaseTitration(object):
         statusStr = ""
         if not self.isInit:
             return None
+
+        statusStr += "------- Titration --------------------------\n"
+        statusStr += " >\t{name}\n".format(name=self.name)
         statusStr += "------- Initial parameters -----------------\n"
         statusStr += "[{name}] :\t{concentration} µM\n".format(**self.titrant)
         statusStr += "[{name}] :\t{concentration} µM\n".format(**self.analyte)
@@ -296,7 +299,7 @@ class BaseTitration(object):
             writer = csv.DictWriter(fh, fieldnames=fieldnames, delimiter='\t')
 
             writer.writeheader()
-            for step in range(self.steps):
+            for step in range(min(self.steps, len(self.volumeAdded))):
                 writer.writerow(self.step_as_dict(step))
             if fh is not sys.stdout:
                 fh.close()

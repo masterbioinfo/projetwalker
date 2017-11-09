@@ -53,20 +53,20 @@ class ShiftShell(Cmd):
         introStr += self.intro
         self.intro = introStr
 
+    def do_set_name(self, arg):
+        "Sets titration name"
+        if arg:
+            self.titration.set_name(arg)
+            self.name = arg
+            self._set_prompt()
 
-    def _onchange_name(self, old, new):
-        self.titration.set_name(new)
-
-    def _onchange_volumes(self, old, new):
-        volumes = []
-        digitString = ""
-        for vol in new:
-            if vol.isdigit() or vol.strip in ['.', ',']:
-                digitString += vol
-            else:
-                volumes.append(float(digitString))
-                digitString = ""
-        if volumes:
+    @options([], arg_desc="<vol (µL)> <vol (µL)> ...")
+    def do_set_volumes(self, arg, opts=None):
+        "Sets added titrant volumes for current titration, replacing existing volumes."
+        if not arg:
+            self.do_help('set_volumes')
+        else:
+            volumes = list(map(float, arg))
             if not volumes[0] == 0:
                 volumes.insert(0,0)
             self.volumes = volumes
@@ -451,66 +451,3 @@ class ShiftShell(Cmd):
 
     def complete_show(self, text, line,begidx, endidx):
         return self._complete_arg_set(text, line, self.titrationEnv)
-
-## --------------------------------------------------
-##         Library function rewrite
-## --------------------------------------------------
-
-    def do_set(self, arg):
-        """Sets a settable parameter.
-        Accepts abbreviated parameter names so long as there is no ambiguity.
-        Call without arguments for a list of settable parameters with their values.
-        """
-        try:
-            statement, param_name, val = arg.parsed.raw.split(None, 2)
-            val = val.strip()
-            param_name = param_name.strip().lower()
-            if param_name not in self.settable:
-                hits = [p for p in self.settable if p.startswith(param_name)]
-                if len(hits) == 1:
-                    param_name = hits[0]
-                else:
-                    return self.do_show(param_name)
-            current_val = getattr(self, param_name)
-            if (val[0] == val[-1]) and val[0] in ("'", '"'):
-                val = val[1:-1]
-            else:
-                val = self._cast(current_val, val)
-            setattr(self, param_name, val)
-            # self.poutput('%s - was: %s\nnow: %s\n' % (param_name, current_val, val))
-            if current_val != val:
-                try:
-                    onchange_hook = getattr(self, '_onchange_%s' % param_name)
-                    onchange_hook(old=current_val, new=val)
-                except AttributeError:
-                    pass
-        except (ValueError, AttributeError):
-            self.do_show(arg)
-
-    def _cast(self, current, new):
-        """Tries to force a new value into the same type as the current when trying to set the value for a parameter.
-        :param current: current value for the parameter, type varies
-        :param new: str - new value
-        :return: new value with same type as current, or the current value if there was an error casting
-        """
-        typ = type(current)
-        if typ == bool:
-            try:
-                return bool(int(new))
-            except (ValueError, TypeError):
-                pass
-            try:
-                new = new.lower()
-            except AttributeError:
-                pass
-            if (new == 'on') or (new[0] in ('y', 't')):
-                return True
-            if (new == 'off') or (new[0] in ('n', 'f')):
-                return False
-        else:
-            try:
-                return typ(new)
-            except (ValueError, TypeError):
-                pass
-        print("Problem setting parameter (now %s) to %s; incorrect type?" % (current, new))
-        return current
