@@ -42,9 +42,9 @@ if args["--template"]:
     exit()
 
 if args["<file.list>"]:
-    titration = Titration(args["<file.list>"], cutoff=args["--cut-off"])
+    titration = Titration(args["<file.list>"], cutoff=args["--cut-off"], initFile=args['--init-file'])
 elif args["<dir>"]:
-    titration = Titration(args["<dir>"], cutoff=args["--cut-off"])
+    titration = Titration(args["<dir>"], cutoff=args["--cut-off"], initFile=args['--init-file'])
 
 # Turn off MPL interactive mode
 plt.ioff()
