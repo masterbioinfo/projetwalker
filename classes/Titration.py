@@ -53,7 +53,6 @@ class BaseTitration(object):
         self.volumes = list()
         if initFile is not None:
             self.load_init_file(initFile)
-            self.add_step(0)
 
 
 ## -------------------------------------------------
@@ -171,6 +170,15 @@ class BaseTitration(object):
 ## -----------------------------------------------------
 ##         Input/output
 ## -----------------------------------------------------
+    def extract_init_file(self, dirPath):
+        initFileList = glob.glob(os.path.join(dirPath, '*.yml')) or glob.glob(os.path.join(dirPath,'*.json'))
+        if len(initFileList) > 1:
+            initFile = min(initFileList, key=os.path.getctime)
+            raise ValueError("{number} init files found in {source}. Using most recent one : {file}".format(
+                                number=len(initFileList), source=dirPath, file=self.initFile ))
+        elif initFileList:
+            initFile = initFileList.pop()
+        return initFile
 
     def check_init_file(self, initFile):
         try:
@@ -317,16 +325,14 @@ class Titration(BaseTitration):
         except ValueError as error:
             print("{error}".format(error=error), file=sys.stderr)
             exit(1)
-        if self.dirPath:
-            self.extract_init_file()
+       
         # sort files by ascending titration number
         self.files.sort(key=self.validate_filepath)
 
         ## TITRATION PARAMETERS
-        if initFile :
-            self.load_init_file(initFile)
-        elif self.initFile:
-            self.load_init_file(self.initFile)
+        if self.dirPath and initFile is None:
+            initFile = self.extract_init_file(self.dirPath)
+        super().__init__(initFile)
 
         ## FILE PARSING
         for titrationFile in self.files:
@@ -667,17 +673,6 @@ class Titration(BaseTitration):
 ## -------------------------
 ##    Utils
 ## -------------------------
-
-
-    def extract_init_file(self):
-        initFileList = glob.glob(os.path.join(self.dirPath, '*.yml')) or glob.glob(os.path.join(self.dirPath,'*.json'))
-        if len(initFileList) > 1:
-            self.initFile = min(initFileList, key=os.path.getctime)
-            raise ValueError("{number} init files found in {source}. Using most recent one {file}".format(
-                                number=len(initFileList), source=self.dirPath, file=self.initFile ))
-        elif initFileList:
-            self.initFile = initFileList.pop()
-        return initFileList
 
     def extract_source(self, source):
         """
