@@ -442,7 +442,6 @@ class Titration(BaseTitration):
                 hist.set_cutoff(cutoff)
             if self.stackedHist:
                 self.stackedHist.set_cutoff(cutoff)
-            #sys.stdout.write("\r\nCut-off=%s\r\n>> " % cutoff)
             return self.cutoff
         except TypeError as err:
             print("Invalid cut-off value : {error}".format(error=err), file=sys.stderr)
@@ -466,9 +465,9 @@ class Titration(BaseTitration):
                 return int(matching.group("step"))
             else:
                 # found incorrect line format
-                raise IOError("Refusing to parse file {file} : please check it is named like *[0-9]+.list".format(file=filePath))
+                raise IOError("Refusing to parse file {file} : please check it is named like \{name\}\{step\}.list".format(file=filePath))
         except IOError as err:
-            print("{error}\n".format(error=err), file=sys.stderr )
+            print("{error}".format(error=err), file=sys.stderr )
             exit(1)
 
 
@@ -489,7 +488,7 @@ class Titration(BaseTitration):
             exit(1)
         except ValueError as parseError:
             print("{error} at line {line} in file {file}".format(
-                error=parseError, line=lineNb, file=titrationFile))
+                error=parseError, line=lineNb, file=titrationFile), file=sys.stderr)
 
     def parse_line(self, line):
         line = line.strip()
@@ -498,33 +497,32 @@ class Titration(BaseTitration):
             # attempt to match to expected format
             match = self.LINEPATTERN.match(line)
             if match: # parse as dict
-                chemshift = match.groupdict()
+                chemshifts = match.groupdict()
                 # Convert parsed str to number types
-                for castFunc, key in zip((float, float, int), sorted(chemshift)):
-                    chemshift[key] = castFunc(chemshift[key])
+                for castFunc, key in zip((float, float, int), sorted(chemshifts)):
+                    chemshifts[key] = castFunc(chemshifts[key])
                 # add or update residue
-                return self.add_chemshift(chemshift)
+                return self.add_chemshifts(chemshifts)
             else:
                 # non parsable, non ignorable line
                 raise ValueError("Found unparsable line")
 
-    def add_chemshift(self, chemshift):
-        "Arg chemshift is a dict with keys position, chemshiftH, chemshiftN"
-        position = chemshift["position"]
+    def add_chemshifts(self, chemshifts):
+        "Arg chemshifts is a dict with keys position, chemshiftH, chemshiftN"
+        position = chemshifts["position"]
         if self.residues.get(position):
             # update AminoAcid object in residues dict
-            self.residues[position].add_chemshift(**chemshift)
+            self.residues[position].add_chemshifts(**chemshifts)
         else:
             # create AminoAcid object in residues dict
-            self.residues[position] = AminoAcid(**chemshift)
+            self.residues[position] = AminoAcid(**chemshifts)
         return self.residues[position]
 
 ## ------------------------
 ##    Plotting
 ## ------------------------
 
-    def plot_hist (self, step = None, showCutOff = True,
-                                scale=True, show=True):
+    def plot_hist (self, step = None, show=True):
         """
         Define all the options needed (step, cutoof) for the representation.
         Call the getHistogram function to show corresponding histogram plots.
@@ -549,8 +547,7 @@ class Titration(BaseTitration):
         hist.add_cutoff_listener(self.set_cutoff, mouseUpdateOnly=True)
         if show:
             hist.show()
-        if showCutOff and self.cutoff:
-            hist.set_cutoff(self.cutoff)
+        hist.set_cutoff(self.cutoff)
         return hist
 
 
@@ -565,13 +562,13 @@ class Titration(BaseTitration):
         if residues:
             residueSet = [res for res in residues if res.position not in self.incomplete]
             if not residueSet: return
-        elif split and self.filtered:
+        elif split and self.filtered: # plot filtered residue by default when in split mode
             residueSet = self.filtered.values()
         else:
             split = False
             residueSet = self.complete.values() # using complete residues by default
 
-        if len(residueSet) > 64 and split:
+        if len(residueSet) > 36 and split:
             raise ValueError("Refusing to plot so many ({count}) residues in split mode. Sorry.".format(count=len(residueSet)))
 
         fig = plt.figure()
@@ -622,7 +619,7 @@ class Titration(BaseTitration):
                                 facecolors='none', cmap=self.colors,
                                 c = range(self.dataSteps), alpha=0.2)
             fig.subplots_adjust(left=0.15, top=0.90,
-                                right=0.85,bottom=0.15) # make room for legend
+                                right=0.85, bottom=0.15) # make room for legend
             # Add colorbar legend for titration steps
             cbar_ax = fig.add_axes([0.90, 0.15, 0.02, 0.75])
             fig.colorbar(mappable=im, cax=cbar_ax).set_label("Titration steps")
@@ -824,15 +821,15 @@ class Titration(BaseTitration):
     @property
     def summary(self):
         "Returns a short summary of current titration status as string."
-        summary =  "--------------------------------------------\n"
-        summary += "> {name}\n".format(name=self.name)
-        summary += "--------------------------------------------\n"
-        summary += "Source dir :\t{dir}\n".format(dir=self.dirPath)
-        summary += "Steps :\t\t{steps} (reference step 0 to {last})\n".format(steps=self.dataSteps, last=self.dataSteps -1)
-        summary += "Cut-off :\t{cutoff}\n".format(cutoff=self.cutoff)
-        summary += "Total residues :\t\t{res}\n".format(res=len(self.residues))
-        summary += " - Complete residues :\t\t{complete}\n".format(complete=len(self.complete))
-        summary += " - Incomplete residues :\t{incomplete}\n".format(incomplete=len(self.incomplete))
-        summary += " - Filtered residues :\t\t{filtered}\n".format(filtered=len(self.filtered))
-        summary += "--------------------------------------------\n"
+        summary = '\n'.join("--------------------------------------------",
+                            "> {name}".format(name=self.name),
+                            "--------------------------------------------",
+                            "Source dir :\t{dir}".format(dir=self.dirPath),
+                            "Steps :\t\t{steps} (reference step 0 to {last})".format(steps=self.dataSteps, last=self.dataSteps -1),
+                            "Cut-off :\t{cutoff}".format(cutoff=self.cutoff),
+                            "Total residues :\t\t{res}".format(res=len(self.residues)),
+                            " - Complete residues :\t\t{complete}".format(complete=len(self.complete)),
+                            " - Incomplete residues :\t{incomplete}".format(incomplete=len(self.incomplete)),
+                            " - Filtered residues :\t\t{filtered}".format(filtered=len(self.filtered)),
+                            "--------------------------------------------")
         return summary
