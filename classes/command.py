@@ -23,8 +23,6 @@ class ShiftShell(Cmd):
         """
         # environment attributes
         self.name = self.titration.name
-        if self.titration:
-            self.volumes = self.titration.volumeAdded + self.titration.volumePending
         self.settable.update({
             'name': 'Titration name',
             'volumes': 'Volumes of titrant solution added at each step'
@@ -69,7 +67,6 @@ class ShiftShell(Cmd):
             volumes = list(map(float, arg))
             if not volumes[0] == 0:
                 volumes.insert(0,0)
-            self.volumes = volumes
             self.titration.set_volumes(volumes)
 
     def _set_prompt(self):
@@ -104,13 +101,8 @@ class ShiftShell(Cmd):
         if arg:
             volumes = list(map(float, arg))
             self.titration.add_volumes(volumes)
-            self.volumes += volumes
         else:
             self.do_help("add_volumes")
-
-    def do_flush_volumes(self,arg):
-        "Remove titrant solution volumes currently not associated with a step."
-        self.titration.flush_pending()
 
     @options([], arg_desc="[<path/to/file.csv>]")
     def do_concentrations(self, arg, opts=None):
@@ -341,14 +333,11 @@ class ShiftShell(Cmd):
         "Prints a summary of current titration state"
         self.stdout.write("%s" % self.titration.summary)
 
-    @options([
-        make_option('-p', '--plot', action="store_true", help="Set cut-off and plot.")
-    ],
-    arg_desc = '<float>')
+    @options([make_option('-p', '--plot', action="store_true", help="Set cut-off and plot.")], arg_desc = '<float>')
     def do_cutoff(self, args, opts=None):
         try:
             if not args :
-                self.stdout.write("Cut-off=%s\n" % self.titration.cutoff)
+                print(self.titration.cutoff, file=self.stdout)
             else:
                 cutoff = float(args[0])
                 self.titration.set_cutoff(cutoff)

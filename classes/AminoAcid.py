@@ -60,7 +60,7 @@ class AminoAcid(object):
     def __repr__(self):
         return self.__str__()
 
-    def add_chemshift(self, **kwargs):
+    def add_chemshifts(self, **kwargs):
         """
         Append chemical shifts to object's lists of chemical shifts
         If one of the values is missing, None or 0, it is ignored.

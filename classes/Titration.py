@@ -50,8 +50,7 @@ class BaseTitration(object):
 
         self.steps = 0
 
-        self.volumeAdded = list()
-        self.volumePending = list()
+        self.volumes = list()
         if initFile is not None:
             self.load_init_file(initFile)
             self.add_step(0)
@@ -66,63 +65,30 @@ class BaseTitration(object):
         return self.name
 
     def add_step(self, volume = None):
-        if len(self.volumeAdded) > self.steps:
-            self.volumeAdded[self.steps] = volume
-        else:
-            if volume is not None:
-                self.volumePending[0] = volume
-            if self.volumePending:
-                self.volumeAdded.append(self.volumePending.pop(0))
         self.steps += 1
-        return self.volumePending
+        if volume is not None: self.volumes.append(volume)
+        return self.steps
 
-    def set_volumes(self, volumes, updateSteps=False):
-        volumes = list(map(float, volumes))
-        if not volumes:
-            return
-        if not volumes[0] == 0:  # first volume must be 0 (reference)
-            volumes.insert(0, 0)
-        self.volumePending = volumes
-        self.volumeAdded = []
-        if updateSteps:
-            while self.add_step():
-                pass
-        else:
-            self.consume_pending()
-        return self.volumePending
+    def set_volumes(self, volumes):
+        self.steps = len(volumes)
+        self.volumes = list(map(float, volumes))
 
     def update_volumes(self, stepVolumes):
         try:
             for step, vol in stepVolumes.items():
-                self.volumeAdded[step] = vol
+                self.volumes[step] = vol
         except IndexError:
             print("{step} does not exist")
 
-    def add_volumes(self, volumes, updateSteps=False):
-        if not self.volumePending and not volumes[0] == 0:
-            volumes.insert(0,0)  # first volume must be 0 (reference)
-            self.volumePending += volumes
-        if updateSteps:
-            while self.add_step():
-                pass
-        else:
-            self.consume_pending()
-        return self.volumePending
-
-    def flush_pending(self):
-        self.volumePending = []
-        return self.volumePending
-
-    def consume_pending(self):
-        extraSteps = self.steps - len(self.volumeAdded)
-        self.volumeAdded += self.volumePending[:extraSteps]
-        self.volumePending = self.volumePending[extraSteps:]
-        return self.volumePending
+    def add_volumes(self, volumes):
+        for vol in volumes:
+            self.add_step(vol)
+        return self.steps
 
     def step_as_dict(self, step):
         dictStep = dict()
         dictStep["#step"] = step
-        dictStep["vol added {titrant} (µL)".format(titrant=self.titrant['name']) ] = self.volumeAdded[step]
+        dictStep["vol added {titrant} (µL)".format(titrant=self.titrant['name']) ] = self.volumes[step]
         dictStep["vol {titrant} (µL)".format(titrant=self.titrant['name']) ] = self.volTitrant[step]
         dictStep["vol total (µL)"] = self.volTotal[step]
         dictStep["[{analyte}] (µM)".format(analyte=self.analyte['name']) ] = round(self.concentrationAnalyte[step], 4)
@@ -133,14 +99,6 @@ class BaseTitration(object):
 ## -----------------------------------------------------
 ##         Properties
 ## -----------------------------------------------------
-
-    @property
-    def pending(self):
-        return self.volumePending if self.volumePending else None
-
-    @property
-    def added(self):
-        return self.volumeAdded if self.volumeAdded else None
 
     @property
     def status(self):
@@ -155,8 +113,9 @@ class BaseTitration(object):
                             "{name} volume  :\t{volume} µL".format(**self.analyte, volume=self.analyteStartVol),
                             "Initial volume :\t{volume} µL".format(volume=self.startVol),
                             "------- Current status ---------------------",
-                            "Current steps :\t\t{steps}".format(steps=list(range(self.steps))),
-                            "Added volumes (µL):\t{added}".format(added=self.added),
+                            "Titration steps :\t\t{steps}".format(steps=list(range(self.steps))),
+                            "{titrant} volumes (µL):\t{added}".format(
+                                titrant=self.titrant['name'],added=self.volumes),
                             "Cumulated volumes (µL):\t{cumul}".format(cumul=self.volTitrant),
                             "Total volume (µL):\t{total}".format(total=self.volTotal),
                             "[{name}] (µM):\n\t\t{conc}".format(
@@ -167,18 +126,16 @@ class BaseTitration(object):
                                 conc=[round(c, 4) for c in self.concentrationAnalyte]),
                             "[{titrant}]/[{analyte}] :".format(
                                 titrant=self.titrant['name'], analyte=self.analyte['name']),
-                            "\t\t{ratio}".format(ratio=[round(ratio,4) for ratio in self.concentrationRatio]),
-                            "------- Pending-----------------------------",
-                            "Pending volumes (µL):\t{pending}".format(pending=self.pending) ])
-
+                            "\t\t{ratio}".format(ratio=[round(ratio,4) for ratio in self.concentrationRatio]) ])
+                            
     @property
     def is_consistent(self):
-        return True if len(self.volumeAdded) == self.steps else False
+        return True if len(self.volumes) == self.steps else False
 
     @property
     def volTitrant(self):
         volCumul = [0]
-        for vol in self.volumeAdded[1:]:
+        for vol in self.volumes[1:]:
             volCumul.append(volCumul[-1] + vol)
         return volCumul
 
@@ -208,7 +165,7 @@ class BaseTitration(object):
                 "analyte" : self.analyteStartVol,
                 "total" : self.startVol
             },
-            'add_volumes': self.volumeAdded + self.volumePending
+            'add_volumes': self.volumes
         }
 
 ## -----------------------------------------------------
@@ -295,7 +252,7 @@ class BaseTitration(object):
             writer = csv.DictWriter(fh, fieldnames=fieldnames, delimiter='\t')
 
             writer.writeheader()
-            for step in range(min(self.steps, len(self.volumeAdded))):
+            for step in range(min(self.steps, len(self.volumes))):
                 writer.writerow(self.step_as_dict(step))
             if fh is not sys.stdout:
                 fh.close()
@@ -309,7 +266,6 @@ class BaseTitration(object):
 ##----------------------------------------------------------------------------------------------------------
 ##         Classe titration
 ##----------------------------------------------------------------------------------------------------------
-
 
 class Titration(BaseTitration):
     """
@@ -821,7 +777,7 @@ class Titration(BaseTitration):
     @property
     def summary(self):
         "Returns a short summary of current titration status as string."
-        summary = '\n'.join("--------------------------------------------",
+        summary = '\n'.join(["--------------------------------------------",
                             "> {name}".format(name=self.name),
                             "--------------------------------------------",
                             "Source dir :\t{dir}".format(dir=self.dirPath),
@@ -831,5 +787,13 @@ class Titration(BaseTitration):
                             " - Complete residues :\t\t{complete}".format(complete=len(self.complete)),
                             " - Incomplete residues :\t{incomplete}".format(incomplete=len(self.incomplete)),
                             " - Filtered residues :\t\t{filtered}".format(filtered=len(self.filtered)),
-                            "--------------------------------------------")
+                            "--------------------------------------------\n"  ])
         return summary
+
+    @property
+    def added(self):
+        return self.volumes[:self.dataSteps] if len(volumes) >= self.dataSteps else self.volumes
+
+    @property
+    def pending(self):
+        return self.volumes[self.dataSteps:] if self.dataSteps < len(volumes) else []
