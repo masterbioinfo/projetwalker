@@ -513,7 +513,7 @@ class Titration(BaseTitration):
         return hist
 
 
-    def plot_shiftmap(self, residues=None, split = False):
+    def plot_shiftmap(self, residues, split = False):
         """
         Plot measured chemical shifts for each residue as a scatter plot of (chemshiftH, chemshiftN).
         Each color is assigned to a titration step.
@@ -521,17 +521,8 @@ class Titration(BaseTitration):
         If using `split` option, each residue is plotted in its own subplot.
         """
 
-        if residues:
-            residueSet = [res for res in residues if res.position not in self.incomplete]
-            if not residueSet: return
-        elif split and self.filtered: # plot filtered residue by default when in split mode
-            residueSet = self.filtered.values()
-        else:
-            split = False
-            residueSet = self.complete.values() # using complete residues by default
-
-        if len(residueSet) > 36 and split:
-            raise ValueError("Refusing to plot so many ({count}) residues in split mode. Sorry.".format(count=len(residueSet)))
+        if len(residues) > 36 and split:
+            raise ValueError("Refusing to plot so many ({count}) residues in split mode. Sorry.".format(count=len(residues)))
 
         fig = plt.figure()
 
@@ -540,15 +531,15 @@ class Titration(BaseTitration):
         # set common xlabel and ylabel
         fig.text(0.5, 0.04, 'H Chemical Shift', ha='center')
         fig.text(0.04, 0.5, 'N Chemical Shift', va='center', rotation='vertical')
-        if split and len(residueSet) > 1:
+        if split and len(residues) > 1:
             # create an array of cells with squared shape
-            axes = fig.subplots(nrows=ceil(sqrt(len(residueSet))),
-                                ncols=round(sqrt(len(residueSet))),
+            axes = fig.subplots(nrows=ceil(sqrt(len(residues))),
+                                ncols=round(sqrt(len(residues))),
                                 sharex=False, sharey=False, squeeze=True)
             # iterate over each created cell
             for index, ax in enumerate(axes.flat):
-                if index < len(residueSet):
-                    res = residueSet[index]
+                if index < len(residues):
+                    res = residues[index]
                     # Trace chem shifts for current residu in new graph cell
                     im = ax.scatter(res.chemshiftH, res.chemshiftN,
                                     facecolors='none', cmap=self.colors,
@@ -561,11 +552,11 @@ class Titration(BaseTitration):
                     ax.remove() # remove extra subplots
 
             # scale
-            self.scale_split_shiftmap(residueSet, axes)
+            self.scale_split_shiftmap(residues, axes)
             # annotate
             for index, ax in enumerate(axes.flat):
-                if index < len(residueSet):
-                    self.annotate_chemshift(residueSet[index], ax)
+                if index < len(residues):
+                    self.annotate_chemshift(residues[index], ax)
 
             # display them nicely
             fig.tight_layout()
@@ -576,7 +567,7 @@ class Titration(BaseTitration):
             fig.colorbar(mappable=im, cax=cbar_ax).set_label("Titration steps")
 
         else: # Trace global chem shifts map
-            for residue in residueSet :
+            for residue in residues :
                 im=plt.scatter(residue.chemshiftH, residue.chemshiftN,
                                 facecolors='none', cmap=self.colors,
                                 c = range(self.dataSteps), alpha=0.2)
@@ -759,7 +750,7 @@ class Titration(BaseTitration):
         if self.cutoff is not None:
             return dict([(res.position,res) for res in self.complete.values() if res.chemshiftIntensity[-1] >= self.cutoff])
         else:
-            return []
+            return dict()
 
     @property
     def sortedSteps(self):

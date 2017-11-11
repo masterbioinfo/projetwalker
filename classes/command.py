@@ -1,7 +1,7 @@
 
 #!/usr/bin/python3
 
-import sys, os
+import os
 from cmd2 import Cmd, options, make_option
 
 class ShiftShell(Cmd):
@@ -207,13 +207,12 @@ class ShiftShell(Cmd):
                     fig = self.titration.plot_shiftmap(argMap[args[0]].values(), split=opts.split)
                 else:
                     raise ValueError("Invalid argument : %s. Use `shiftmap -h` for help." % args[0])
-
             else:
-                fig = self.titration.plot_shiftmap(split=opts.split)
+                self.do_help('shiftmap')
             if opts.export:
                 fig.savefig(opts.export, dpi=fig.dpi)
         except ValueError as invalidArgErr:
-            sys.stderr.write("%s\n" % invalidArgErr)
+            self.pfeedback(invalidArgErr)
             #self.do_help("shiftmap")
 
     @options([], arg_desc="( filtered | selected | complete | incomplete )")
@@ -228,18 +227,18 @@ class ShiftShell(Cmd):
         for arg in args:
             try:
                 if arg in argMap:
-                    self.stdout.write("%s\n" % " ".join([str(pos) for pos in argMap[arg].values()]))
+                    self.poutput(" ".join([str(pos) for pos in argMap[arg].values()]))
                 else:
-                    raise ValueError("Skipping invalid argument %s." % arg)
+                    raise ValueError("Skipping invalid argument {arg}.".format(arg=arg))
             except ValueError as error:
-                sys.stderr.write("%s\n" % error)
+                self.pfeedback(error)
                 pass
 
 
     @options([])
     def do_filter(self, args, opts=None):
         "Output residues having intensity >= cut-off"
-        self.stdout.write("%s\n" % " ".join([str(pos) for pos in self.titration.filtered]))
+        self.poutput(" ".join([str(pos) for pos in self.titration.filtered]))
 
 
     @options([], arg_desc="[all] [filtered] [complete] [incomplete] [positions_slice]")
@@ -331,20 +330,20 @@ class ShiftShell(Cmd):
 
     def do_summary(self, args):
         "Prints a summary of current titration state"
-        self.stdout.write("%s" % self.titration.summary)
+        self.poutput(self.titration.summary)
 
     @options([make_option('-p', '--plot', action="store_true", help="Set cut-off and plot.")], arg_desc = '<float>')
     def do_cutoff(self, args, opts=None):
         try:
             if not args :
-                print(self.titration.cutoff, file=self.stdout)
+                self.poutput(self.titration.cutoff)
             else:
                 cutoff = float(args[0])
                 self.titration.set_cutoff(cutoff)
             if opts.plot:
                 self.titration.plot_hist(-1)
         except (TypeError, IndexError) as error:
-            sys.stderr.write("%s\n" % error)
+            self.pfeedback(error)
             self.do_help("cutoff")
 
 
