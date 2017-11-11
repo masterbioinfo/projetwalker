@@ -204,15 +204,15 @@ class ShiftShell(Cmd):
         Invocation with no arguments will plot all residues with complete data.
         """
         argMap = {
-            "all" : list(self.titration.residues.values()), # might be error prone because of missing data
-            "complete" : list(self.titration.complete.values()),
-            "filtered" : list(self.titration.filtered.values()),
-            "selected" : list(self.titration.selected.values())
+            "all" : list(self.titration.residues), # might be error prone because of missing data
+            "complete" : list(self.titration.complete),
+            "filtered" : list(self.titration.filtered),
+            "selected" : list(self.titration.selected)
         } 
         try:
             if args:
                 if argMap.get(args[0]):
-                    fig = self.titration.plot_shiftmap(argMap[args[0]], split=opts.split)
+                    fig = self.titration.plot_shiftmap(argMap[args[0]].values(), split=opts.split)
                 else:
                     raise ValueError("Invalid argument : %s. Use `shiftmap -h` for help." % args[0])
 
@@ -236,7 +236,7 @@ class ShiftShell(Cmd):
         for arg in args:
             try:
                 if arg in argMap:
-                    self.stdout.write("%s\n" % " ".join([str(pos) for pos in argMap[arg]]))
+                    self.stdout.write("%s\n" % " ".join([str(pos) for pos in argMap[arg].values()]))
                 else:
                     raise ValueError("Skipping invalid argument %s." % arg)
             except ValueError as error:
