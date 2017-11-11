@@ -423,7 +423,7 @@ class Titration(BaseTitration):
 
         # Recalculate (position, chem shift intensity) coordinates for histogram plot
         self.intensities = [] # 2D array, by titration step then residu position
-        for step in range(self.dataSteps - 1): # intensity is null for reference step, ignoring
+        for step in range(self.dataSteps): # intensity is null for reference step, ignoring
             self.intensities.append([residue.chemshiftIntensity[step] for residue in self.complete.values()])
         # generate colors for each titration step
         self.colors = plt.cm.get_cmap('hsv', self.dataSteps)
@@ -534,7 +534,7 @@ class Titration(BaseTitration):
             if self.stackedHist and not self.stackedHist.closed:
                 self.stackedHist.close()
             # replace stacked hist with new hist
-            hist = MultiHist(self.complete,self.intensities)
+            hist = MultiHist(self.complete,self.intensities[1:])
             self.stackedHist = hist
         else: # plot specific titration step
             # allow accession using python-ish negative index
@@ -543,7 +543,7 @@ class Titration(BaseTitration):
             if self.hist.get(step) and not self.hist[step].closed:
                 self.hist[step].close()
             # plot new hist
-            hist = Hist(self.complete, self.intensities[step-1], step=step)
+            hist = Hist(self.complete, self.intensities[step], step=step)
             self.hist[step] = hist
         # add cutoff change event handling
         hist.add_cutoff_listener(self.set_cutoff, mouseUpdateOnly=True)
@@ -633,7 +633,7 @@ class Titration(BaseTitration):
 
     def plot_titration(self, residue):
         xAxis = self.concentrationRatio
-        yAxis = [0] + list(residue.chemshiftIntensity)
+        yAxis = list(residue.chemshiftIntensity)
         fig = plt.figure()
         # set title
         fig.suptitle('Titration curve of residue {pos}'.format(pos=residue.position, fontsize=13))
@@ -809,7 +809,7 @@ class Titration(BaseTitration):
     def filtered(self):
         "Returns list of filtered residue having last intensity >= cutoff value"
         if self.cutoff is not None:
-            return dict([(res.position,res) for res in self.complete.values() if res.chemshiftIntensity[self.dataSteps-2] >= self.cutoff])
+            return dict([(res.position,res) for res in self.complete.values() if res.chemshiftIntensity[-1] >= self.cutoff])
         else:
             return []
 
