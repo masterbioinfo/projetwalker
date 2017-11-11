@@ -11,12 +11,12 @@ class ShiftShell(Cmd):
     intro = "Type help or ? to list commands.\n"
     prompt = ">> "
     #quiet=True
-    
+
     def __init__(self, *args, **kwargs):
         self.cutoff=None
         self.allow_cli_args = False
         self.titration = kwargs.get('titration')
-        
+
         """
         self.active = self.titration
         self.settable.update({'active' : "Current working titration"})
@@ -34,9 +34,9 @@ class ShiftShell(Cmd):
         self._set_prompt()
 
         # Exclude irrelevant cmds from help menu
-        self.exclude_from_help += [    'do__relative_load', 
-                                    'do_cmdenvironment', 
-                                    'do_edit', 
+        self.exclude_from_help += [    'do__relative_load',
+                                    'do_cmdenvironment',
+                                    'do_edit',
                                     'do_run' ]
 
         # Set path completion for save/load
@@ -48,7 +48,7 @@ class ShiftShell(Cmd):
         self.complete_init=self.path_complete
 
         introStr = "\n\n"
-        introStr += "\tWelcome to Shift2Me !\n" 
+        introStr += "\tWelcome to Shift2Me !\n"
         introStr += self.titration.summary + "\n"
         introStr += self.intro
         self.intro = introStr
@@ -88,7 +88,7 @@ class ShiftShell(Cmd):
         self._set_prompt()
         return stop
 
-    
+
 
     @options([make_option('-v', '--volume', help="Volume of titrant solution to add titration step")],arg_desc='<titration_file_##.list>')
     def do_add_step(self, arg, opts=None):
@@ -97,7 +97,7 @@ class ShiftShell(Cmd):
             self.titration.add_step(arg[0], opts.volume)
         else:
             self.do_help("add_step")
-    
+
     @options([], arg_desc="<vol(µL)> [<vol(µL)> ...]")
     def do_add_volumes(self, arg, opts=None):
         "Add volumes to currently existing volumes in titration."
@@ -107,7 +107,7 @@ class ShiftShell(Cmd):
             self.volumes += volumes
         else:
             self.do_help("add_volumes")
-    
+
     def do_flush_volumes(self,arg):
         "Remove titrant solution volumes currently not associated with a step."
         self.titration.flush_pending()
@@ -153,7 +153,7 @@ class ShiftShell(Cmd):
 
     def do_new(self, arg):
         """
-        Creates a new titration from either : 
+        Creates a new titration from either :
          - a dir containing .list files
          - a list of .list files
          - a binary file of previously saved titration
@@ -179,7 +179,7 @@ class ShiftShell(Cmd):
         """
         Plot chemical shift intensity per residu as histograms
         Accepted arguments are any titration step except 0 (reference)
-        or 'all' to plot all steps as stacked histograms. 
+        or 'all' to plot all steps as stacked histograms.
         Defaults to plotting the last step when no arguments
         are provided.
         """
@@ -188,7 +188,7 @@ class ShiftShell(Cmd):
             hist = self.titration.plot_hist()
         else: # plot single hist
             hist = self.titration.plot_hist(step=int(step))
-        
+
         if opts.export: # export figure as png
             hist.figure.savefig(opts.export, dpi = hist.figure.dpi)
 
@@ -208,7 +208,7 @@ class ShiftShell(Cmd):
             "complete" : list(self.titration.complete),
             "filtered" : list(self.titration.filtered),
             "selected" : list(self.titration.selected)
-        } 
+        }
         try:
             if args:
                 if argMap.get(args[0]):
@@ -253,17 +253,17 @@ class ShiftShell(Cmd):
     @options([], arg_desc="[all] [filtered] [complete] [incomplete] [positions_slice]")
     def do_select(self, args, opts=None):
         """
-        Select a subset of residues, either from : 
+        Select a subset of residues, either from :
          - a predefined set of residues
          - 1 or more slices of residue positions, with python-ish syntax.
-        Examples : 
+        Examples :
             ':100' matches positions from start to 100
             '110:117' matches positions from 100 to 117 (excluded)
             '105 112:115' matches positions 105 and 112 to 115 (excluded)
         You may mix argument types, like select filtered residues + res #100 to #110 excluded :
             >> select filtered 100:110
         Non existant residues are skipped with a warning message.
-        Finally, selection is additive only, each selected element adds up to previous selection. 
+        Finally, selection is additive only, each selected element adds up to previous selection.
         If you want to clear the current selection, use deselect command.
         """
         argMap = {
@@ -285,7 +285,7 @@ class ShiftShell(Cmd):
     @options([])
     def do_deselect(self, args, opts=None):
         """
-        Remove a subset of residues from current selection, specifying either : 
+        Remove a subset of residues from current selection, specifying either :
          - a predefined set of residues
          - 1 or more slices of residue positions, with python-ish syntax.
            e.g : ':100' matches positions from start to 100
@@ -393,7 +393,7 @@ class ShiftShell(Cmd):
             # remove flag and start path completion
             pathText = text[len(longFlag):]
             return [longFlag + path for path in self._complete_truncated(pathText) ]
-            
+
             # complete flag (this is ugly if several flags start with same letter)
         elif text.startswith(longFlag[:3]):
             return [longFlag]
@@ -438,7 +438,7 @@ class ShiftShell(Cmd):
         "Completion logic for commands accepting predefined set of arguments"
         # Last word is an exact match with args
         if text in argSet:
-            return [text+' '] 
+            return [text+' ']
         # Arg already provided
         for arg in argSet:
             if arg in line.split():

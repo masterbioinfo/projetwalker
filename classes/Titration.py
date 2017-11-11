@@ -12,11 +12,13 @@ as well as setting a cut-off to filter residues having high intensity values.
 """
 
 import os
+import glob
 import pickle
 import re
 import sys
 import csv
 import json
+import yaml
 from math import *
 
 import matplotlib.pyplot as plt
@@ -156,7 +158,7 @@ class BaseTitration(object):
             name = self.titrant['name'], conc=[round(c, 4) for c in self.concentrationTitrant])
         statusStr += "[{name}] (µM):\n\t\t{conc}\n".format(
             name = self.analyte['name'], conc=[round(c, 4) for c in self.concentrationAnalyte])
-        statusStr += "[{titrant}]/[{analyte}] :\n\t\t".format(    titrant=self.titrant['name'], 
+        statusStr += "[{titrant}]/[{analyte}] :\n\t\t".format(    titrant=self.titrant['name'],
                                                             analyte=self.analyte['name'])
         statusStr += "{ratio}\n".format(ratio=[round(ratio,4) for ratio in self.concentrationRatio])
         statusStr += "\n"
@@ -164,7 +166,7 @@ class BaseTitration(object):
         statusStr += "Pending volumes (µL):\t{pending}\n".format(pending=self.pending)
         return statusStr
 
-    @property 
+    @property
     def is_consistent(self):
         return True if len(self.volumeAdded) == self.steps else False
 
@@ -210,13 +212,20 @@ class BaseTitration(object):
 
     def check_init_file(self, initFile):
         try:
+            root, ext = os.path.splitext(initFile)
+            if ext == '.yml':
+                    loader = yaml
+            elif ext == '.json':
+                    loader = json
+            else:
+                raise IOError("Invalid init file extension for {init} : accepted are .yml or .json".format(init=initFile))
             with open(initFile, 'r') as initHandle:
-                initDict = json.load(initHandle)
+                initDict = loader.load(initHandle)
             for role in ['titrant', 'analyte']:
                 concentration = float(initDict[role]['concentration'])
                 if concentration <=0:
                     raise ValueError("Invalid concentration ({conc}) for {role}".format(conc=concentration, role=role))
-            
+
             volAnalyte = float(initDict['start_volume']['analyte'])
             volTotal = float(initDict['start_volume']['total'])
             for volume in (volAnalyte, volTotal):
@@ -242,7 +251,7 @@ class BaseTitration(object):
     def load_init_file(self, initFile):
         print("[Init]\t\tLoading titration protocole from {init}".format(init=initFile))
         initDict = self.check_init_file(initFile)
-        if initDict is None: 
+        if initDict is None:
             return
         self.titrant = initDict['titrant']
         self.analyte = initDict['analyte']
@@ -256,40 +265,22 @@ class BaseTitration(object):
         return self.isInit
 
     def dump_init_file(self, initFile=None):
-        try: 
+        try:
             initDict = {"_description" : "This file defines a titration's initial parameters."}
             fh = open(initFile, 'w', newline='') if initFile else sys.stdout
             initDict.update(self.as_init_dict)
-            json.dump(initDict, fh, indent=2)
+            yaml.dump(initDict, fh, default_flow_style=False, indent=4)
             if fh is not sys.stdout:
                 fh.close()
         except IOError as fileError:
             print("{error}".format(error=fileError), file=sys.stderr)
             return
 
-    def load_volumes_file(self, volFile, **kwargs):
-        "Unused method"
-        try:
-            with open(volFile, 'r') as volHandle:
-                volumes = []
-                for line in volHandle:
-                    line = line.strip()
-                    if not line or line.startswith('#'): 
-                        continue # ignore comments and empty lines
-                    volumes.append(float(line))
-            return self.set_volumes(volumes, **kwargs)
-        except IOError as fileError:
-            print("{error}".format(error=fileError), file=sys.stderr)
-            return
-        except TypeError as typeError:
-            print("Could not convert line {line} to float value.".format(line=line))
-            return
-
     def csv(self, file=None):
-        try: 
+        try:
             fh = open(file, 'w', newline='') if file else sys.stdout
             fieldnames = [    "#step",
-                            "vol added {titrant} (µL)".format(titrant=self.titrant['name']), 
+                            "vol added {titrant} (µL)".format(titrant=self.titrant['name']),
                             "vol {titrant} (µL)".format(titrant=self.titrant['name']),
                             "vol total (µL)",
                             "[{analyte}] (µM)".format(analyte=self.analyte['name']),
@@ -322,13 +313,15 @@ class Titration(BaseTitration):
     Provides methods for accessing each titration step datas.
     """
     # accepted file path pattern
-    rePath = re.compile(r'(.+/)?(.*[^\d]+)(?P<step>[0-9]+)\.list')
+    PATHPATTERN = re.compile(r'(.+/)?(.*[^\d]+)(?P<step>[0-9]+)\.list')
     # accepted lines pattern
-    reLine = re.compile(r"^(?P<position>\d+)(\S*)?\s+(?P<chemshiftH>\d+\.\d+)\s+(?P<chemshiftN>\d+\.\d+)$")
+    LINEPATTERN = re.compile(r'^(?P<position>\d+)(\S*)?\s+'
+                        r'(?P<chemshiftH>\d+\.\d+)\s+'
+                        r'(?P<chemshiftN>\d+\.\d+)$')
     # ignored lines pattern
-    reLineIgnore = re.compile(r"^\d.*")
+    IGNORELINEPATTERN = re.compile(r"^\d.*")
     # source paths
-    
+
 
     def __init__(self, source, name=None, cutoff = None, initFile=None, **kwargs):
         """
@@ -356,18 +349,20 @@ class Titration(BaseTitration):
 
         ## FILE PATH PROCESSING
         # keep track of source path
-        
+
         # fetch all .list files in source dir
         try:
             self.extract_source(source)
         except ValueError as error:
             print("{error}".format(error=error), file=sys.stderr)
             exit(1)
+        if self.dirPath:
+            self.extract_init_file()
         # sort files by ascending titration number
         self.files.sort(key=lambda path: self.validate_filepath(path))
 
         ## TITRATION PARAMETERS
-        if initFile : 
+        if initFile :
             self.load_init_file(initFile)
         elif self.initFile:
             self.load_init_file(self.initFile)
@@ -375,8 +370,8 @@ class Titration(BaseTitration):
         ## FILE PARSING
         for titrationFile in self.files:
             self.add_step(titrationFile)
-        
-        
+
+
         ## INIT CUTOFF
         if cutoff:
             self.set_cutoff(cutoff)
@@ -389,11 +384,12 @@ class Titration(BaseTitration):
 ## --------------------------------
 ##    Titration + RMN Analysis
 ## --------------------------------
-        
+
 
     def add_step(self, titrationFile, volume=None):
         "Adds a titration step described in `titrationFile`"
-        print("[Step {step}]\tLoading file {titration_file}".format(step=self.steps, titration_file=titrationFile), file=sys.stderr)
+
+        print("[Step {step}]\tLoading NMR data from {titration_file}".format(step=self.steps, titration_file=titrationFile), file=sys.stderr)
         # verify file
         step = self.validate_filepath(titrationFile, verifyStep=True)
         # parse it
@@ -411,7 +407,7 @@ class Titration(BaseTitration):
                 self.complete[pos] = res
             else:
                 self.incomplete[pos] = res
-                
+
         print("\t\t{incomplete} incomplete residue out of {total}".format(
              incomplete=len(self.incomplete), total=len(self.complete)), file=sys.stderr)
 
@@ -449,8 +445,8 @@ class Titration(BaseTitration):
         Returns the titration step number if found, IOError is raised otherwise
         """
         try:
-            
-            matching = self.rePath.match(filePath) # attempt to match
+
+            matching = self.PATHPATTERN.match(filePath) # attempt to match
             if matching:
                 if verifyStep and int(matching.group("step")) != self.steps:
                     raise IOError("File {file} expected to contain data for titration step #{step}.\
@@ -476,32 +472,42 @@ class Titration(BaseTitration):
         try :
             with open(titrationFile, "r", encoding = "utf-8") as titration:
                 for lineNb, line in enumerate(titration) :
-                    line = line.strip()
-                    # ignore empty lines and header lines
-                    if self.reLineIgnore.match(line):
-                        # attempt to match to expected format
-                        lineMatch = self.reLine.match(line)
-                        if lineMatch: # parse as dict
-                            chemshift = lineMatch.groupdict()
-                            # Convert parsed str to number types 
-                            for castFunc, key in zip((float, float, int), sorted(chemshift)):
-                                chemshift[key] = castFunc(chemshift[key])
-                            # add or update residue
-                            position = chemshift["position"]
-                            if self.residues.get(position):
-                                # update AminoAcid object in residues dict
-                                self.residues[position].add_chemshift(**chemshift)
-                            else:
-                                # create AminoAcid object in residues dict
-                                self.residues[position] = AminoAcid(**chemshift)
-                        else:
-                            # non parsable, non ignorable line
-                            raise ValueError("Could not parse file {file} at line {line}".format(file=titrationFile, line=lineNb))
+                    self.parse_line(line)
 
-        except (IOError, ValueError) as error:
+        except IOError as fileError:
             print("{error}\n".format(error=error), file=sys.stderr)
             exit(1)
+        except ValueError as parseError:
+            print("{error} at line {line} in file {file}".format(
+                error=parseError, line=lineNb, file=titrationFile))
 
+    def parse_line(self, line):
+        line = line.strip()
+        # ignore empty lines and header lines
+        if self.IGNORELINEPATTERN.match(line):
+            # attempt to match to expected format
+            match = self.LINEPATTERN.match(line)
+            if match: # parse as dict
+                chemshift = match.groupdict()
+                # Convert parsed str to number types
+                for castFunc, key in zip((float, float, int), sorted(chemshift)):
+                    chemshift[key] = castFunc(chemshift[key])
+                # add or update residue
+                return self.add_chemshift(chemshift)
+            else:
+                # non parsable, non ignorable line
+                raise ValueError("Found unparsable line")
+
+    def add_chemshift(self, chemshift):
+        "Arg chemshift is a dict with keys position, chemshiftH, chemshiftN"
+        position = chemshift["position"]
+        if self.residues.get(position):
+            # update AminoAcid object in residues dict
+            self.residues[position].add_chemshift(**chemshift)
+        else:
+            # create AminoAcid object in residues dict
+            self.residues[position] = AminoAcid(**chemshift)
+        return self.residues[position]
 
 ## ------------------------
 ##    Plotting
@@ -544,7 +550,7 @@ class Titration(BaseTitration):
         `residue` argument should be an iterable of AminoAcid objects.
         If using `split` option, each residue is plotted in its own subplot.
         """
-        
+
         if residues:
             residueSet = [res for res in residues if res.position not in self.incomplete]
             if not residueSet: return
@@ -553,7 +559,7 @@ class Titration(BaseTitration):
         else:
             split = False
             residueSet = self.complete.values() # using complete residues by default
-        
+
         if len(residueSet) > 64 and split:
             raise ValueError("Refusing to plot so many ({count}) residues in split mode. Sorry.".format(count=len(residueSet)))
 
@@ -575,7 +581,7 @@ class Titration(BaseTitration):
                     res = residueSet[index]
                     # Trace chem shifts for current residu in new graph cell
                     im = ax.scatter(res.chemshiftH, res.chemshiftN,
-                                    facecolors='none', cmap=self.colors, 
+                                    facecolors='none', cmap=self.colors,
                                     c = range(self.steps), alpha=0.2)
                     # ax.set_title("Residue %s " % res.position, fontsize=10)
                     # print xticks as 2 post-comma digits float
@@ -601,8 +607,8 @@ class Titration(BaseTitration):
 
         else: # Trace global chem shifts map
             for residue in residueSet :
-                im=plt.scatter(residue.chemshiftH, residue.chemshiftN, 
-                                facecolors='none', cmap=self.colors, 
+                im=plt.scatter(residue.chemshiftH, residue.chemshiftN,
+                                facecolors='none', cmap=self.colors,
                                 c = range(self.steps), alpha=0.2)
             fig.subplots_adjust(left=0.15, top=0.90,
                                 right=0.85,bottom=0.15) # make room for legend
@@ -624,7 +630,7 @@ class Titration(BaseTitration):
         plt.xlabel("[{titrant}]/[{analyte}]".format(
             titrant=self.titrant['name'], analyte=self.analyte['name']))
 
-        fig.text(0.04, 0.5, 'Chem Shift Intensity', 
+        fig.text(0.04, 0.5, 'Chem Shift Intensity',
                 va='center', rotation='vertical', fontsize=11)
         im = plt.scatter(xAxis, yAxis, alpha=1)
         """
@@ -650,7 +656,7 @@ class Titration(BaseTitration):
         "Adds chem shift vector and residue position for current residue in current subplot"
         xlim, ylim = ax.get_xlim(), ax.get_ylim()
         xrange, yrange = (xlim[1] - xlim[0], ylim[1] - ylim[0])
-        
+
         shiftVector = np.array(residue.arrow[2:])
         orthoVector = np.array([1.0,1.0])
         # make orthogonal
@@ -659,7 +665,7 @@ class Titration(BaseTitration):
         orthoVector *= np.array([xrange/yrange, 1.0])
         # normalize
         orthoVector /= (np.linalg.norm(orthoVector) * 10)
-        
+
         """
         # plot using mpl arrow
         ax.arrow(*np.array(residue.arrow[:2]) + x, *residue.arrow[2:],
@@ -671,14 +677,14 @@ class Titration(BaseTitration):
                     arrowprops=dict(arrowstyle="->", fc="red", ec='red', lw=0.5))
         """
         # show orthogonal vector
-        ax.arrow(*residue.arrow[:2], *x, head_width=0.02, head_length=0.02, fc='black', ec='green', 
+        ax.arrow(*residue.arrow[:2], *x, head_width=0.02, head_length=0.02, fc='black', ec='green',
                 length_includes_head=True, linestyle=':', alpha=0.6, overhang=0.5)
         """
         horAlign = "left" if orthoVector[0] <=0 else "right"
         vertAlign = "top" if orthoVector[1] >=0 else "bottom"
-        ax.annotate(str(residue.position), xy=residue.chemshift[0], 
+        ax.annotate(str(residue.position), xy=residue.chemshift[0],
                     xytext=residue.chemshift[0]-0.8*orthoVector,
-                    xycoords='data', textcoords='data', 
+                    xycoords='data', textcoords='data',
                     fontsize=7, ha=horAlign, va=vertAlign)
 
 
@@ -698,6 +704,17 @@ class Titration(BaseTitration):
 ##    Utils
 ## -------------------------
 
+
+    def extract_init_file(self):
+        initFileList = glob.glob(os.path.join(self.dirPath, '*.yml')) or glob.glob(os.path.join(self.dirPath,'*.json'))
+        if len(initFileList) > 1:
+            self.initFile = min(initFileList, key=os.path.getctime)
+            raise ValueError("{number} init files found in {source}. Using most recent one {file}".format(
+                                number=len(initFileList), source=self.dirPath, file=self.initFile ))
+        elif initFileList:
+            self.initFile = initFileList.pop()
+        return initFileList
+
     def extract_source(self, source):
         """
         Handles source data depending on type (file list, directory, saved file).
@@ -709,11 +726,6 @@ class Titration(BaseTitration):
         elif os.path.isdir(source):
             self.dirPath = os.path.abspath(source)
             self.files = [ os.path.join(self.dirPath, titrationFile) for titrationFile in os.listdir(self.dirPath) if titrationFile.endswith(".list") ]
-            initFileList = [ os.path.join(self.dirPath, ini) for ini in os.listdir(self.dirPath) if ini.endswith(".json") ]
-            if len(initFileList) > 1:
-                raise ValueError("More than one `.json` file found in {source}. Please remove the extra files.".format(source=self.dirPath))
-            elif initFileList:
-                self.initFile = initFileList.pop()
             if len(self.files) < 1:
                 raise ValueError("Directory {dir} does not contain any `.list` titration file.".format(dir=self.dirPath))
         elif os.path.isfile(source):
@@ -730,7 +742,7 @@ class Titration(BaseTitration):
                 print("Residue at position {pos} does not exist. Skipping selection.".format(pos=pos), file=sys.stderr)
                 continue
         return self.selected
-        
+
 
     def deselect_residues(self, *positions):
         "Deselect some residues. Calling with no arguments will deselect all."

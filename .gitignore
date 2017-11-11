@@ -104,3 +104,4 @@ data
 .vscode
 *.bkp
 notes/
+.editorconfig
