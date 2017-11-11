@@ -183,7 +183,7 @@ class ShiftShell(Cmd):
         Defaults to plotting the last step when no arguments
         are provided.
         """
-        step = args[0] if args else self.titration.steps -1
+        step = args[0] if args else self.titration.dataSteps -1
         if step == 'all': # plot stacked hist
             hist = self.titration.plot_hist()
         else: # plot single hist

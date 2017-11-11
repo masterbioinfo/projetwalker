@@ -49,6 +49,7 @@ class BaseTitration(object):
         self.analyteStartVol = 0
 
         self.steps = 0
+
         self.volumeAdded = list()
         self.volumePending = list()
         if initFile is not None:
@@ -89,6 +90,13 @@ class BaseTitration(object):
         else:
             self.consume_pending()
         return self.volumePending
+
+    def update_volumes(self, stepVolumes):
+        try:
+            for step, vol in stepVolumes.items():
+                self.volumeAdded[step] = vol
+        except IndexError:
+            print("{step} does not exist")
 
     def add_volumes(self, volumes, updateSteps=False):
         if not self.volumePending and not volumes[0] == 0:
@@ -241,7 +249,7 @@ class BaseTitration(object):
             print("Missing required data in init file. Please check it is accurately formatted as JSON.")
             print("Hint: {error}".format(error=parseError), file=sys.stderr)
             return None
-        except ValueError as valError:
+        except (ValueError,YAMLError) as valError:
             print("Error : {error}".format(error=valError), file=sys.stderr)
             return None
 
@@ -276,7 +284,7 @@ class BaseTitration(object):
     def csv(self, file=None):
         try:
             fh = open(file, 'w', newline='') if file else sys.stdout
-            fieldnames = [    "#step",
+            fieldnames = [  "#step",
                             "vol added {titrant} (µL)".format(titrant=self.titrant['name']),
                             "vol {titrant} (µL)".format(titrant=self.titrant['name']),
                             "vol total (µL)",
@@ -333,7 +341,7 @@ class Titration(BaseTitration):
         self.incomplete = dict() # incomplete data res
         self.selected = dict()
         self.intensities = list() # 2D array of intensities
-        self.steps = 0 # titration steps counter, handled by parent class
+        self.dataSteps = 0
         self.cutoff = None
         self.source = None
         self.dirPath = None
@@ -356,7 +364,7 @@ class Titration(BaseTitration):
         if self.dirPath:
             self.extract_init_file()
         # sort files by ascending titration number
-        self.files.sort(key=lambda path: self.validate_filepath(path))
+        self.files.sort(key=self.validate_filepath)
 
         ## TITRATION PARAMETERS
         if initFile :
@@ -386,34 +394,39 @@ class Titration(BaseTitration):
     def add_step(self, titrationFile, volume=None):
         "Adds a titration step described in `titrationFile`"
 
-        print("[Step {step}]\tLoading NMR data from {titration_file}".format(step=self.steps, titration_file=titrationFile), file=sys.stderr)
+        print("[Step {step}]\tLoading NMR data from {titration_file}".format(step=self.dataSteps, titration_file=titrationFile), file=sys.stderr)
         # verify file
         step = self.validate_filepath(titrationFile, verifyStep=True)
         # parse it
         self.parse_titration_file(titrationFile)
+        self.dataSteps += 1
+        if volume is not None:
+            super().update_volumes({step:volume})
+        if self.dataSteps < self.dataSteps:
+            super().add_step(volume=volume)
 
-        super().add_step(volume)
-
-        # filter complete residues as list and sort them by positions
+        # create data-empty residues for missing positions
         for pos in range(min(self.residues), max(self.residues)):
             if pos not in self.residues:
-                self.residues[pos] = AminoAcid(position=pos)
+                self.residues.update({pos: AminoAcid(position=pos)})
+
+        # reset complete residues and update 
         self.complete = dict()
         for pos, res in self.residues.items():
-            if res.validate(self.steps):
-                self.complete[pos] = res
+            if res.validate(self.dataSteps):
+                self.complete.update({pos:res})
             else:
-                self.incomplete[pos] = res
+                self.incomplete.update({pos:res})
 
         print("\t\t{incomplete} incomplete residue out of {total}".format(
              incomplete=len(self.incomplete), total=len(self.complete)), file=sys.stderr)
 
         # Recalculate (position, chem shift intensity) coordinates for histogram plot
         self.intensities = [] # 2D array, by titration step then residu position
-        for step in range(self.steps - 1): # intensity is null for reference step, ignoring
+        for step in range(self.dataSteps - 1): # intensity is null for reference step, ignoring
             self.intensities.append([residue.chemshiftIntensity[step] for residue in self.complete.values()])
         # generate colors for each titration step
-        self.colors = plt.cm.get_cmap('hsv', self.steps)
+        self.colors = plt.cm.get_cmap('hsv', self.dataSteps)
         # close stale stacked hist
         if self.stackedHist and not self.stackedHist.closed:
             self.stackedHist.close()
@@ -432,12 +445,12 @@ class Titration(BaseTitration):
             #sys.stdout.write("\r\nCut-off=%s\r\n>> " % cutoff)
             return self.cutoff
         except TypeError as err:
-            print("Invalid cut-off value : {error}\n".format(error=err), file=sys.stderr)
+            print("Invalid cut-off value : {error}".format(error=err), file=sys.stderr)
             return self.cutoff
 
     def validate_filepath(self, filePath, verifyStep=False):
         """
-        Given a file path, checks if it has .list extension and if it is numbered after the titration step.
+        Given a file path, checks if it has `.list` extension and if it is numbered after the titration step.
         If `step` arg is provided, validation will enforce that parsed file number matches `step`.
         Returns the titration step number if found, IOError is raised otherwise
         """
@@ -445,10 +458,10 @@ class Titration(BaseTitration):
 
             matching = self.PATHPATTERN.match(filePath) # attempt to match
             if matching:
-                if verifyStep and int(matching.group("step")) != self.steps:
+                if verifyStep and int(matching.group("step")) != self.dataSteps:
                     raise IOError("File {file} expected to contain data for titration step #{step}.\
                  Are you sure this is the file you want ? \
-                 In this case it must be named like *{step}.list".format(file=titrationFile, step=self.steps))
+                 In this case it must be named like *{step}.list".format(file=titrationFile, step=self.dataSteps))
                 # retrieve titration step number parsed from file name
                 return int(matching.group("step"))
             else:
@@ -472,7 +485,7 @@ class Titration(BaseTitration):
                     self.parse_line(line)
 
         except IOError as fileError:
-            print("{error}\n".format(error=error), file=sys.stderr)
+            print("{error}".format(error=error), file=sys.stderr)
             exit(1)
         except ValueError as parseError:
             print("{error} at line {line} in file {file}".format(
@@ -525,7 +538,7 @@ class Titration(BaseTitration):
             self.stackedHist = hist
         else: # plot specific titration step
             # allow accession using python-ish negative index
-            step = step if step >= 0 else self.steps + step
+            step = step if step >= 0 else self.dataSteps + step
             # close existing figure if needed
             if self.hist.get(step) and not self.hist[step].closed:
                 self.hist[step].close()
@@ -539,6 +552,7 @@ class Titration(BaseTitration):
         if showCutOff and self.cutoff:
             hist.set_cutoff(self.cutoff)
         return hist
+
 
     def plot_shiftmap(self, residues=None, split = False):
         """
@@ -579,7 +593,7 @@ class Titration(BaseTitration):
                     # Trace chem shifts for current residu in new graph cell
                     im = ax.scatter(res.chemshiftH, res.chemshiftN,
                                     facecolors='none', cmap=self.colors,
-                                    c = range(self.steps), alpha=0.2)
+                                    c = range(self.dataSteps), alpha=0.2)
                     # ax.set_title("Residue %s " % res.position, fontsize=10)
                     # print xticks as 2 post-comma digits float
                     ax.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
@@ -606,7 +620,7 @@ class Titration(BaseTitration):
             for residue in residueSet :
                 im=plt.scatter(residue.chemshiftH, residue.chemshiftN,
                                 facecolors='none', cmap=self.colors,
-                                c = range(self.steps), alpha=0.2)
+                                c = range(self.dataSteps), alpha=0.2)
             fig.subplots_adjust(left=0.15, top=0.90,
                                 right=0.85,bottom=0.15) # make room for legend
             # Add colorbar legend for titration steps
@@ -795,7 +809,7 @@ class Titration(BaseTitration):
     def filtered(self):
         "Returns list of filtered residue having last intensity >= cutoff value"
         if self.cutoff is not None:
-            return dict([(res.position,res) for res in self.complete.values() if res.chemshiftIntensity[self.steps-2] >= self.cutoff])
+            return dict([(res.position,res) for res in self.complete.values() if res.chemshiftIntensity[self.dataSteps-2] >= self.cutoff])
         else:
             return []
 
@@ -805,7 +819,7 @@ class Titration(BaseTitration):
         Sorted list of titration steps, beginning at step 1.
         Reference step 0 is ignored.
         """
-        return sorted(range(1,self.steps))
+        return sorted(range(1,self.dataSteps))
 
     @property
     def summary(self):
@@ -814,7 +828,7 @@ class Titration(BaseTitration):
         summary += "> {name}\n".format(name=self.name)
         summary += "--------------------------------------------\n"
         summary += "Source dir :\t{dir}\n".format(dir=self.dirPath)
-        summary += "Steps :\t\t{steps} (reference step 0 to {last})\n".format(steps=self.steps, last=self.steps -1)
+        summary += "Steps :\t\t{steps} (reference step 0 to {last})\n".format(steps=self.dataSteps, last=self.dataSteps -1)
         summary += "Cut-off :\t{cutoff}\n".format(cutoff=self.cutoff)
         summary += "Total residues :\t\t{res}\n".format(res=len(self.residues))
         summary += " - Complete residues :\t\t{complete}\n".format(complete=len(self.complete))
