@@ -76,7 +76,7 @@ class BaseTitration(object):
         return self.volumePending
 
     def set_volumes(self, volumes, updateSteps=False):
-        volumes = sorted(map(float, volumes))
+        volumes = list(map(float, volumes))
         if not volumes:
             return
         if not volumes[0] == 0:  # first volume must be 0 (reference)
@@ -136,35 +136,32 @@ class BaseTitration(object):
 
     @property
     def status(self):
-        statusStr = ""
         if not self.isInit:
             return None
 
-        statusStr += "------- Titration --------------------------\n"
-        statusStr += " >\t{name}\n".format(name=self.name)
-        statusStr += "------- Initial parameters -----------------\n"
-        statusStr += "[{name}] :\t{concentration} µM\n".format(**self.titrant)
-        statusStr += "[{name}] :\t{concentration} µM\n".format(**self.analyte)
-        statusStr += "{name} volume  :\t{volume} µL\n".format(**self.analyte, volume=self.analyteStartVol)
-        statusStr += "Initial volume :\t{volume} µL\n".format(volume=self.startVol)
-        statusStr += "\n"
-        statusStr += "------- Current status ---------------------\n"
-        statusStr += "Current steps :\t\t{steps}\n".format(steps=list(range(self.steps)))
-        statusStr += "Added volumes (µL):\t{added}\n".format(added=self.added)
-        statusStr += "Cumulated volumes (µL):\t{cumul}\n".format(cumul=self.volTitrant)
-        statusStr += "Total volume (µL):\t{total}\n".format(total=self.volTotal)
-        statusStr += "\n"
-        statusStr += "[{name}] (µM):\n\t\t{conc}\n".format(
-            name = self.titrant['name'], conc=[round(c, 4) for c in self.concentrationTitrant])
-        statusStr += "[{name}] (µM):\n\t\t{conc}\n".format(
-            name = self.analyte['name'], conc=[round(c, 4) for c in self.concentrationAnalyte])
-        statusStr += "[{titrant}]/[{analyte}] :\n\t\t".format(    titrant=self.titrant['name'],
-                                                            analyte=self.analyte['name'])
-        statusStr += "{ratio}\n".format(ratio=[round(ratio,4) for ratio in self.concentrationRatio])
-        statusStr += "\n"
-        statusStr += "------- Pending-----------------------------\n"
-        statusStr += "Pending volumes (µL):\t{pending}\n".format(pending=self.pending)
-        return statusStr
+        return "\n".join([  "------- Titration --------------------------",
+                            " >\t{name}".format(name=self.name),
+                            "------- Initial parameters -----------------",
+                            "[{name}] :\t{concentration} µM".format(**self.titrant),
+                            "[{name}] :\t{concentration} µM".format(**self.analyte),
+                            "{name} volume  :\t{volume} µL".format(**self.analyte, volume=self.analyteStartVol),
+                            "Initial volume :\t{volume} µL".format(volume=self.startVol),
+                            "------- Current status ---------------------",
+                            "Current steps :\t\t{steps}".format(steps=list(range(self.steps))),
+                            "Added volumes (µL):\t{added}".format(added=self.added),
+                            "Cumulated volumes (µL):\t{cumul}".format(cumul=self.volTitrant),
+                            "Total volume (µL):\t{total}".format(total=self.volTotal),
+                            "[{name}] (µM):\n\t\t{conc}".format(
+                                name = self.titrant['name'], 
+                                conc=[round(c, 4) for c in self.concentrationTitrant]),
+                            "[{name}] (µM):\n\t\t{conc}".format(
+                                name = self.analyte['name'], 
+                                conc=[round(c, 4) for c in self.concentrationAnalyte]),
+                            "[{titrant}]/[{analyte}] :".format(
+                                titrant=self.titrant['name'], analyte=self.analyte['name']),
+                            "\t\t{ratio}".format(ratio=[round(ratio,4) for ratio in self.concentrationRatio]),
+                            "------- Pending-----------------------------",
+                            "Pending volumes (µL):\t{pending}".format(pending=self.pending) ])
 
     @property
     def is_consistent(self):

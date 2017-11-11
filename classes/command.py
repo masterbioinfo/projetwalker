@@ -34,7 +34,7 @@ class ShiftShell(Cmd):
         self._set_prompt()
 
         # Exclude irrelevant cmds from help menu
-        self.exclude_from_help += [    'do__relative_load',
+        self.exclude_from_help += [ 'do__relative_load',
                                     'do_cmdenvironment',
                                     'do_edit',
                                     'do_run' ]
