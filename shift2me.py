@@ -20,7 +20,7 @@ You can see all chemical shift of interest 2D maps (N15/1H) too.
 
 Exemple :  ./shift2me.py data/listes/listPP/*.list
 
-Authors : Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY and Rainier-Numa GEORGES
+Authors : Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUERY and Rainier-Numa GEORGES
 """
 
 from docopt import docopt
@@ -29,27 +29,25 @@ from classes.Titration import BaseTitration, Titration
 from classes.command import ShiftShell
 
 
-args = docopt(__doc__)
-#print(args)
+if __name__ == '__main__':
+    args = docopt(__doc__)
+    #print(args)
 
 
+    source = args["<file.list>"] or args["<dir>"]
+    titration = Titration(source, cutoff=args["--cut-off"], initFile=args['--init-file'])
 
-if args["<file.list>"]:
-    titration = Titration(args["<file.list>"], cutoff=args["--cut-off"], initFile=args['--init-file'])
-elif args["<dir>"]:
-    titration = Titration(args["<dir>"], cutoff=args["--cut-off"], initFile=args['--init-file'])
+    # Build titration instance
+    if args["--template"]:
+        template = args["--template"]
+        templateBuilder = titration if titration.isInit else BaseTitration()
+        templateBuilder.dump_init_file(initFile = template)
+        print("Generated template file at {file}".format(file=template))
+        exit()
 
-# Build titration instance
-if args["--template"]:
-    template = args["--template"]
-    templateBuilder = titration if titration.isInit else BaseTitration()
-    templateBuilder.dump_init_file(initFile = template)
-    print("Generated template file at {file}".format(file=template))
-    exit()
-
-# Turn off MPL interactive mode
-plt.ioff()
-# Init CLI
-cli = ShiftShell(titration = titration)
-# Start main loop
-cli.cmdloop()
+    # Turn off MPL interactive mode
+    plt.ioff()
+    # Init CLI
+    cli = ShiftShell(titration = titration)
+    # Start main loop
+    cli.cmdloop()
