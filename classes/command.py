@@ -45,11 +45,10 @@ class ShiftShell(Cmd):
         self.complete_make_init=self.path_complete
         self.complete_init=self.path_complete
 
-        introStr = "\n\n"
-        introStr += "\tWelcome to Shift2Me !\n"
-        introStr += self.titration.summary + "\n"
-        introStr += self.intro
-        self.intro = introStr
+        self.intro = "\n".join([  "\n\n\tWelcome to Shift2Me !",
+                                "{summary}\n{intro}".format(
+                                    summary=self.titration.summary, 
+                                    intro=self.intro)])
 
     def do_set_name(self, arg):
         "Sets titration name"
@@ -115,7 +114,7 @@ class ShiftShell(Cmd):
         if self.titration.isInit:
             self.poutput(self.titration.csv(arg))
         else:
-            self.pfeedback("Titration parameters are not set. Please load a parameters.json file.")
+            self.pfeedback("Titration parameters are not set. Please load a protocole file.")
             self.pfeedback("See `help init`")
 
     def do_status(self, arg):
@@ -124,7 +123,7 @@ class ShiftShell(Cmd):
         if status is not None:
             self.poutput(self.titration.status, '\n\n')
         else:
-            self.pfeedback("Titration parameters are not set. Please load a parameters.json file.")
+            self.pfeedback("Titration parameters are not set. Please load a protocole file.")
             self.pfeedback("See `help init`")
 
     def do_make_init(self, arg):
