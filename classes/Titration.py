@@ -306,7 +306,6 @@ class Titration(BaseTitration):
                             r'(?P<chemshiftN>\d+\.\d+)$')
     # ignored lines pattern
     IGNORE_LINE_PATTERN = re.compile(r"^\d.*")
-    # source paths
 
 
     def __init__(self, source, name=None, cutoff = None, initFile=None, **kwargs):
@@ -329,7 +328,6 @@ class Titration(BaseTitration):
         # init plots
         self.stackedHist = None
         self.hist = dict()
-        #super().__init__()
 
         BaseTitration.__init__(self)
 

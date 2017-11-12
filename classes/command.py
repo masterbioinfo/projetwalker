@@ -1,4 +1,3 @@
-
 #!/usr/bin/python3
 
 import os
@@ -16,17 +15,8 @@ class ShiftShell(Cmd):
         self.allow_cli_args = False
         self.titration = kwargs.get('titration')
 
-        """
-        self.active = self.titration
-        self.settable.update({'active' : "Current working titration"})
-        """
         # environment attributes
         self.name = self.titration.name
-        self.settable.update({
-            'name': 'Titration name',
-            'volumes': 'Volumes of titrant solution added at each step'
-            })
-        self.titrationEnv = ['name', 'volumes']
         Cmd.__init__(self)
         self._set_prompt()
 
@@ -60,7 +50,7 @@ class ShiftShell(Cmd):
             self.name = arg
             self._set_prompt()
 
-## PROTOCOLE CMDS ----------------------------------------
+## PROTOCOLE CMDS -----------------------------
     @options([], arg_desc="<vol (µL)> <vol (µL)> ...")
     def do_set_volumes(self, arg, opts=None):
         "Sets added titrant volumes for current titration, replacing existing volumes."
@@ -69,7 +59,7 @@ class ShiftShell(Cmd):
         else:
             volumes = list(map(float, arg))
             if not volumes[0] == 0:
-                volumes.insert(0,0)
+                volumes.insert(0, 0)
             self.titration.set_volumes(volumes)
 
     @options([], arg_desc="<vol(µL)> [<vol(µL)> ...]")
@@ -111,17 +101,18 @@ class ShiftShell(Cmd):
                                         volume=self.titration.analyteStartVol),
                                     "Initial volume :\t{volume} µL\n".format(
                                         volume=self.titration.startVol),
-                                    "------- Current status ---------------------\n\n" ] ) )
+                                    "------- Current status ---------------------\n\n"]))
             table = self.titration.protocole_as_table
             table.write(self.stdout, format='ascii.fixed_width_two_line')
         else:
             self.pfeedback("Titration parameters are not set. Please load a protocole file.")
             self.pfeedback("See `help init`")
 
-
-
     def do_make_init(self, arg):
-        "Outputs titration parameters. Argument may be a file path to write into. Defaults to stdout."
+        """
+        Outputs titration parameters.
+        Argument may be a file path to write into. Defaults to stdout.
+        """
         self.titration.dump_init_file(arg)
 
     @options([], arg_desc='<protocole>.yml')
@@ -165,13 +156,12 @@ class ShiftShell(Cmd):
         }
         if not args:
             self.poutput("\t".join(list(argMap)))
+            return
         for arg in args:
             try:
-
-                return
                 if arg not in argMap:
                     raise ValueError("Skipping invalid argument {arg}.".format(arg=arg))
-                self.poutput(" ".join([str(pos) for pos in argMap[arg].values()]))
+                self.poutput(" ".join([str(res.position) for res in argMap[arg].values()]))
 
             except ValueError as error:
                 self.pfeedback(error)
@@ -250,6 +240,9 @@ class ShiftShell(Cmd):
 
     @options([make_option('-p', '--plot', action="store_true", help="Set cut-off and plot.")], arg_desc = '<float>')
     def do_cutoff(self, args, opts=None):
+        """
+        Sets cutoff value to filter residues with high chemshift intensity.
+        """
         try:
             if not args :
                 self.poutput(self.titration.cutoff)
@@ -334,29 +327,27 @@ class ShiftShell(Cmd):
     def parse_residue_slice(self, sliceList):
         """
         Parses a list of residue position slices
-        a list element might describe an arbitrary of ';' separated slices
-        slices are expanded the same as python slice, i.e 5:8 will yield 5,6,7
-        5: will yield all positions from 5 to last.
+        slices are expanded the same as python slice, i.e:
+            5:8 will yield 5,6,7
+            5: will yield all positions from 5 to last.
         """
         selection = []
-        for mainArg in sliceList:
-            altSplitArg = mainArg.split(';')
-            for arg in altSplitArg:
-                arg = arg.split(':')
-                arg = [ int(subArg) if subArg else None for subArg in arg]
-                if len(arg) > 1:
-                    if all(subArg is None for subArg in arg):
-                        break
-                    elif arg[0] is None:
-                        selection += range(min(self.titration.residues), arg[1])
-                    elif arg[1] is None:
-                        selection += range(arg[0], max(self.titration.residues))
-                    else:
-                        selection += range(arg[0], arg[1])
-                elif len(arg) == 1:
-                    selection += arg
-                else:
+        for arg in sliceList:
+            arg = arg.split(':')
+            arg = [ int(subArg) if subArg else None for subArg in arg]
+            if len(arg) > 1:
+                if all(subArg is None for subArg in arg):
                     break
+                elif arg[0] is None:
+                    selection += range(min(self.titration.residues), arg[1])
+                elif arg[1] is None:
+                    selection += range(arg[0], max(self.titration.residues))
+                else:
+                    selection += range(sorted(arg))
+            elif len(arg) == 1:
+                selection += arg
+            else:
+                break
         return selection
 
     def _set_prompt(self):
@@ -375,9 +366,9 @@ class ShiftShell(Cmd):
         self._set_prompt()
         return stop
 
-################
+## --------------------------------------------------------
 ##    COMPLETERS
-################
+## --------------------------------------------------------
 
     def complete_hist(self, text, line ,begidx, endidx):
         "Completer for hist command"
@@ -462,8 +453,3 @@ class ShiftShell(Cmd):
         # Arg matches with many allowed args
         return [ arg+' ' for arg in argSet if arg.startswith(text) ]
 
-    def complete_set(self, text, line,begidx, endidx):
-        return self._complete_arg_set(text, line, self.titrationEnv)
-
-    def complete_show(self, text, line,begidx, endidx):
-        return self._complete_arg_set(text, line, self.titrationEnv)
