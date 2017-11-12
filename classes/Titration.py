@@ -26,7 +26,7 @@ import numpy as np
 from matplotlib.ticker import FormatStrFormatter
 
 from classes.AminoAcid import AminoAcid
-from classes.plots import Hist, MultiHist
+from classes.plots import Hist, MultiHist, ShiftMap, SplitShiftMap, TitrationCurve
 from classes.widgets import CutOffCursor
 
 
@@ -317,8 +317,6 @@ class Titration(BaseTitration):
         BaseTitration.__init__(self)
 
         ## FILE PATH PROCESSING
-        # keep track of source path
-
         # fetch all .list files in source dir
         try:
             self.extract_source(source)
@@ -337,7 +335,6 @@ class Titration(BaseTitration):
         ## FILE PARSING
         for titrationFile in self.files:
             self.add_step(titrationFile)
-
 
         ## INIT CUTOFF
         if cutoff:
@@ -520,146 +517,21 @@ class Titration(BaseTitration):
         `residue` argument should be an iterable of AminoAcid objects.
         If using `split` option, each residue is plotted in its own subplot.
         """
-        if not residues:
-            raise ValueError("No residues to plot as shiftmap.")
-        if len(residues) > 36 and split:
-            raise ValueError("Refusing to plot too many ({count}) residues in split mode. Sorry.".format(count=len(residues)))
-
-        fig = plt.figure()
-
-        # set title
-        fig.suptitle('Chemical shifts 2D map')
-        # set common xlabel and ylabel
-        fig.text(0.5, 0.04, 'H Chemical Shift', ha='center')
-        fig.text(0.04, 0.5, 'N Chemical Shift', va='center', rotation='vertical')
+        residues = list(residues)
         if split and len(residues) > 1:
-            # create an array of cells with squared shape
-            axes = fig.subplots(nrows=ceil(sqrt(len(residues))),
-                                ncols=round(sqrt(len(residues))),
-                                sharex=False, sharey=False, squeeze=True)
-            # iterate over each created cell
-            for index, ax in enumerate(axes.flat):
-                if index < len(residues):
-                    res = residues[index]
-                    # Trace chem shifts for current residu in new graph cell
-                    im = ax.scatter(res.chemshiftH, res.chemshiftN,
-                                    facecolors='none', cmap=self.colors,
-                                    c = range(self.dataSteps), alpha=0.2)
-                    # ax.set_title("Residue %s " % res.position, fontsize=10)
-                    # print xticks as 2 post-comma digits float
-                    ax.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-                    ax.tick_params(labelsize=8)
-                else:
-                    ax.remove() # remove extra subplots
-
-            # scale
-            self.scale_split_shiftmap(residues, axes)
-            # annotate
-            for index, ax in enumerate(axes.flat):
-                if index < len(residues):
-                    self.annotate_chemshift(residues[index], ax)
-
-            # display them nicely
-            fig.tight_layout()
-            # Add colorbar legend for titration steps using last plot cell data
-            fig.subplots_adjust(left=0.12, top=0.9,
-                                right=0.85,bottom=0.15) # make room for legend
-            cbar_ax = fig.add_axes([0.90, 0.15, 0.02, 0.75])
-            fig.colorbar(mappable=im, cax=cbar_ax).set_label("Titration steps")
-
+            shiftmap = SplitShiftMap(residues)
         else: # Trace global chem shifts map
-            for residue in residues :
-                im=plt.scatter(residue.chemshiftH, residue.chemshiftN,
-                                facecolors='none', cmap=self.colors,
-                                c = range(self.dataSteps), alpha=0.2)
-            fig.subplots_adjust(left=0.15, top=0.90,
-                                right=0.85, bottom=0.15) # make room for legend
-            # Add colorbar legend for titration steps
-            cbar_ax = fig.add_axes([0.90, 0.15, 0.02, 0.75])
-            fig.colorbar(mappable=im, cax=cbar_ax).set_label("Titration steps")
-
-        fig.show()
-        return fig
+            shiftmap = ShiftMap(residues)
+        shiftmap.show()
+        return shiftmap
 
 
     def plot_titration(self, residue):
-        xAxis = self.concentrationRatio
-        yAxis = list(residue.chemshiftIntensity)
-        fig = plt.figure()
-        # set title
-        fig.suptitle('Titration curve of residue {pos}'.format(pos=residue.position, fontsize=13))
-        # set common xlabel and ylabel
-        plt.xlabel("[{titrant}]/[{analyte}]".format(
-            titrant=self.titrant['name'], analyte=self.analyte['name']))
-
-        fig.text(0.04, 0.5, 'Chem Shift Intensity',
-                va='center', rotation='vertical', fontsize=11)
-        im = plt.scatter(xAxis, yAxis, alpha=1)
-        """
-        z = np.polyfit(xAxis, yAxis, 4)
-        f = np.poly1d(z)
-
-        xnew = np.linspace(0,max(xAxis),100)
-        ynew = f(xnew)
-        plt.plot(xnew, ynew)
-        """
-        """
-        fig.subplots_adjust(left=0.12, top=0.90,
-                            right=0.85,bottom=0.14) # make room for legend
-        # Add colorbar legend for titration steps
-        cbar_ax = fig.add_axes([0.90, 0.15, 0.02, 0.75])
-        fig.colorbar(mappable=im, cax=cbar_ax).set_label("Titration steps")
-        """
-        fig.show()
-        return fig
-
-
-    def annotate_chemshift(self, residue, ax):
-        "Adds chem shift vector and residue position for current residue in current subplot"
-        xlim, ylim = ax.get_xlim(), ax.get_ylim()
-        xrange, yrange = (xlim[1] - xlim[0], ylim[1] - ylim[0])
-
-        shiftVector = np.array(residue.arrow[2:])
-        orthoVector = np.array([1.0,1.0])
-        # make orthogonal
-        orthoVector -= orthoVector.dot(shiftVector) * shiftVector / np.linalg.norm(shiftVector)**2
-        # scale ratio
-        orthoVector *= np.array([xrange/yrange, 1.0])
-        # normalize
-        orthoVector /= (np.linalg.norm(orthoVector) * 10)
-
-        """
-        # plot using mpl arrow
-        ax.arrow(*np.array(residue.arrow[:2]) + x, *residue.arrow[2:],
-                head_width=0.07, head_length=0.1, fc='red', ec='red', lw=0.5,
-                length_includes_head=True, linestyle='-', alpha=0.7, overhang=0.7)
-        """
-        arrowStart = np.array(residue.arrow[:2]) + orthoVector
-        ax.annotate("", xy=arrowStart + shiftVector, xytext=arrowStart,
-                    arrowprops=dict(arrowstyle="->", fc="red", ec='red', lw=0.5))
-        """
-        # show orthogonal vector
-        ax.arrow(*residue.arrow[:2], *x, head_width=0.02, head_length=0.02, fc='black', ec='green',
-                length_includes_head=True, linestyle=':', alpha=0.6, overhang=0.5)
-        """
-        horAlign = "left" if orthoVector[0] <=0 else "right"
-        vertAlign = "top" if orthoVector[1] >=0 else "bottom"
-        ax.annotate(str(residue.position), xy=residue.chemshift[0],
-                    xytext=residue.chemshift[0]-0.8*orthoVector,
-                    xycoords='data', textcoords='data',
-                    fontsize=7, ha=horAlign, va=vertAlign)
-
-
-    def scale_split_shiftmap(self, residueSet, axes):
-        "Scales subplots when plotting splitted shift map"
-        xMaxRange, yMaxRange = np.array(self.get_max_range_NH(residueSet)) * 1.5
-        for ax in axes.flat:
-            currentXRange = ax.get_xlim()
-            currentYRange = ax.get_ylim()
-            xMiddle = sum(currentXRange) / 2
-            yMiddle = sum(currentYRange) / 2
-            ax.set_xlim(xMiddle - xMaxRange/2, xMiddle + xMaxRange/2)
-            ax.set_ylim(yMiddle - yMaxRange/2, yMiddle + yMaxRange/2)
+        curve = TitrationCurve(self.concentrationRatio, residue,
+                                titrant=self.titrant['name'],
+                                analyte=self.analyte['name'])
+        curve.show()
+        return curve
 
 
 ## -------------------------
@@ -707,10 +579,6 @@ class Titration(BaseTitration):
         except KeyError:
             pass
 
-    def get_max_range_NH(self, residueSet):
-        "Returns max range tuple for N and H among residues in residueSet"
-        return (max([res.rangeH for res in residueSet]),
-                max([res.rangeN for res in residueSet]))
 
     def save(self, path):
         "Save method for titration object"
