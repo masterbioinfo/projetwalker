@@ -5,59 +5,89 @@ import numpy as num
 from classes.widgets import CutOffCursor
 
 
-class BaseHist(object):
+class BaseFig(object):
+
+
+    def __init__(self, xaxis, yaxis):
+        "Init new figure"
+        self.figure = plt.figure()
+        self.closed = True
+        self.xaxis = list(xaxis)
+        self.yaxis = list(yaxis)
+        self.setup_axes()
+
+    def show(self):
+        "Show figure and set open/closed state"
+        self.figure.show()
+        self.closed = False
+
+    def close(self):
+        "Close figure window"
+        plt.close(self.figure)
+
+    def init_events(self):
+        "Capture window close event"
+        self.figure.canvas.mpl_connect('close_event', self.on_close)
+        self.figure.canvas.mpl_connect('draw_event', self.on_draw)
+
+    def on_close(self, event):
+        "Set closed state to true on window close"
+        self.closed = True
+
+## ------------------------
+## Placeholders
+
+    def setup_axes(self):
+        """
+        Should define subplots in figure as well as plotting data.
+        Must be replaced in child classes.
+        """
+        pass
+
+    def on_draw(self, event):
+        pass
+
+
+
+class BaseHist(BaseFig):
     """
     Base histogram class, providing interface to a matplotlib figure.
     """
-    # flag for open/closed state
-    
-    cutoff = None
 
-    def __init__(self, xAxis, yAxis):
+    cutoff = None # flag for open/closed state
+
+    def __init__(self, xaxis, yaxis):
         "Init new matplotlib figure, setup widget, events, and layout"
-        self.figure = plt.figure()
-        self.xAxis, self.yAxis = list(xAxis), list(yAxis)
-        self.closed = True
-        self.selected = dict()
-        self.bars = list()
-        # Tick every 10
-        self.positionTicks=range(min(xAxis) - max(xAxis) % 5, max(xAxis)+10, 10)
-        
-        # Init subplots and plotting data.
-        # Must be redefined in child classes
-        self.setup_axes()
 
-        # set xy labels
+        # Tick every 10
+        self.positionTicks=range(min(xaxis) - max(xaxis) % 5, max(xaxis)+10, 10)
+        self.filtered = dict()
+        self.bars = list()
+        super().__init__(xaxis, yaxis)
+
         self.xlabel = self.figure.axes[-1].set_xlabel('Residue')
         self.ylabel = self.figure.text(0.04, 0.5, 'Chem Shift Intensity',
-                                        va='center', rotation='vertical')
+                            va='center', rotation='vertical')
 
         # Init cursor widget and connect it
         self.init_cursor()
-        self.init_close_event()
-        cutoffStr = "Cut-off : %.4f" if self.cutoff is not None else "Cut-off : %s"
-        self.cutoffText = self.figure.text(0.13, 0.9, cutoffStr % self.cutoff)
-        
+        self.init_events()
+        self.cutoffText = self.figure.text(0.13, 0.9, self.cutoff_str)
+
         # initial draw
         self.figure.canvas.draw()
 
-    def init_close_event(self):
-        "Capture window close event"
-        self.figure.canvas.mpl_connect('close_event', self.handle_close)
-        self.figure.canvas.mpl_connect('draw_event', self.on_draw)
+    @property
+    def cutoff_str(self):
+        if self.cutoff is not None:
+            return "Cut-off : {cutoff:.4f}".format(cutoff=self.cutoff)
+        else:
+            return "Cut-off : {cutoff}".format(cutoff=self.cutoff)
 
     def on_draw(self, event):
         "Prevent cut off hiding, e.g on window resize"
         self.cursor.visible = True
         self.cursor.update_lines(None, self.cutoff)
-
-    def handle_close(self, event):
-        "Set closed state to true on window close"
-        self.closed = True
-
-    def close(self):
-        "Close figure window"
-        plt.close(self.figure)
 
     def init_cursor(self):
         """
@@ -70,18 +100,6 @@ class BaseHist(object):
         if self.cutoff:
             self.set_cutoff(self.cutoff)
 
-    def show(self):
-        "Show figure and set open/closed state"
-        self.figure.show()
-        self.closed = False
-
-    def setup_axes(self):
-        """
-        Should define subplots in figure as well as plotting data.
-        Must be replaced in child classes.
-        """
-        pass
-
     def add_cutoff_listener(self, func, mouseUpdateOnly=False):
         "Add extra on_change cutoff event handlers"
         if mouseUpdateOnly:
@@ -93,10 +111,8 @@ class BaseHist(object):
         """
         Listener method to be connected to cursor widget
         """
-        type(self).cutoff = cutoff
-        cutoffStr = "Cut-off : %.4f" if self.cutoff is not None else "Cut-off : %s"
-        self.cutoffText.set_text(cutoffStr % self.cutoff)
-        #print("CutOff : %s" % self.cutoff)
+        BaseHist.cutoff = cutoff
+        self.cutoffText.set_text(self.cutoff_str)
         self.draw()
 
     def set_cutoff(self, cutoff):
@@ -105,7 +121,7 @@ class BaseHist(object):
         Triggers change of cut off cursor value, allowing to update figure content.
         kwargs are passed to cursor widget set_cutoff method.
         """
-        type(self).cutoff = cutoff
+        BaseHist.cutoff = cutoff
         if not self.closed:
             self.cursor.set_cutoff(cutoff)
 
@@ -117,13 +133,13 @@ class BaseHist(object):
             for bar in axBar:
                 if self.cutoff:
                     if bar.get_height() >= self.cutoff: # show high intensity residues
-                        if not self.selected.get(bar):
+                        if not self.filtered.get(bar):
                             bar.set_facecolor('orange')
-                            self.selected[bar] = 1
+                            self.filtered[bar] = 1
                     else:
-                        if self.selected.get(bar):
+                        if self.filtered.get(bar):
                             bar.set_facecolor(None)
-                            self.selected[bar] = 0
+                            self.filtered[bar] = 0
         self.figure.canvas.draw()
 
 
@@ -132,47 +148,27 @@ class MultiHist(BaseHist):
     BaseHist child class for plotting stacked hists.
     """
 
-    def __init__(self, xAxis, yMatrix):
+    def __init__(self, xaxis, yMatrix):
         """
         Sets title
         """
-        super().__init__(xAxis, yMatrix)
-        self.figure.suptitle('Titration : steps 1 to %s' % len(yMatrix) )
+        super().__init__(xaxis, yMatrix)
+        self.figure.suptitle('Titration : steps 1 to {last}'.format(last=len(yMatrix) ) )
         self.figure.text(0.96, 0.5, 'Titration step',
                         va='center', rotation='vertical')
-
-    def setup_axes(self):
-        """
-        Creates a subplot for each line in yAxis matrix
-        """
-        self.figure.subplots(nrows=len(self.yAxis), ncols=1,
-                            sharex=True, sharey=True, squeeze=True)
-        # Set content and layout for each subplot.
-        for index, ax in enumerate(self.figure.axes):
-            ax.set_xticks(self.positionTicks)
-            maxVal = num.amax(self.yAxis)
-            ax.set_ylim(0, num.round(maxVal + maxVal*0.1, decimals=1))
-            stepLabel = "%s." % str(index+1)
-            ax.set_ylabel(stepLabel, rotation="horizontal", labelpad=15)
-            ax.yaxis.set_label_position('right')
-            #ax.yaxis.label.set_color('red')
-            #self.background.append(self.figure.canvas.copy_from_bbox(ax.bbox))
-            self.bars.append(ax.bar(self.xAxis, self.yAxis[index], align='center', alpha=1))
-        #self.figure.subplots_adjust(left=0.15)
-
 
 class Hist(BaseHist):
     """
     BaseHist child class for plotting single histogram
     """
 
-    def __init__(self, xAxis, yAxis, step=None):
+    def __init__(self, xaxis, yaxis, step=None):
         """
         Sets title
         """
-        super().__init__(xAxis, yAxis)
+        super().__init__(xaxis, yaxis)
         if step:
-            self.figure.suptitle('Titration step %s' % step )# set title
+            self.figure.suptitle('Titration step {step}'.format(step=step) )# set title
 
     def setup_axes(self):
         """
@@ -181,7 +177,27 @@ class Hist(BaseHist):
         self.figure.subplots(nrows=1, ncols=1, squeeze=True)
         ax = self.figure.axes[0]
         ax.set_xticks(self.positionTicks)
-        maxVal = num.amax(self.yAxis)
+        maxVal = num.amax(self.yaxis)
         ax.set_ylim(0, num.round(maxVal + maxVal*0.1, decimals=1))
         #self.background.append(self.figure.canvas.copy_from_bbox(ax.bbox))
-        self.bars.append(ax.bar(self.xAxis, self.yAxis, align='center', alpha=1))
+        self.bars.append(ax.bar(self.xaxis, self.yaxis, align='center', alpha=1))
+
+    def setup_axes(self):
+        """
+        Creates a subplot for each line in yaxis matrix
+        """
+        self.figure.subplots(nrows=len(self.yaxis), ncols=1,
+                            sharex=True, sharey=True, squeeze=True)
+        # Set content and layout for each subplot.
+        for index, ax in enumerate(self.figure.axes):
+            ax.set_xticks(self.positionTicks)
+            maxVal = num.amax(self.yaxis)
+            ax.set_ylim(0, num.round(maxVal + maxVal*0.1, decimals=1))
+            stepLabel = "{step}.".format(step=str(index+1))
+            ax.set_ylabel(stepLabel, rotation="horizontal", labelpad=15)
+            ax.yaxis.set_label_position('right')
+            #ax.yaxis.label.set_color('red')
+            #self.background.append(self.figure.canvas.copy_from_bbox(ax.bbox))
+            self.bars.append(ax.bar(self.xaxis, self.yaxis[index], align='center', alpha=1))
+        #self.figure.subplots_adjust(left=0.15)
+
