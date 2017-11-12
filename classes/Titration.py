@@ -31,10 +31,11 @@ from classes.AminoAcid import AminoAcid
 from classes.plots import Hist, MultiHist, ShiftMap, SplitShiftMap, TitrationCurve
 from classes.widgets import CutOffCursor
 
-# Setup YAML
-""" https://stackoverflow.com/a/8661021 """
+
+""" Setup YAML : https://stackoverflow.com/a/8661021 """
 represent_dict_order = lambda self, data:  self.represent_mapping('tag:yaml.org,2002:map', data.items())
 yaml.add_representer(OrderedDict, represent_dict_order)
+
 
 class BaseTitration(object):
 
@@ -298,13 +299,13 @@ class Titration(BaseTitration):
     Provides methods for accessing each titration step datas.
     """
     # accepted file path pattern
-    PATHPATTERN = re.compile(r'(.+/)?(.*[^\d]+)(?P<step>[0-9]+)\.list')
+    PATH_PATTERN = re.compile(r'(.+/)?(.*[^\d]+)(?P<step>[0-9]+)\.list')
     # accepted lines pattern
-    LINEPATTERN = re.compile(r'^(?P<position>\d+)(\S*)?\s+'
+    LINE_PATTERN = re.compile(r'^(?P<position>\d+)(\S*)?\s+'
                             r'(?P<chemshiftH>\d+\.\d+)\s+'
                             r'(?P<chemshiftN>\d+\.\d+)$')
     # ignored lines pattern
-    IGNORELINEPATTERN = re.compile(r"^\d.*")
+    IGNORE_LINE_PATTERN = re.compile(r"^\d.*")
     # source paths
 
 
@@ -430,7 +431,7 @@ class Titration(BaseTitration):
         """
         try:
 
-            matching = self.PATHPATTERN.match(filePath) # attempt to match
+            matching = self.PATH_PATTERN.match(filePath) # attempt to match
             if matching:
                 if verifyStep and int(matching.group("step")) != self.dataSteps:
                     raise IOError("File {file} expected to contain data for titration step #{step}.\
@@ -468,9 +469,9 @@ class Titration(BaseTitration):
     def parse_line(self, line):
         line = line.strip()
         # ignore empty lines and header lines
-        if self.IGNORELINEPATTERN.match(line):
+        if self.IGNORE_LINE_PATTERN.match(line):
             # attempt to match to expected format
-            match = self.LINEPATTERN.match(line)
+            match = self.LINE_PATTERN.match(line)
             if match: # parse as dict
                 chemshifts = match.groupdict()
                 # Convert parsed str to number types
