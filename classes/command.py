@@ -47,7 +47,7 @@ class ShiftShell(Cmd):
 
         self.intro = "\n".join([  "\n\n\tWelcome to Shift2Me !",
                                 "{summary}\n{intro}".format(
-                                    summary=self.titration.summary, 
+                                    summary=self.titration.summary,
                                     intro=self.intro)])
 
     def do_set_name(self, arg):
@@ -195,24 +195,25 @@ class ShiftShell(Cmd):
         Invocation with no arguments will plot all residues with complete data.
         """
         argMap = {
-            "all" : list(self.titration.residues), # might be error prone because of missing data
-            "complete" : list(self.titration.complete),
-            "filtered" : list(self.titration.filtered),
-            "selected" : list(self.titration.selected)
+            "all" : self.titration.residues, # might be error prone because of missing data
+            "complete" : self.titration.complete,
+            "filtered" : self.titration.filtered,
+            "selected" : self.titration.selected
         }
         try:
-            if args:
-                if argMap.get(args[0]):
-                    fig = self.titration.plot_shiftmap(argMap[args[0]].values(), split=opts.split)
-                else:
-                    raise ValueError("Invalid argument : %s. Use `shiftmap -h` for help." % args[0])
-            else:
-                self.do_help('shiftmap')
+            if not args:
+                self.poutput("\t".join(list(argMap)))
+                return
+            if args[0] not in argMap:
+                raise ValueError("Invalid argument : {arg}. Use `shiftmap -h` for help.".format(arg=args[0]))
+            residues = argMap[args[0]].values()
+            fig = self.titration.plot_shiftmap(residues, split=opts.split)
             if opts.export:
                 fig.savefig(opts.export, dpi=fig.dpi)
+
         except ValueError as invalidArgErr:
             self.pfeedback(invalidArgErr)
-            #self.do_help("shiftmap")
+            return
 
     @options([], arg_desc="( filtered | selected | complete | incomplete )")
     def do_residues(self, args, opts=None):
@@ -223,15 +224,19 @@ class ShiftShell(Cmd):
             "complete" : self.titration.complete,
             "incomplete" : self.titration.incomplete
         }
+        if not args:
+            self.poutput("\t".join(list(argMap)))
         for arg in args:
             try:
-                if arg in argMap:
-                    self.poutput(" ".join([str(pos) for pos in argMap[arg].values()]))
-                else:
+
+                return
+                if arg not in argMap:
                     raise ValueError("Skipping invalid argument {arg}.".format(arg=arg))
+                self.poutput(" ".join([str(pos) for pos in argMap[arg].values()]))
+
             except ValueError as error:
                 self.pfeedback(error)
-                pass
+                continue
 
 
     @options([])

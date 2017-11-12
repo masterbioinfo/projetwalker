@@ -118,15 +118,15 @@ class BaseTitration(object):
                             "Cumulated volumes (µL):\t{cumul}".format(cumul=self.volTitrant),
                             "Total volume (µL):\t{total}".format(total=self.volTotal),
                             "[{name}] (µM):\n\t\t{conc}".format(
-                                name = self.titrant['name'], 
+                                name = self.titrant['name'],
                                 conc=[round(c, 4) for c in self.concentrationTitrant]),
                             "[{name}] (µM):\n\t\t{conc}".format(
-                                name = self.analyte['name'], 
+                                name = self.analyte['name'],
                                 conc=[round(c, 4) for c in self.concentrationAnalyte]),
                             "[{titrant}]/[{analyte}] :".format(
                                 titrant=self.titrant['name'], analyte=self.analyte['name']),
                             "\t\t{ratio}".format(ratio=[round(ratio,4) for ratio in self.concentrationRatio]) ])
-                            
+
     @property
     def is_consistent(self):
         return True if len(self.volumes) == self.steps else False
@@ -325,7 +325,7 @@ class Titration(BaseTitration):
         except ValueError as error:
             print("{error}".format(error=error), file=sys.stderr)
             exit(1)
-       
+
         # sort files by ascending titration number
         self.files.sort(key=self.validate_filepath)
 
@@ -372,7 +372,7 @@ class Titration(BaseTitration):
             if pos not in self.residues:
                 self.residues.update({pos: AminoAcid(position=pos)})
 
-        # reset complete residues and update 
+        # reset complete residues and update
         self.complete = dict()
         for pos, res in self.residues.items():
             if res.validate(self.dataSteps):
@@ -520,9 +520,10 @@ class Titration(BaseTitration):
         `residue` argument should be an iterable of AminoAcid objects.
         If using `split` option, each residue is plotted in its own subplot.
         """
-
+        if not residues:
+            raise ValueError("No residues to plot as shiftmap.")
         if len(residues) > 36 and split:
-            raise ValueError("Refusing to plot so many ({count}) residues in split mode. Sorry.".format(count=len(residues)))
+            raise ValueError("Refusing to plot too many ({count}) residues in split mode. Sorry.".format(count=len(residues)))
 
         fig = plt.figure()
 
@@ -748,7 +749,7 @@ class Titration(BaseTitration):
     def filtered(self):
         "Returns list of filtered residue having last intensity >= cutoff value"
         if self.cutoff is not None:
-            return dict([(res.position,res) for res in self.complete.values() if res.chemshiftIntensity[-1] >= self.cutoff])
+            return dict([(res.position, res) for res in self.complete.values() if res.chemshiftIntensity[-1] >= self.cutoff])
         else:
             return dict()
 
