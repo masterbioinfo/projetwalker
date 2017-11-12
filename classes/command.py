@@ -10,7 +10,6 @@ class ShiftShell(Cmd):
     """
     intro = "Type help or ? to list commands.\n"
     prompt = ">> "
-    #quiet=True
 
     def __init__(self, *args, **kwargs):
         self.cutoff=None
@@ -50,6 +49,10 @@ class ShiftShell(Cmd):
                                     summary=self.titration.summary,
                                     intro=self.intro)])
 
+## --------------------------------------------
+##      COMMANDS
+## --------------------------------------------
+
     def do_set_name(self, arg):
         "Sets titration name"
         if arg:
@@ -57,6 +60,7 @@ class ShiftShell(Cmd):
             self.name = arg
             self._set_prompt()
 
+## PROTOCOLE CMDS ----------------------------------------
     @options([], arg_desc="<vol (µL)> <vol (µL)> ...")
     def do_set_volumes(self, arg, opts=None):
         "Sets added titrant volumes for current titration, replacing existing volumes."
@@ -68,32 +72,6 @@ class ShiftShell(Cmd):
                 volumes.insert(0,0)
             self.titration.set_volumes(volumes)
 
-    def _set_prompt(self):
-        """Set prompt so it displays the current working directory."""
-        self.cwd = os.getcwd().strip("'")
-        self.prompt = self.colorize("[shift2me] ", 'magenta') + self.colorize("'"+self.name+"'", "green") + " $ "
-
-    def postcmd(self, stop, line):
-        """
-        Hook method executed just after a command dispatch is finished.
-        :param stop: bool - if True, the command has indicated the application should exit
-        :param line: str - the command line text for this command
-        :return: bool - if this is True, the application will exit after this command and the postloop() will run
-        """
-        """Override this so prompt always displays cwd."""
-        self._set_prompt()
-        return stop
-
-
-
-    @options([make_option('-v', '--volume', help="Volume of titrant solution to add titration step")],arg_desc='<titration_file_##.list>')
-    def do_add_step(self, arg, opts=None):
-        "Add a titration file as next step. Associate a volume to this step with -v option."
-        if arg:
-            self.titration.add_step(arg[0], opts.volume)
-        else:
-            self.do_help("add_step")
-
     @options([], arg_desc="<vol(µL)> [<vol(µL)> ...]")
     def do_add_volumes(self, arg, opts=None):
         "Add volumes to currently existing volumes in titration."
@@ -104,35 +82,69 @@ class ShiftShell(Cmd):
             self.do_help("add_volumes")
 
     @options([], arg_desc="[<path/to/file.csv>]")
-    def do_concentrations(self, arg, opts=None):
+    def do_csv(self, arg, opts=None):
         """
         Prints each titration step experimental conditions, such as volumes and concentration of each molecule.
-        Format is `tab` separated CSV table. You may redirect its output :
-         $ concentrations path/to/file.csv
-         $ concentrations > path/to/file.csv
+        Format is comma-separated CSV table. You may redirect its output :
+         $ csv path/to/file.csv
+         $ csv > path/to/file.csv
         """
         if self.titration.isInit:
-            self.poutput(self.titration.csv(arg))
+            table = self.titration.protocole_as_table
+            table.write(self.stdout, format='csv')
         else:
             self.pfeedback("Titration parameters are not set. Please load a protocole file.")
             self.pfeedback("See `help init`")
 
     def do_status(self, arg):
         "Outputs titration parameters, and current status of protocole."
-        status = self.titration.status
-        if status is not None:
-            self.poutput(self.titration.status, '\n\n')
+        if self.titration.isInit:
+            self.poutput("\n".join(["------- Titration --------------------------",
+                                    " >\t{name}".format(name=self.titration.name),
+                                    "------- Initial parameters -----------------",
+                                    "[{name}] :\t{concentration} µM".format(
+                                        **self.titration.titrant),
+                                    "[{name}] :\t{concentration} µM".format(
+                                        **self.titration.analyte),
+                                    "{name} volume  :\t{volume} µL".format(
+                                        **self.titration.analyte,
+                                        volume=self.titration.analyteStartVol),
+                                    "Initial volume :\t{volume} µL\n".format(
+                                        volume=self.titration.startVol),
+                                    "------- Current status ---------------------\n\n" ] ) )
+            table = self.titration.protocole_as_table
+            table.write(self.stdout, format='ascii.fixed_width_two_line')
         else:
             self.pfeedback("Titration parameters are not set. Please load a protocole file.")
             self.pfeedback("See `help init`")
+
+
 
     def do_make_init(self, arg):
         "Outputs titration parameters. Argument may be a file path to write into. Defaults to stdout."
         self.titration.dump_init_file(arg)
 
-    def do_init(self, arg):
-        "Load a .json file describing titration parameters"
+    @options([], arg_desc='<protocole>.yml')
+    def do_init(self, arg, opts=None):
+        """
+        Loads a YAML formatted file.yml describing titration protocole.
+        To generate a template protocole descriptor as <file> :
+            $ make_init <file>.yml
+        """
+        if not arg:
+            self.do_help('init')
+            return
         self.titration.load_init_file(arg)
+
+## RMN ANALYSIS CMDS ---------------------------------
+
+    @options([make_option('-v', '--volume', help="Volume of titrant solution to add titration step")],arg_desc='<titration_file_##.list>')
+    def do_add_step(self, arg, opts=None):
+        "Add a titration file as next step. Associate a volume to this step with -v option."
+        if arg:
+            self.titration.add_step(arg[0], opts.volume)
+        else:
+            self.do_help("add_step")
 
     def do_save_job(self, arg):
         "Saves active titration to binary file"
@@ -141,79 +153,6 @@ class ShiftShell(Cmd):
     def do_load_job(self, arg):
         "Loads previously saved titration, replacing active titration"
         self.titration.load(arg)
-
-    def do_new(self, arg):
-        """
-        Creates a new titration from either :
-         - a dir containing .list files
-         - a list of .list files
-         - a binary file of previously saved titration
-        """
-        pass
-
-    @options([],arg_desc='residue [residue ...]')
-    def do_curve(self, arg, opts=None):
-        "Show titration curve of one or several residues."
-        if not arg:
-            self.do_help('curve')
-        elif not self.titration.isInit:
-            self.pfeedback("Cannot plot titration curve : titration parameters are not set.")
-            self.pfeedback("See : `help init` to load a protocole file.")
-        else:
-            for residue in arg:
-                self.titration.plot_titration(self.titration.complete.get(int(residue)))
-
-
-    @options([make_option('-e', '--export', help="Export hist as image")],
-            arg_desc='(<titration_step> | all)')
-    def do_hist(self, args, opts=None):
-        """
-        Plot chemical shift intensity per residu as histograms
-        Accepted arguments are any titration step except 0 (reference)
-        or 'all' to plot all steps as stacked histograms.
-        Defaults to plotting the last step when no arguments
-        are provided.
-        """
-        step = args[0] if args else self.titration.dataSteps -1
-        if step == 'all': # plot stacked hist
-            hist = self.titration.plot_hist()
-        else: # plot single hist
-            hist = self.titration.plot_hist(step=int(step))
-
-        if opts.export: # export figure as png
-            hist.figure.savefig(opts.export, dpi = hist.figure.dpi)
-
-
-    @options([
-        make_option('-s', '--split', action="store_true", help="Sublot each residue individually."),
-        make_option('-e', '--export', help="Export 2D shifts map as image")
-    ],
-    arg_desc='( all | complete | filtered | selected )')
-    def do_shiftmap(self, args, opts=None):
-        """
-        Plot chemical shifts for H and N atoms for each residue at each titration step.
-        Invocation with no arguments will plot all residues with complete data.
-        """
-        argMap = {
-            "all" : self.titration.residues, # might be error prone because of missing data
-            "complete" : self.titration.complete,
-            "filtered" : self.titration.filtered,
-            "selected" : self.titration.selected
-        }
-        try:
-            if not args:
-                self.poutput("\t".join(list(argMap)))
-                return
-            if args[0] not in argMap:
-                raise ValueError("Invalid argument : {arg}. Use `shiftmap -h` for help.".format(arg=args[0]))
-            residues = argMap[args[0]].values()
-            fig = self.titration.plot_shiftmap(residues, split=opts.split)
-            if opts.export:
-                fig.savefig(opts.export, dpi=fig.dpi)
-
-        except ValueError as invalidArgErr:
-            self.pfeedback(invalidArgErr)
-            return
 
     @options([], arg_desc="( filtered | selected | complete | incomplete )")
     def do_residues(self, args, opts=None):
@@ -304,6 +243,94 @@ class ShiftShell(Cmd):
         selection += self.parse_residue_slice(args)
         self.titration.deselect_residues(*selection)
 
+    def do_summary(self, args):
+        "Prints a summary of current titration state"
+        self.poutput(self.titration.summary)
+
+
+    @options([make_option('-p', '--plot', action="store_true", help="Set cut-off and plot.")], arg_desc = '<float>')
+    def do_cutoff(self, args, opts=None):
+        try:
+            if not args :
+                self.poutput(self.titration.cutoff)
+            else:
+                cutoff = float(args[0])
+                self.titration.set_cutoff(cutoff)
+            if opts.plot:
+                self.titration.plot_hist(-1)
+        except (TypeError, IndexError) as error:
+            self.pfeedback(error)
+            self.do_help("cutoff")
+
+## PLOTTING CMDS ------------------------------
+
+    @options([],arg_desc='residue [residue ...]')
+    def do_curve(self, arg, opts=None):
+        "Show titration curve of one or several residues."
+        if not arg:
+            self.do_help('curve')
+        elif not self.titration.isInit:
+            self.pfeedback("Cannot plot titration curve : titration parameters are not set.")
+            self.pfeedback("See : `help init` to load a protocole file.")
+        else:
+            for residue in arg:
+                self.titration.plot_titration(self.titration.complete.get(int(residue)))
+
+
+    @options([make_option('-e', '--export', help="Export hist as image")],
+            arg_desc='(<titration_step> | all)')
+    def do_hist(self, args, opts=None):
+        """
+        Plot chemical shift intensity per residu as histograms
+        Accepted arguments are any titration step except 0 (reference)
+        or 'all' to plot all steps as stacked histograms.
+        Defaults to plotting the last step when no arguments
+        are provided.
+        """
+        step = args[0] if args else self.titration.dataSteps -1
+        if step == 'all': # plot stacked hist
+            hist = self.titration.plot_hist()
+        else: # plot single hist
+            hist = self.titration.plot_hist(step=int(step))
+
+        if opts.export: # export figure as png
+            hist.figure.savefig(opts.export, dpi = hist.figure.dpi)
+
+
+    @options([
+        make_option('-s', '--split', action="store_true", help="Sublot each residue individually."),
+        make_option('-e', '--export', help="Export 2D shifts map as image")
+    ],
+    arg_desc='( complete | filtered | selected )')
+    def do_shiftmap(self, args, opts=None):
+        """
+        Plot chemical shifts for H and N atoms for each residue at each titration step.
+        Invocation with no arguments will plot all residues with complete data.
+        """
+        argMap = {
+            "complete" : self.titration.complete,
+            "filtered" : self.titration.filtered,
+            "selected" : self.titration.selected
+        }
+        try:
+            if not args:
+                self.poutput("\t".join(list(argMap)))
+                return
+            if args[0] not in argMap:
+                raise ValueError("Invalid argument : {arg}. Use `shiftmap -h` for help.".format(arg=args[0]))
+            residues = argMap[args[0]].values()
+            fig = self.titration.plot_shiftmap(residues, split=opts.split)
+            if opts.export:
+                fig.savefig(opts.export, dpi=fig.dpi)
+
+        except ValueError as invalidArgErr:
+            self.pfeedback(invalidArgErr)
+            return
+
+
+## --------------------------------------------
+##      UTILS
+## --------------------------------------------
     def parse_residue_slice(self, sliceList):
         """
         Parses a list of residue position slices
@@ -332,24 +359,21 @@ class ShiftShell(Cmd):
                     break
         return selection
 
-    def do_summary(self, args):
-        "Prints a summary of current titration state"
-        self.poutput(self.titration.summary)
+    def _set_prompt(self):
+        """Set prompt so it displays the current working directory."""
+        self.cwd = os.getcwd().strip("'")
+        self.prompt = self.colorize("[shift2me] ", 'magenta') + self.colorize("'"+self.name+"'", "green") + " $ "
 
-    @options([make_option('-p', '--plot', action="store_true", help="Set cut-off and plot.")], arg_desc = '<float>')
-    def do_cutoff(self, args, opts=None):
-        try:
-            if not args :
-                self.poutput(self.titration.cutoff)
-            else:
-                cutoff = float(args[0])
-                self.titration.set_cutoff(cutoff)
-            if opts.plot:
-                self.titration.plot_hist(-1)
-        except (TypeError, IndexError) as error:
-            self.pfeedback(error)
-            self.do_help("cutoff")
-
+    def postcmd(self, stop, line):
+        """
+        Hook method executed just after a command dispatch is finished.
+        :param stop: bool - if True, the command has indicated the application should exit
+        :param line: str - the command line text for this command
+        :return: bool - if this is True, the application will exit after this command and the postloop() will run
+        """
+        """Override this so prompt always displays cwd."""
+        self._set_prompt()
+        return stop
 
 ################
 ##    COMPLETERS
@@ -369,7 +393,7 @@ class ShiftShell(Cmd):
         flagComplete = self.complete_flag_path('e', 'export', text, line ,begidx, endidx)
         if flagComplete: return flagComplete
 
-        residueSetArgs = ['all', 'complete', 'filtered', 'selected']
+        residueSetArgs = ['complete', 'filtered', 'selected']
         return self._complete_arg_set(text, line, residueSetArgs)
 
     def complete_residues(self, text, line ,begidx, endidx):

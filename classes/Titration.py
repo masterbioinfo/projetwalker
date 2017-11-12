@@ -19,7 +19,9 @@ import sys
 import csv
 import json
 import yaml
+from collections import OrderedDict
 from math import *
+from astropy.table import Table, Column, MaskedColumn
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -29,9 +31,14 @@ from classes.AminoAcid import AminoAcid
 from classes.plots import Hist, MultiHist, ShiftMap, SplitShiftMap, TitrationCurve
 from classes.widgets import CutOffCursor
 
-
+# Setup YAML
+""" https://stackoverflow.com/a/8661021 """
+represent_dict_order = lambda self, data:  self.represent_mapping('tag:yaml.org,2002:map', data.items())
+yaml.add_representer(OrderedDict, represent_dict_order)
 
 class BaseTitration(object):
+
+    INIT_FIELDS=('name', 'analyte', 'titrant', 'start_volume', 'add_volumes')
 
     def __init__(self, initFile=None):
         self.isInit = False
@@ -53,6 +60,35 @@ class BaseTitration(object):
         self.volumes = list()
         if initFile is not None:
             self.load_init_file(initFile)
+
+        self.FIELDS = {
+            'steps': {'description': 'Step'},
+            'vol_add': {
+                'description': '{titrant} vol added'.format(titrant=self.titrant['name']),
+                'unit': 'µL'
+            },
+            'vol_cumul': {
+                'description': 'Total {titrant} vol'.format(titrant=self.titrant['name']),
+                'unit': 'µL'
+            },
+            'vol_tot': {
+                'description': 'Total vol',
+                'unit': 'µL'
+            },
+            'conc_titrant': {
+                'description': '[{titrant}]'.format(titrant=self.titrant['name']),
+                'unit': 'µM'
+            },
+            'conc_analyte': {
+                'description':'[{analyte}]'.format(analyte=self.analyte['name']),
+                'unit': 'µM'
+            },
+            'conc_ratio': {
+                'description': '[{titrant}]/[{analyte}]'.format(
+                    titrant=self.titrant['name'], analyte=self.analyte['name']),
+                'unit': 'µM'
+            }
+        }
 
 
 ## -------------------------------------------------
@@ -100,32 +136,18 @@ class BaseTitration(object):
 ## -----------------------------------------------------
 
     @property
-    def status(self):
-        if not self.isInit:
-            return None
-
-        return "\n".join([  "------- Titration --------------------------",
-                            " >\t{name}".format(name=self.name),
-                            "------- Initial parameters -----------------",
-                            "[{name}] :\t{concentration} µM".format(**self.titrant),
-                            "[{name}] :\t{concentration} µM".format(**self.analyte),
-                            "{name} volume  :\t{volume} µL".format(**self.analyte, volume=self.analyteStartVol),
-                            "Initial volume :\t{volume} µL".format(volume=self.startVol),
-                            "------- Current status ---------------------",
-                            "Titration steps :\t\t{steps}".format(steps=list(range(self.steps))),
-                            "{titrant} volumes (µL):\t{added}".format(
-                                titrant=self.titrant['name'],added=self.volumes),
-                            "Cumulated volumes (µL):\t{cumul}".format(cumul=self.volTitrant),
-                            "Total volume (µL):\t{total}".format(total=self.volTotal),
-                            "[{name}] (µM):\n\t\t{conc}".format(
-                                name = self.titrant['name'],
-                                conc=[round(c, 4) for c in self.concentrationTitrant]),
-                            "[{name}] (µM):\n\t\t{conc}".format(
-                                name = self.analyte['name'],
-                                conc=[round(c, 4) for c in self.concentrationAnalyte]),
-                            "[{titrant}]/[{analyte}] :".format(
-                                titrant=self.titrant['name'], analyte=self.analyte['name']),
-                            "\t\t{ratio}".format(ratio=[round(ratio,4) for ratio in self.concentrationRatio]) ])
+    def protocole(self):
+        order = ('steps', 'vol_add', 'vol_cumul', 'vol_tot', 'conc_titrant', 'conc_analyte', 'conc_ratio')
+        protocole={
+            'steps' : list(range(self.steps)),
+            'vol_add': self.volumes,
+            'vol_cumul' : self.volTitrant,
+            'vol_tot': self.volTotal,
+            'conc_titrant':[round(c, 4) for c in self.concentrationTitrant],
+            'conc_analyte': [round(c, 4) for c in self.concentrationAnalyte],
+            'conc_ratio' : [round(ratio,4) for ratio in self.concentrationRatio],
+        }
+        return OrderedDict([ (field, protocole[field]) for field in order ])
 
     @property
     def is_consistent(self):
@@ -156,7 +178,8 @@ class BaseTitration(object):
 
     @property
     def as_init_dict(self):
-        return {
+        initDict=OrderedDict({"_description" : "This file defines a titration's initial parameters."})
+        unordered = {
             'name' : self.name,
             'titrant' : self.titrant,
             'analyte' : self.analyte,
@@ -166,6 +189,22 @@ class BaseTitration(object):
             },
             'add_volumes': self.volumes
         }
+        initDict.update([ (field, unordered[field]) for field in self.INIT_FIELDS])
+        return initDict
+
+
+    @property
+    def protocole_as_table(self):
+        table = Table()
+        protocole = self.protocole
+        for key, value in protocole.items():
+            field = self.FIELDS[key]
+            name = field['description']
+            if field.get('unit'):
+                name = "{name} ({unit})".format(name=name, unit=field['unit'])
+            col = Column(value, **field, name=name)
+            table.add_column(col)
+        return table
 
 ## -----------------------------------------------------
 ##         Input/output
@@ -236,36 +275,13 @@ class BaseTitration(object):
 
     def dump_init_file(self, initFile=None):
         try:
-            initDict = {"_description" : "This file defines a titration's initial parameters."}
+
             fh = open(initFile, 'w', newline='') if initFile else sys.stdout
-            initDict.update(self.as_init_dict)
-            yaml.dump(initDict, fh, default_flow_style=False, indent=4)
+            yaml.dump(self.as_init_dict, fh, default_flow_style=False, indent=4)
             if fh is not sys.stdout:
                 fh.close()
         except IOError as fileError:
             print("{error}".format(error=fileError), file=sys.stderr)
-            return
-
-    def csv(self, file=None):
-        try:
-            fh = open(file, 'w', newline='') if file else sys.stdout
-            fieldnames = [  "#step",
-                            "vol added {titrant} (µL)".format(titrant=self.titrant['name']),
-                            "vol {titrant} (µL)".format(titrant=self.titrant['name']),
-                            "vol total (µL)",
-                            "[{analyte}] (µM)".format(analyte=self.analyte['name']),
-                            "[{titrant}] (µM)".format(titrant=self.titrant['name']),
-                            "[{titrant}]/[{analyte}]".format(titrant=self.titrant['name'], analyte=self.analyte['name'])    ]
-
-            writer = csv.DictWriter(fh, fieldnames=fieldnames, delimiter='\t')
-
-            writer.writeheader()
-            for step in range(min(self.steps, len(self.volumes))):
-                writer.writerow(self.step_as_dict(step))
-            if fh is not sys.stdout:
-                fh.close()
-        except (IOError, IndexError) as error:
-            print("{error}".format(error=error), file=sys.stderr)
             return
 
 
@@ -285,8 +301,8 @@ class Titration(BaseTitration):
     PATHPATTERN = re.compile(r'(.+/)?(.*[^\d]+)(?P<step>[0-9]+)\.list')
     # accepted lines pattern
     LINEPATTERN = re.compile(r'^(?P<position>\d+)(\S*)?\s+'
-                        r'(?P<chemshiftH>\d+\.\d+)\s+'
-                        r'(?P<chemshiftN>\d+\.\d+)$')
+                            r'(?P<chemshiftH>\d+\.\d+)\s+'
+                            r'(?P<chemshiftN>\d+\.\d+)$')
     # ignored lines pattern
     IGNORELINEPATTERN = re.compile(r"^\d.*")
     # source paths
