@@ -32,9 +32,6 @@ class MultiDraggableCursor(MultiCursor):
     """
     def __init__(self, canvas, axes, useblit=True, horizOn=False, vertOn=True, **lineprops):
         self.press = None
-        self.propagation = dict()
-        self.mouseUpdated = False
-        self.mouse_observers = dict()
         super().__init__(canvas, axes, useblit, horizOn, vertOn, **lineprops)
 
     def connect(self):
@@ -80,9 +77,6 @@ class MultiDraggableCursor(MultiCursor):
         self.press = False
         if not self.event_accept(event):
             return
-        self.mouseUpdated = True
-        self.cutoff = event.ydata
-        self.raise_changed(self.cutoff)
         self.update_lines(event.xdata, event.ydata)
 
 
@@ -135,6 +129,8 @@ class WatchableWidgetMixin(object):
     def __init__(self):
         self.cnt = 0
         self.observers = {}
+        self.mouse_updated = False
+        self.mouse_observers = dict()
 
     def on_changed(self, func):
         """
@@ -156,7 +152,7 @@ class WatchableWidgetMixin(object):
 
     def on_mouse_update(self, func):
         """
-        When the widget value is changed __from mouse events__, 
+        When the widget value is changed __from mouse events__,
         call *func* with the new widget value
         Parameters
         ----------
@@ -196,7 +192,7 @@ class WatchableWidgetMixin(object):
         # Iterate over all signal handlers
         for cid, func in six.iteritems(self.observers):
             func(val)
-        if self.mouseUpdated:
+        if self.mouse_updated:
             for cid, func in six.iteritems(self.mouse_observers):
                 func(val)
 
@@ -216,10 +212,20 @@ class CutOffCursor(MultiDraggableCursor, WatchableWidgetMixin):
         Sets cutoff value, updating cutoff line.
         Also sending changed signal, with kwargs arguments.
         """
-        self.mouseUpdated = False
+        self.mouse_updated = False
         self.cutoff = cutoff
         self.raise_changed(self.cutoff, **kwargs)
         self.update_lines(None, cutoff)
 
+    def on_release(self, event):
+        'on release we reset the press data'
+        self.press = False
+        if not self.event_accept(event):
+            return
+        self.mouse_updated = True
+        self.cutoff = event.ydata
+        # Override on_release to raise change event
+        self.raise_changed(self.cutoff)
+        self.update_lines(event.xdata, event.ydata)
 
 
