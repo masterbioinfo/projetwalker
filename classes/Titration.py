@@ -324,6 +324,7 @@ class Titration(BaseTitration):
         self.dataSteps = 0
         self.cutoff = None
         self.source = None
+        self.files = []
         self.dirPath = None
         # init plots
         self.stackedHist = None
@@ -332,24 +333,20 @@ class Titration(BaseTitration):
         BaseTitration.__init__(self)
 
         ## FILE PATH PROCESSING
-        # fetch all .list files in source dir
+        # fetch all .list files in source dir, parse
+        # add a step for each file
         try:
-            self.extract_source(source)
-        except ValueError as error:
+            self.files = self.update(source)
+        except IOError as error:
             print("{error}".format(error=error), file=sys.stderr)
             exit(1)
 
-        # sort files by ascending titration number
-        self.files.sort(key=self.validate_filepath)
 
         ## TITRATION PARAMETERS
         if self.dirPath and initFile is None:
             initFile = self.extract_init_file(self.dirPath)
         super().__init__(initFile)
 
-        ## FILE PARSING
-        for titrationFile in self.files:
-            self.add_step(titrationFile)
 
         ## INIT CUTOFF
         if cutoff:
@@ -427,22 +424,18 @@ class Titration(BaseTitration):
         If `step` arg is provided, validation will enforce that parsed file number matches `step`.
         Returns the titration step number if found, IOError is raised otherwise
         """
-        try:
+        matching = self.PATH_PATTERN.match(filePath) # attempt to match
+        if matching:
+            if verifyStep and int(matching.group("step")) != self.dataSteps:
+                raise IOError("File {file} expected to contain data for titration step #{step}."
+                                "Are you sure this is the file you want ?"
+                                "In this case it must be named like *{step}.list".format(file=filePath, step=self.dataSteps))
+            # retrieve titration step number parsed from file name
+            return int(matching.group("step"))
+        else:
+            # found incorrect line format
+            raise IOError("Refusing to parse file {file}.\nPlease check it is named like (name)(step).list".format(file=filePath))
 
-            matching = self.PATH_PATTERN.match(filePath) # attempt to match
-            if matching:
-                if verifyStep and int(matching.group("step")) != self.dataSteps:
-                    raise IOError("File {file} expected to contain data for titration step #{step}.\
-                 Are you sure this is the file you want ? \
-                 In this case it must be named like *{step}.list".format(file=titrationFile, step=self.dataSteps))
-                # retrieve titration step number parsed from file name
-                return int(matching.group("step"))
-            else:
-                # found incorrect line format
-                raise IOError("Refusing to parse file {file} : please check it is named like \{name\}\{step\}.list".format(file=filePath))
-        except IOError as err:
-            print("{error}".format(error=err), file=sys.stderr )
-            exit(1)
 
 
     def parse_titration_file(self, titrationFile):
@@ -455,14 +448,15 @@ class Titration(BaseTitration):
         try :
             with open(titrationFile, "r", encoding = "utf-8") as titration:
                 for lineNb, line in enumerate(titration) :
-                    self.parse_line(line)
-
+                    try:
+                        self.parse_line(line)
+                    except ValueError as parseError:
+                        print("{error} at line {line} in file {file}".format(
+                            error=parseError, line=lineNb, file=titrationFile), file=sys.stderr)
+                        continue
         except IOError as fileError:
             print("{error}".format(error=error), file=sys.stderr)
-            exit(1)
-        except ValueError as parseError:
-            print("{error} at line {line} in file {file}".format(
-                error=parseError, line=lineNb, file=titrationFile), file=sys.stderr)
+            return
 
     def parse_line(self, line):
         line = line.strip()
@@ -558,18 +552,45 @@ class Titration(BaseTitration):
         Handles source data depending on type (file list, directory, saved file).
         Should be called only on __init__()
         """
+        files = []
         if type(source) is list: # or use provided source as files
-            self.files = source
-            self.dirPath = os.path.dirname(source[0])
+            for file in source:
+                if not os.path.isfile(file):
+                    raise IOError("{path} is not a file.".format(path=file))
+                    return
+            files = source
+            self.dirPath = os.path.dirname(files[0])
         elif os.path.isdir(source):
             self.dirPath = os.path.abspath(source)
-            self.files = [ os.path.join(self.dirPath, titrationFile) for titrationFile in os.listdir(self.dirPath) if titrationFile.endswith(".list") ]
-            if len(self.files) < 1:
+            files = glob.glob(os.path.join(self.dirPath, '*.list'))
+            if len(files) < 1:
                 raise ValueError("Directory {dir} does not contain any `.list` titration file.".format(dir=self.dirPath))
         elif os.path.isfile(source):
             return self.load(source)
         self.source = source
-        return self.files
+        return files
+
+    def update(self, source=None):
+        files = []
+        if not source:
+            if self.dirPath:
+                files = self.extract_source(self.dirPath)
+            else:
+                raise IOError("Nothing to update from, please provide an argument (files or directory path)")
+                return
+        else:
+            files = self.extract_source(source)
+        # exclude already known file
+        files = [ file for file in files if file not in self.files ]
+        try:
+            files = sorted(files, key=self.validate_filepath)
+        except (ValueError, IOError) as error:
+            raise error
+            return
+        for file in files:
+            self.add_step(file)
+        return files
+
 
     def select_residues(self, *positions):
         "Select a subset of residues"

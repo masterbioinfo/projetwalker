@@ -129,6 +129,23 @@ class ShiftShell(Cmd):
 
 ## RMN ANALYSIS CMDS ---------------------------------
 
+    def do_update(self, arg):
+        """
+        Update titration from <source>.
+        If source is a directory, will add all the .list files
+        with appropriate naming regarding expected next steps.
+        If source is a list of files, add all the files,
+        checking they have correct name regarding expected steps.
+        No argument uses directory from first invocation, looking for
+        any new step .list files in it.
+        Already loaded files are ignored.
+        """
+        try:
+            return self.titration.update(arg)
+        except Exception as error:
+            self.pfeedback(error)
+            return
+
     @options([make_option('-v', '--volume', help="Volume of titrant solution to add titration step")],arg_desc='<titration_file_##.list>')
     def do_add_step(self, arg, opts=None):
         "Add a titration file as next step. Associate a volume to this step with -v option."
