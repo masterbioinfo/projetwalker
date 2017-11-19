@@ -51,6 +51,7 @@ class ShiftShell(Cmd):
             self._set_prompt()
 
 ## PROTOCOLE CMDS -----------------------------
+
     @options([], arg_desc="<vol (µL)> <vol (µL)> ...")
     def do_set_volumes(self, arg, opts=None):
         "Sets added titrant volumes for current titration, replacing existing volumes."
@@ -129,7 +130,8 @@ class ShiftShell(Cmd):
 
 ## RMN ANALYSIS CMDS ---------------------------------
 
-    def do_update(self, arg):
+    @options([], arg_desc='[ <directory> | <titration_file.list> ... ]')
+    def do_update(self, arg, opts=None):
         """
         Update titration from <source>.
         If source is a directory, will add all the .list files
