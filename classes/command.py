@@ -332,7 +332,8 @@ class ShiftShell(Cmd):
 ##      UTILS
 ## --------------------------------------------
     def parse_residue_slice(self, sliceList):
-        """ Parses a list of residue position slices
+        """
+        Parses a list of residue position slices
         slices are expanded the same as python slice, i.e:
             5:8 will yield 5,6,7
             5: will yield all positions from 5 to last.

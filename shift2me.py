@@ -11,14 +11,15 @@ Usage:
 Options:
   -c <cutoff>, --cut-off=<cutoff>                       Set default cutoff at <cutoff> (float).
   -i <titration.json>, --init-file=<titration.json>     Initialize titration from file.json (JSON format)
-  -t <file.json>, --template=<file.json>                Initialize a template titration.json file, to be filled with titration parameters.
+  -t <file.json>, --template=<file.json>                Initialize a template titration.json file,
+                                                        to be filled with titration parameters.
   -h --help                                             Print help and usage
 
 This program can calculate chemicals shifts of 15N and 1H during a portein protein interaction in fonction of titation of the secondary protein.
 He generate plots to show chemicals shifts for each titration of the secondary protein. You can fix a cutoff to appreciate residus involved in protein protein interaction.
 You can see all chemical shift of interest 2D maps (N15/1H) too.
 
-Exemple :  ./shift2me.py data/listes/listPP/*.list
+Example :  ./shift2me.py data/listes/listPP/*.list
 
 Authors : Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUERY and Rainier-Numa GEORGES
 """

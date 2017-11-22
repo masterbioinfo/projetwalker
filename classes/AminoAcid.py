@@ -3,44 +3,22 @@
 """
 Module classes uses during Shift2Me works.
 
-Authors : Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY and Rainier-Numa GEORGES for Dr. Olivier WALKER and Dr. Maggy HOLOGNE 
-(ISA-UMR 5280 CNRS,5 Rue de la DOUA, 69100 Villeurbanne -FRANCE). 
-This program is developped in Python 3.5.1, Anaconda v5.0.0, JuPyter v5.2.0, MatPlotLib v2.1.0, 
-on Ubuntu v16.04.3 LTS (UNIX core system).
-Date of creation : 2017-10-13
-Last modification : 2017-10-24.
+Authors : Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY and Rainier-Numa GEORGES
 """
 
-###############################################################################################
 
 
-                    ### Moduls ###
-
-
-###############################################################################################
-
-#Moduls used in AminoAcid.py.
-
-
-import math, sys
-
-
-###############################################################################################
-
-
-                    ### Classes ###
-
-
-###############################################################################################
+import math
+import sys
 
 
 class AminoAcid(object):
     """
     Class AminoAcid
     Describes a amino-acid using its position number in the proteic sequence.
-    An AminoAcid object contains the values of measured chemical shift at each titration step. 
+    An AminoAcid object contains the values of measured chemical shift at each titration step.
     These data are split in two lists, one contains the hydrogen chem shift data, the other contains nitrogen chem shifts data.
-    The first element of each list is used as a reference value for calculating difference in chemical shifts at each titration step, i.e measured chem shift - ref chem shift. 
+    The first element of each list is used as a reference value for calculating difference in chemical shifts at each titration step, i.e measured chem shift - ref chem shift.
     """
 
     def __init__(self, **kwargs):
@@ -75,6 +53,10 @@ class AminoAcid(object):
         Checks wether an AminoAcid object contains all chemical shift data (1 for each titration step)
         """
         return True if len(self.chemshiftH) == len(self.chemshiftN) == titrationSteps else False
+
+## -----------------------------------------------------------
+##      PROPERTIES
+## -----------------------------------------------------------
 
     @property
     def deltaChemshiftH(self):
@@ -113,10 +95,10 @@ class AminoAcid(object):
         "Tuple of tuples (chem shift H, chem shift N) for each titration step"
         return tuple(zip(self.chemshiftH,self.chemshiftN))
 
-    @property 
+    @property
     def chemshiftIntensity(self):
         """
-        Calculate chemical shift intensity at each titration step from chemical shift values for hydrogen and nitrogen. 
+        Calculate chemical shift intensity at each titration step from chemical shift values for hydrogen and nitrogen.
         """
         self._chemshiftIntensity = tuple([math.sqrt(ddH**2 + (ddN/5)**2) for (ddH, ddN) in self.deltaChemshifts])
         return self._chemshiftIntensity
