@@ -1,7 +1,4 @@
-#!/usr/bin/python3
-
-"""
-Titration class module
+""" Titration class module
 
 Titration allows manipulating chemical shift data measured with 2D NMR
 Input is a set of `.list` tabular files with one residue per line, e.g output of Sparky
@@ -32,8 +29,9 @@ from classes.plots import Hist, MultiHist, ShiftMap, SplitShiftMap, TitrationCur
 from classes.widgets import CutOffCursor
 
 
-""" Setup YAML : https://stackoverflow.com/a/8661021 """
+
 represent_dict_order = lambda self, data:  self.represent_mapping('tag:yaml.org,2002:map', data.items())
+""" setup YAML for ordered dict output : https://stackoverflow.com/a/8661021 """
 yaml.add_representer(OrderedDict, represent_dict_order)
 
 

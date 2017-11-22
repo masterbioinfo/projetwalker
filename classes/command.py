@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 import os
 from cmd2 import Cmd, options, make_option
 
