@@ -111,7 +111,7 @@ class ShiftShell(Cmd):
         self.titration.dump_init_file(arg)
 
     @options([], arg_desc='<protocole>.yml')
-    def do_init(self, arg, opts=None)\1:
+    def do_init(self, arg, opts=None):
         """ Loads a YAML formatted file.yml describing titration protocole.
         To generate a template protocole descriptor as <file> :
             $ make_init <file>.yml
