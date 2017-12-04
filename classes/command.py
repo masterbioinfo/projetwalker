@@ -109,12 +109,19 @@ class ShiftShell(Cmd):
             self.pfeedback("Titration parameters are not set. Please load a protocole file.")
             self.pfeedback("See `help init`")
 
-    def do_make_init(self, arg):
+    def do_dump_protocole(self, arg):
         """
         Outputs titration parameters.
         Argument may be a file path to write into. Defaults to stdout.
         """
-        self.titration.dump_init_file(arg)
+        if not arg or os.path.isdir(arg):
+            path = os.path.join(arg, '{titration}.yml'.format(titration=self.titration.name))
+        elif not arg.endswith(".yml"):
+            path = arg + ".yml"
+        else:
+            path = arg
+        self.titration.dump_init_file(path)
+        self.pfeedback("Dumped titration protocole at : {path}".format(path=path))
 
     @options([], arg_desc='<protocole>.yml')
     def do_init(self, arg, opts=None):

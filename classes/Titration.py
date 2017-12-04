@@ -276,11 +276,11 @@ class BaseTitration(object):
 
     def dump_init_file(self, initFile=None):
         try:
-
-            fh = open(initFile, 'w', newline='') if initFile else sys.stdout
+            fh = open(initFile, 'w') if initFile else sys.stdout
             yaml.dump(self.as_init_dict, fh, default_flow_style=False, indent=4)
             if fh is not sys.stdout:
                 fh.close()
+            return initFile
         except IOError as fileError:
             print("{error}".format(error=fileError), file=sys.stderr)
             return
