@@ -1,11 +1,8 @@
-#!/usr/bin/python3
-
 import os
 from cmd2 import Cmd, options, make_option
 
 class ShiftShell(Cmd):
-    """
-    Command line interface wrapper for Titration
+    """ Command line interface wrapper for Titration
     """
     intro = "Type help or ? to list commands.\n"
     prompt = ">> "
@@ -51,7 +48,6 @@ class ShiftShell(Cmd):
             self._set_prompt()
 
 ## PROTOCOLE CMDS -----------------------------
-
     @options([], arg_desc="<vol (µL)> <vol (µL)> ...")
     def do_set_volumes(self, arg, opts=None):
         "Sets added titrant volumes for current titration, replacing existing volumes."
@@ -74,8 +70,7 @@ class ShiftShell(Cmd):
 
     @options([], arg_desc="[<path/to/file.csv>]")
     def do_csv(self, arg, opts=None):
-        """
-        Prints each titration step experimental conditions, such as volumes and concentration of each molecule.
+        """Prints each titration step experimental conditions, such as volumes and concentration of each molecule.
         Format is comma-separated CSV table. You may redirect its output :
          $ csv path/to/file.csv
          $ csv > path/to/file.csv
@@ -125,8 +120,7 @@ class ShiftShell(Cmd):
 
     @options([], arg_desc='<protocole>.yml')
     def do_init(self, arg, opts=None):
-        """
-        Loads a YAML formatted file.yml describing titration protocole.
+        """ Loads a YAML formatted file.yml describing titration protocole.
         To generate a template protocole descriptor as <file> :
             $ make_init <file>.yml
         """
@@ -202,8 +196,7 @@ class ShiftShell(Cmd):
 
     @options([], arg_desc="[all] [filtered] [complete] [incomplete] [positions_slice]")
     def do_select(self, args, opts=None):
-        """
-        Select a subset of residues, either from :
+        """ Select a subset of residues, either from :
          - a predefined set of residues
          - 1 or more slices of residue positions, with python-ish syntax.
         Examples :
@@ -234,8 +227,7 @@ class ShiftShell(Cmd):
 
     @options([])
     def do_deselect(self, args, opts=None):
-        """
-        Remove a subset of residues from current selection, specifying either :
+        """ Remove a subset of residues from current selection, specifying either :
          - a predefined set of residues
          - 1 or more slices of residue positions, with python-ish syntax.
            e.g : ':100' matches positions from start to 100
@@ -266,8 +258,7 @@ class ShiftShell(Cmd):
 
     @options([make_option('-p', '--plot', action="store_true", help="Set cut-off and plot.")], arg_desc = '<float>')
     def do_cutoff(self, args, opts=None):
-        """
-        Sets cutoff value to filter residues with high chemshift intensity.
+        """ Sets cutoff value to filter residues with high chemshift intensity.
         """
         try:
             if not args :
@@ -299,8 +290,7 @@ class ShiftShell(Cmd):
     @options([make_option('-e', '--export', help="Export hist as image")],
             arg_desc='(<titration_step> | all)')
     def do_hist(self, args, opts=None):
-        """
-        Plot chemical shift intensity per residu as histograms
+        """ Plot chemical shift intensity per residu as histograms
         Accepted arguments are any titration step except 0 (reference)
         or 'all' to plot all steps as stacked histograms.
         Defaults to plotting the last step when no arguments
@@ -322,8 +312,7 @@ class ShiftShell(Cmd):
     ],
     arg_desc='( complete | filtered | selected )')
     def do_shiftmap(self, args, opts=None):
-        """
-        Plot chemical shifts for H and N atoms for each residue at each titration step.
+        """ Plot chemical shifts for H and N atoms for each residue at each titration step.
         Invocation with no arguments will plot all residues with complete data.
         """
         argMap = {
@@ -377,13 +366,12 @@ class ShiftShell(Cmd):
         return selection
 
     def _set_prompt(self):
-        """Set prompt so it displays the current working directory."""
+        """ Set prompt so it displays the current working directory."""
         self.cwd = os.getcwd().strip("'")
         self.prompt = self.colorize("[shift2me] ", 'magenta') + self.colorize("'"+self.name+"'", "green") + " $ "
 
     def postcmd(self, stop, line):
-        """
-        Hook method executed just after a command dispatch is finished.
+        """ Hook method executed just after a command dispatch is finished.
         :param stop: bool - if True, the command has indicated the application should exit
         :param line: str - the command line text for this command
         :return: bool - if this is True, the application will exit after this command and the postloop() will run

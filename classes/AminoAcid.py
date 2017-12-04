@@ -1,7 +1,5 @@
 # -*- encoding: utf-8 -*-
-
-"""
-Module classes uses during Shift2Me works.
+""" Module classes uses during Shift2Me works.
 
 Authors : Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUENY and Rainier-Numa GEORGES
 """
