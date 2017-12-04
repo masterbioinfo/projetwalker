@@ -151,7 +151,9 @@ class ShiftShell(Cmd):
 
     @options([make_option('-v', '--volume', help="Volume of titrant solution to add titration step")],arg_desc='<titration_file_##.list>')
     def do_add_step(self, arg, opts=None):
-        "Add a titration file as next step. Associate a volume to this step with -v option."
+        """"Add a titration file as next step. Associate a volume to this step with -v option.
+        Example : add_step titration_10.list -v 10
+        """
         if arg:
             self.titration.add_step(arg[0], opts.volume)
         else:

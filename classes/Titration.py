@@ -98,9 +98,9 @@ class BaseTitration(object):
         self.name = str(name)
         return self.name
 
-    def add_step(self, volume = None):
+    def add_volume(self, volume):
         self.steps += 1
-        if volume is not None: self.volumes.append(volume)
+        self.volumes.append(volume)
         return self.steps
 
     def set_volumes(self, volumes):
@@ -112,11 +112,11 @@ class BaseTitration(object):
             for step, vol in stepVolumes.items():
                 self.volumes[step] = vol
         except IndexError:
-            print("{step} does not exist")
+            print("{step} does not exist".format(step=step), file=sys.stderr)
 
     def add_volumes(self, volumes):
         for vol in volumes:
-            self.add_step(vol)
+            self.add_volume(vol)
         return self.steps
 
     def step_as_dict(self, step):
@@ -370,9 +370,11 @@ class Titration(BaseTitration):
         self.parse_titration_file(titrationFile)
         self.dataSteps += 1
         if volume is not None:
-            super().update_volumes({step:volume})
-        if self.dataSteps < self.dataSteps:
-            super().add_step(volume=volume)
+            if self.steps < self.dataSteps:
+                super().add_volume(volume)
+            else:
+                super().update_volumes({step:volume})
+
 
         # create data-empty residues for missing positions
         for pos in range(min(self.residues), max(self.residues)):
