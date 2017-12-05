@@ -536,7 +536,7 @@ class Titration(BaseTitration):
 
 
     def plot_titration(self, residue):
-        curve = TitrationCurve(self.concentrationRatio, residue,
+        curve = TitrationCurve(self.concentrationRatio[:self.dataSteps], residue,
                                 titrant=self.titrant['name'],
                                 analyte=self.analyte['name'])
         curve.show()
