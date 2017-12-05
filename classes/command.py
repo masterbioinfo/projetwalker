@@ -184,7 +184,12 @@ class ShiftShell(Cmd):
 
     def do_load_job(self, arg):
         "Loads previously saved titration, replacing active titration"
-        self.titration.load(arg)
+        self.pfeedback('Loading titration from : {source}'.format(source=arg))
+        try:
+            self.titration.load(arg)
+            self.pfeedback('Now working on : {titration}'.format(titration=self.titration.name))
+        except:
+            return
 
     @options([], arg_desc="( filtered | selected | complete | incomplete )")
     def do_residues(self, args, opts=None):
