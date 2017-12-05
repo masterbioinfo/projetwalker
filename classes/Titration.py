@@ -455,7 +455,7 @@ class Titration(BaseTitration):
                             error=parseError, line=lineNb, file=titrationFile), file=sys.stderr)
                         continue
         except IOError as fileError:
-            print("{error}".format(error=error), file=sys.stderr)
+            print("{error}".format(error=fileError), file=sys.stderr)
             return
 
     def parse_line(self, line):

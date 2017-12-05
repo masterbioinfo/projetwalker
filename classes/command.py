@@ -173,7 +173,14 @@ class ShiftShell(Cmd):
 
     def do_save_job(self, arg):
         "Saves active titration to binary file"
-        self.titration.save(arg)
+        if not arg or os.path.isdir(arg):
+            path = os.path.join(arg, '{titration}.pkl'.format(titration=self.titration.name))
+        elif not arg.endswith(".pkl"):
+            path = arg + ".pkl"
+        else:
+            path = arg
+        self.titration.save(path)
+        self.pfeedback("Saved job at : {path}.".format(path = path))
 
     def do_load_job(self, arg):
         "Loads previously saved titration, replacing active titration"
