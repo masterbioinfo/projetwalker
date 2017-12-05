@@ -558,7 +558,8 @@ class Titration(BaseTitration):
                 if not os.path.isfile(file):
                     raise IOError("{path} is not a file.".format(path=file))
                     return
-            files = source
+            files = list(map(os.path.abspath, source))
+            print(files)
             self.dirPath = os.path.dirname(files[0])
         elif os.path.isdir(source):
             self.dirPath = os.path.abspath(source)
@@ -566,7 +567,10 @@ class Titration(BaseTitration):
             if len(files) < 1:
                 raise ValueError("Directory {dir} does not contain any `.list` titration file.".format(dir=self.dirPath))
         elif os.path.isfile(source):
-            return self.load(source)
+            if source.endswith('.pkl'):
+                return self.load(source)
+            else:
+                return source
         self.source = source
         return files
 

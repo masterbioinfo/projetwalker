@@ -58,6 +58,7 @@ class ShiftShell(Cmd):
             if not volumes[0] == 0:
                 volumes.insert(0, 0)
             self.titration.set_volumes(volumes)
+            self.pfeedback("Volumes are now : {volumes} (µM).".format(volumes = self.titration.volumes))
 
     @options([], arg_desc="<vol(µL)> [<vol(µL)> ...]")
     def do_add_volumes(self, arg, opts=None):
@@ -65,8 +66,11 @@ class ShiftShell(Cmd):
         if arg:
             volumes = list(map(float, arg))
             self.titration.add_volumes(volumes)
+            self.pfeedback("Volumes are now : {volumes} (µM).".format(volumes = self.titration.volumes))
         else:
             self.do_help("add_volumes")
+
+
 
     @options([], arg_desc="[<path/to/file.csv>]")
     def do_csv(self, arg, opts=None):
@@ -122,12 +126,14 @@ class ShiftShell(Cmd):
     def do_init(self, arg, opts=None):
         """ Loads a YAML formatted file.yml describing titration protocole.
         To generate a template protocole descriptor as <file> :
-            $ make_init <file>.yml
+            $ dump_protocole <file>.yml
         """
         if not arg:
             self.do_help('init')
             return
         self.titration.load_init_file(arg)
+        self.pfeedback("Loaded protocole from {path}.".format(path = arg))
+        self.pfeedback("Use `status` command to show protocole details.")
 
 ## RMN ANALYSIS CMDS ---------------------------------
 
@@ -144,7 +150,13 @@ class ShiftShell(Cmd):
         Already loaded files are ignored.
         """
         try:
-            return self.titration.update(arg)
+            files = self.titration.update(arg)
+            if files:
+                self.pfeedback("Updated titration steps with new data from files : ")
+                for updateFile in files:
+                    self.pfeedback(" + {file}".format(file=updateFile))
+            else:
+                self.pfeedback("Nothing to update.")
         except Exception as error:
             self.pfeedback(error)
             return
