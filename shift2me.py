@@ -4,7 +4,7 @@
 Shift2Me : 2D-NMR chemical shifts analysis for protein interactions.
 
 Usage:
-    shift2me.py [-c <cutoff>] [-i <titration.json>] [-t <file.json>] <file.list> <file.list> ...
+    shift2me.py [-c <cutoff>] [-i <titration.json>] [-t <file.json>] [<file.list> <file.list> ...]
     shift2me.py [-c <cutoff>] [-i <titration.json>] [-t <file.json>] ( <dir> | <saved_job> )
     shift2me.py -h
 

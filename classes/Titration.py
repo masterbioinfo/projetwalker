@@ -216,6 +216,8 @@ class BaseTitration(object):
                                 number=len(initFileList), source=dirPath, file=self.initFile ))
         elif initFileList:
             initFile = initFileList.pop()
+        else:
+            initFile = None
         return initFile
 
     def check_init_file(self, initFile):
@@ -306,7 +308,7 @@ class Titration(BaseTitration):
     IGNORE_LINE_PATTERN = re.compile(r"^\d.*")
 
 
-    def __init__(self, source, name=None, cutoff = None, initFile=None, **kwargs):
+    def __init__(self, source = None, name=None, cutoff = None, initFile=None, **kwargs):
         """
         Load titration files, check their integrity
         `source` is either a directory containing `.list` file, or is a list of `.list` files
@@ -333,11 +335,12 @@ class Titration(BaseTitration):
         ## FILE PATH PROCESSING
         # fetch all .list files in source dir, parse
         # add a step for each file
-        try:
-            self.files = self.update(source)
-        except IOError as error:
-            print("{error}".format(error=error), file=sys.stderr)
-            exit(1)
+        if source:
+            try:
+                self.files = self.update(source)
+            except IOError as error:
+                print("{error}".format(error=error), file=sys.stderr)
+                exit(1)
 
 
         ## TITRATION PARAMETERS
@@ -553,25 +556,33 @@ class Titration(BaseTitration):
         Should be called only on __init__()
         """
         files = []
-        if type(source) is list: # or use provided source as files
-            for file in source:
-                if not os.path.isfile(file):
-                    raise IOError("{path} is not a file.".format(path=file))
-                    return
-            files = list(map(os.path.abspath, source))
-            print(files)
-            self.dirPath = os.path.dirname(files[0])
-        elif os.path.isdir(source):
-            self.dirPath = os.path.abspath(source)
-            files = glob.glob(os.path.join(self.dirPath, '*.list'))
-            if len(files) < 1:
-                raise ValueError("Directory {dir} does not contain any `.list` titration file.".format(dir=self.dirPath))
-        elif os.path.isfile(source):
-            if source.endswith('.pkl'):
-                return self.load(source)
+        if not source:
+            return files
+        if type(source) is list:
+            if len(source) <= 1:
+                file = source.pop()
+                if file.endswith('.pkl'):
+                    return self.load(file)
+                elif os.path.isdir(file):
+                    self.dirPath = os.path.abspath(file)
+                    files = glob.glob(os.path.join(self.dirPath, '*.list'))
+                    if len(files) < 1:
+                        raise ValueError("Directory {dir} does not contain any `.list` titration file.".format(
+                            dir=self.dirPath))
+                else:
+                    return file
+                if self.dirPath is None:
+                    self.dirPath = os.path.dirname(file)
             else:
-                return source
-        self.source = source
+                for file in source:
+                    if not os.path.isfile(file):
+                        raise IOError("{path} is not a file.".format(path=file))
+                        return
+                files = list(map(os.path.abspath, source))
+                if self.dirPath is None:
+                    self.dirPath = os.path.dirname(files[0])
+
+
         return files
 
     def update(self, source=None):
@@ -593,6 +604,10 @@ class Titration(BaseTitration):
             return
         for file in files:
             self.add_step(file)
+        if self.dirPath:
+            initFile = self.extract_init_file(self.dirPath)
+            if initFile:
+                self.load_init_file(initFile)
         return files
 
 
@@ -676,7 +691,7 @@ class Titration(BaseTitration):
                             "> {name}".format(name=self.name),
                             "--------------------------------------------",
                             "Source dir :\t{dir}".format(dir=self.dirPath),
-                            "Steps :\t\t{steps} (reference step 0 to {last})".format(steps=self.dataSteps, last=self.dataSteps -1),
+                            "Steps :\t\t{steps} (reference step 0 to {last})".format(steps=self.dataSteps, last=max(self.dataSteps -1, 0)),
                             "Cut-off :\t{cutoff}".format(cutoff=self.cutoff),
                             "Total residues :\t\t{res}".format(res=len(self.residues)),
                             " - Complete residues :\t\t{complete}".format(complete=len(self.complete)),
