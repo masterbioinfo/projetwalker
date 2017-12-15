@@ -1,0 +1,276 @@
+################################################################################################################################################################################################
+
+																						# * Shift2Me* #
+
+################################################################################################################################################################################################
+
+This program is developped by Louis DUCHEMIN, Hermès PARAQUINDES, Marc-Antoin GUERY and Rainier-Numa GEORGES, students in Master 1 Molecular Bio-Informatic of Claude Barnard Lyon 1 University (UCBL), mandated by Maggy HOLOGNE and Olivier WALKER PhDs of Institut des Sciences Analytiques (ISA, CNRS - UMR 5280).
+
+Institut des Sciences Analytiques
+CNRS - UMR 5280
+5 Rue de la DOUA
+69100 Villeurbanne - FRANCE
+ 
+Université Claude Bernard Lyon 1
+43 Boulevard du 11 Novembre 1918
+69100 Villeurbanne - FRANCE
+
+------------------------------------------
+
+#Summary:
+
+------------------------------------------
+
+
+
+------------------------------------------
+
+#Tutorial:
+
+------------------------------------------
+
+##Introduction:
+
+Shift2Me use a kind of shell like Linux. You can use autocompletion with TAB touch. For exemple, to write select you can write "sel" then push TAB touch to do autocompletion of "sel" in "select". You have access to shortcuts:
+
+	* ! *: shell
+	* ? *: help
+	* @ *: load	
+	* @@ *: relative load
+
+If you want use shortcuts to load files, you must write the file path after the shortcut. For exemple :
+
+	* @  data/listes/listPP/data/listes/listPP/15N_UIM-SH3-37_01.list *
+
+##1-Launch Shift2Me :
+
+1. To launch Shift2Me, you must indicate datas files. You can indicate them with the file path only ! If the datas path is "data/listes/listPP/" you can launch the program with this command:
+	* python3 shift2me.py data/listes/listPP *
+
+2. After the first Shift2Me load you can see a little run summary:
+
+	Source dir 					-> the datas path
+	Steps						-> the number of steps experiments
+	Cutoff						-> cutoff selected
+	Total reisdues				-> Total residus in the study
+		Complete residues 		-> Total residus in the study
+ 		Incomplete residues		-> Number of residues with incomplete informations (not retained in the study)
+ 		Filtered residues		-> Number of residus filtered (0 in the first time)
+
+##2-Basics commands :
+
+1. You have access at any time to help section of Shift2Me. To do that, you can enter:
+	* help *
+	
+You can show help section for one specific command too.
+	* help summary*
+	
+2. You have access of the current job informations with "summary" command. You can see what cutoff is selected, the datas directory, residues filtered (complete and incomplete too).
+	* summary *
+	
+For informations, complete residus list is the whole residues read in files load, incomplete residues are residues not retained in the job because all informations aren't mentionned (like chemical shift of 1H or 15N for exemple), finnally filtered residues are residues under the cutoff when the user select one cutoff. For more informations refer to cutoff or histogram section.
+
+3. You can see all commands enter during the current job, in this cas write "history". All commands and informations displayed on the standard output aduring job are redisplay with this command. 
+	* history *
+	
+##3-Concentrations and volumes :
+
+1. You have the possibility to indicate all titrations informations in a JSON file named * "titration.ini" *. To initialze this file, you can use the command :
+	* init *
+
+After this, open "titration.ini" in Shift2Me directory root and write titrations informations. This informations will be used for the titration curve. All volumes are in µL and concentrations are in µM. For exemple :
+
+	{
+	  "start_volume": {										-> initials volumes.
+	    "analyte": 45,										-> initial volume of the titrated protein (µL).
+	    "total": 200										-> intial total volume of the experimental solution (µL).
+	},
+  	"analyte": {											-> titrated protein's section (similar to ligand).
+    	"concentration": 375,								-> titrated protein's concentration in the intial solution(µM).
+    	"name": "UIM-SH3"									-> titrated protein's name.
+  	},
+  	"titrant": 												-> titrating protein's section.
+    	"concentration": 2000,								-> titrating protein's concentration in the intial solution(µM).
+    	"name": "pep"										-> titrating protein's name.
+  	},
+  	"add_volumes": [0, 2, 2, 4, 4, 4, 5, 8, 10, 10, 10]		-> volume of titrating protein add at each step(µL).
+
+Once filled, save "titration.ini" modifications. Then use "load_file" command on "titration.ini" file to load titrations informations in Shift2Me.
+
+2. If you didn't want use "titration.ini" you can enter all titrations volumes one after the other with "set_volumes" or "add_volumes" commands. "add_volumes" allow to add a new volumes (in µL). "set volumes" allow to modify current titration volumes and new volumes if you enter more volumes than volumes referenced before. This is an exemple to implement volumes for each steps in the order :
+
+	* add_volumes 8.2 *					-> 0.0, 8.2
+	* add_volumes 4.2 5.0 *				-> 0.0, 8.2, 4.2, 5.0
+	* set_volumes 7.2 *				-> 0.0, 7.2, 4.2, 5.0
+	* set_volumes	7.2 5.0 3.5 2.05 *	-> 0.0, 7.2, 5.0, 3.5, 2.5
+	
+##4-Residues selected and filtered :
+
+1. To select residues you can use "select" command,for select the residue number 214, enter:
+	* select 214 *
+For select residues 214 and 224, enter:
+	* select 212 224 *
+You can add more residues if you want respecting this pattern.
+To select all residus in the study, you can enter:
+	* select all *
+	
+2. You can deselect residues with "deselect" command. This command works like "select" command.
+	* deselect 214 *
+	* deselect 212 224 *
+	* deselect all *
+
+3. To select a cutoff, enter "cutoff" follow by new cutoff's value. This value is in ppm.
+	* cutoff 0.52 *
+
+##5-Titration curve, 2D shift map and histograms :
+ 
+1. To diplay titration curve, enter "curve" command follow by a residue number. You can observe the intensity of chemical shift variations (in ppm) of one residue in function of the proportion of the titrating protein's concentration (in µM) under the titrated protein's concentration (in µM) : similar of the proportion of [ligand]/[protein].
+	* curve 224 *
+	
+2. You can watch the whole 2D shift map with (x= 1H ppm, y= 15N ppm). At any time you can access to shiftmap help with enter "shiftmap" command. On the 2D shift map you can observe all chemicals shifts for residues for each titration steps. Chemicals shifts are modeled on the graph with differents colors (one color by step). You have access at all "shiftmap" command's options writing this:
+	* shiftmap * 				-> return "complete, filtered, selected"
+	
+To watch all residues retained in the study, enter :
+	* shiftmap complete *
+ 
+If you want oberserve other 2D shift map with residues selected or filtered residues.
+	* shiftmap filtered *
+	* shiftmap selected *
+	
+Residues selected can be watch after select residues with the command "select". To watch all residues filtered you must filtered him in the histograms. Please refer you to "select" command section and "histogram" section. 
+
+3. To observe filtered residues implicated in protein-protein intercation, you can select them with "hist" command. To display all histograms of chemicals shifts, for all steps and all residues retained in the study, enter : 
+	* hist all * , or * hist 0 *
+	
+If you want select only one histogram for one step (for exemple the fifth), enter:
+	* hist 5 *
+To show the last histogram, enter:
+	* hist *
+	
+With the mouse, you can select a new cutoff with one drag and drop on the histogram. Chemicals shift bigger than cutoff are colored in orange, others chemicals shift are colored in blue. Only chemicals shifts bigger than cutoff are retained by the filter, you can display corresponding residues in 2D shift map with "shiftmap filtered" command.
+
+You can select a new cutoff out of histogram section with "cutoff" command too.
+
+##6-Save and load:
+
+1. At any time you can save your current job with "save_job" command. In a next session, you have just to load the save file to find your last save job. To do that use "load_job" command. If you not refer the save format it's ok, Shift2Me save your job in pkl (binary) format automaticly ! Beacause saves files will be in a binary format, you can't read them out of Shift2Me. 
+	* save_job data/listes/listPP/save *
+	* load_job data/listes/listPP/save.pkl *
+
+2. You can load a new experimental file during a job with "load" command. Loading file allow to display on standard output the whole datas contents in the file too.
+	* load data/listes/listPP/15N_UIM-SH3-37_12.list *
+
+Once done, you can reselect cutoff, residues, ...	
+	
+##7-Exit Shift2Me:
+
+1. To quit Shift2Me, enter "quit" command. You will go back to the bash shell of Linux.
+	* quit *
+
+------------------------------------------
+
+#Commands:
+
+------------------------------------------
+
+##1-Launch Shift2Me :
+
+1. Launch Shift2Me :
+	
+	Launch Shift2Me program associate with datas directory.
+		Example : python3 shift2me.py data/listes/listPP
+		
+	Usage : python3 shift2me.py [directory path]
+	
+##2-Basics commands :
+
+1. Help command:
+
+	Help section of Shift2Me.
+		Example : help
+		Example : ?
+	
+	Usage :	help
+	Usage : ?
+	
+2. Summary :
+	
+	Summary all residues selected, filtered, complete, ... in the job.
+		Example : summary
+	
+	Usage : summary
+	
+3. History :
+	
+	Display all commands use during the current job.
+		Example : history
+	
+	Usage : history
+
+##3-Concentrations and volumes :
+
+1. Add a new step :
+
+	Add a titration file as next step. Associate a volume to this step with -v option.
+        Example : add_step titration_10.list -v 10
+        
+	Usage: add_step [options] <titration_file_##.list>
+
+	Options:
+  	-h, --help            show this help message and exit
+  	-v VOLUME, --volume=VOLUME
+                        Volume of titrant solution to add titration step
+2. Add a new volume :
+
+	Add a titration file as next step. Associate a volume to this step with -v option.
+        Example : add_step titration_10.list -v 10
+        
+	Usage: add_step [options] <titration_file_##.list>
+
+	Options:
+  	-h, --help            show this help message and exit
+  	-v VOLUME, --volume=VOLUME
+                        Volume of titrant solution to add titration step
+                        
+curve
+	Show titration curve of one or several residues.
+	Usage: curve residue [residue ...]
+
+	Options:
+  	-h, --help  show this help message and exit
+
+cutoff
+
+deselect (?)
+dump_protocole (?)
+filter(?)
+
+hist
+
+history
+
+init
+
+load
+
+load_job
+
+quit
+
+residues [filtered | selected | complete | incomplete]
+
+save 
+
+save_job
+
+select [filtered | selected | complete | incomplete]
+
+shiftmap [filtered | selected | complete]
+
+shortcuts
+	!: shell
+	?: help
+	@: load	
+	@@: _relative_load
+
+status 
