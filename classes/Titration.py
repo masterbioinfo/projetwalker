@@ -39,55 +39,15 @@ class BaseTitration(object):
 
     INIT_FIELDS=('name', 'analyte', 'titrant', 'start_volume', 'add_volumes')
 
-    def __init__(self, initFile=None):
-        self.isInit = False
-        self.initFile = None
-        self.name = "Unnamed Titration"
-        self.analyte = {
-            "name" : "analyte",
-            "concentration" : 0
-        }
-        self.titrant = {
-            "name" : "titrant",
-            "concentration" : 0
-        }
-        self.startVol = 0
-        self.analyteStartVol = 0
+    def __init__(self, initStream=None, **kwargs):
 
+        self.isInit = False
         self.steps = 0
 
-        self.volumes = list()
-        if initFile is not None:
-            self.load_init_file(initFile)
-
-        self.FIELDS = {
-            'steps': {'description': 'Step'},
-            'vol_add': {
-                'description': '{titrant} vol added'.format(titrant=self.titrant['name']),
-                'unit': 'µL'
-            },
-            'vol_cumul': {
-                'description': 'Total {titrant} vol'.format(titrant=self.titrant['name']),
-                'unit': 'µL'
-            },
-            'vol_tot': {
-                'description': 'Total vol',
-                'unit': 'µL'
-            },
-            'conc_titrant': {
-                'description': '[{titrant}]'.format(titrant=self.titrant['name']),
-                'unit': 'µM'
-            },
-            'conc_analyte': {
-                'description':'[{analyte}]'.format(analyte=self.analyte['name']),
-                'unit': 'µM'
-            },
-            'conc_ratio': {
-                'description': '[{titrant}]/[{analyte}]'.format(
-                    titrant=self.titrant['name'], analyte=self.analyte['name']),
-                'unit': 'µM'
-            }
-        }
+        if initStream is not None: # init from file
+            self.load_init_file(initStream)
+        elif kwargs: # init from dict
+            self.load_init_dict(kwargs)
 
 
 ## -------------------------------------------------
@@ -99,15 +59,18 @@ class BaseTitration(object):
         return self.name
 
     def add_volume(self, volume):
+        "Add a volume for next protocole step"
         self.steps += 1
         self.volumes.append(volume)
         return self.steps
 
     def set_volumes(self, volumes):
+        "Set tiration volumes, updating steps to match number of volumes"
         self.steps = len(volumes)
         self.volumes = list(map(float, volumes))
 
     def update_volumes(self, stepVolumes):
+        "Updates protocole volume from a dict \{step_nb: volume\}"
         try:
             for step, vol in stepVolumes.items():
                 self.volumes[step] = vol
@@ -115,6 +78,7 @@ class BaseTitration(object):
             print("{step} does not exist".format(step=step), file=sys.stderr)
 
     def add_volumes(self, volumes):
+        "Add a list of volumes for next protocole steps"
         for vol in volumes:
             self.add_volume(vol)
         return self.steps
@@ -205,32 +169,27 @@ class BaseTitration(object):
             table.add_column(col)
         return table
 
+
 ## -----------------------------------------------------
 ##         Input/output
 ## -----------------------------------------------------
-    def extract_init_file(self, dirPath):
+
+    @staticmethod
+    def extract_init_file(dirPath):
         initFileList = glob.glob(os.path.join(dirPath, '*.yml')) or glob.glob(os.path.join(dirPath,'*.json'))
         if len(initFileList) > 1:
             initFile = min(initFileList, key=os.path.getctime)
             raise ValueError("{number} init files found in {source}. Using most recent one : {file}".format(
-                                number=len(initFileList), source=dirPath, file=self.initFile ))
+                                number=len(initFileList), source=dirPath, file=initFile ))
         elif initFileList:
             initFile = initFileList.pop()
         else:
             initFile = None
         return initFile
 
-    def check_init_file(self, initFile):
+    @staticmethod
+    def validate_init_dict(initDict):
         try:
-            root, ext = os.path.splitext(initFile)
-            if ext == '.yml':
-                    loader = yaml
-            elif ext == '.json':
-                    loader = json
-            else:
-                raise IOError("Invalid init file extension for {init} : accepted are .yml or .json".format(init=initFile))
-            with open(initFile, 'r') as initHandle:
-                initDict = loader.load(initHandle)
             for role in ['titrant', 'analyte']:
                 concentration = float(initDict[role]['concentration'])
                 if concentration <=0:
@@ -245,33 +204,85 @@ class BaseTitration(object):
                 raise ValueError("Initial analyte volume ({analyte}) cannot be greater than total volume {total}".format(analyte=volAnalyte, total=volTotal))
             return initDict
         except TypeError as typeError:
-            print("Could not convert value to number : %s" % typeError)
-            return None
-        except IOError as fileError:
-            print("{error}".format(error=fileError), file=sys.stderr)
-            return None
-        except KeyError as parseError:
-            print("Missing required data in init file. Please check it is accurately formatted as JSON.")
-            print("Hint: {error}".format(error=parseError), file=sys.stderr)
-            return None
-        except (ValueError,YAMLError) as valError:
-            print("Error : {error}".format(error=valError), file=sys.stderr)
-            return None
+            typeError.args = ("Could not convert value to number : {error}".format(error=typeError), )
+            raise
+        except KeyError as keyError:
+            keyError.args = ("Missing required data for protocole initialization. Hint: {error}".format(error=keyError), )
+            raise
 
-    def load_init_file(self, initFile):
-        print("[Init]\t\tLoading titration protocole from {init}".format(init=initFile))
-        initDict = self.check_init_file(initFile)
+    def load_init_path(self, initFile):
+        root, ext = os.path.splitext(initFile)
+        if ext == '.yml':
+                loader = yaml
+        elif ext == '.json':
+                loader = json
+        else:
+            raise IOError("Invalid init file extension for {init} : accepted are .yml or .json".format(init=initFile))
+        try:
+            with open(initFile, 'r') as initStream:
+                self.load_init_file(initStream, loader)
+        except IOError as error:
+            raise
+            return
+
+        print("[Protocole]\tLoading protocole parameters from {initFile}".format(
+            initFile=initFile), file=sys.stderr)
+
+    def load_init_file(self, initStream, loader=yaml):
+        try:
+            initDict = loader.load(initStream)
+            if initDict:
+                self.load_init_dict(initDict)
+            return self.isInit
+        except IOError as fileError:
+            raise
+        except (ValueError,yaml.YAMLError) as valError:
+            valError.args = ("Error : {error}".format(error=valError), )
+            raise
+
+    def load_init_dict(self, initDict):
+        initDict = self.validate_init_dict(initDict)
         if initDict is None:
             return
         self.titrant = initDict['titrant']
         self.analyte = initDict['analyte']
-        self.name = initDict.get('name') or self.name
+        for initConcentration in (self.titrant, self.analyte):
+            initConcentration['concentration'] = float(initConcentration['concentration'])
+        self.name = initDict.get('name', self.name or 'Unnamed Titration')
         self.analyteStartVol = float(initDict['start_volume']['analyte'])
-        self.startVol = initDict['start_volume']['total']
-        if initDict.get('add_volumes'):
-            self.set_volumes(initDict['add_volumes'])
-        self.initFile=initFile
+        self.startVol = float(initDict['start_volume']['total'])
+        self.set_volumes(initDict.get('add_volumes', []))
         self.isInit = True
+
+        self.FIELDS = {
+            'steps': {'description': 'Step'},
+            'vol_add': {
+                'description': '{titrant} vol added'.format(titrant=self.titrant['name']),
+                'unit': 'µL'
+            },
+            'vol_cumul': {
+                'description': 'Total {titrant} vol'.format(titrant=self.titrant['name']),
+                'unit': 'µL'
+            },
+            'vol_tot': {
+                'description': 'Total vol',
+                'unit': 'µL'
+            },
+            'conc_titrant': {
+                'description': '[{titrant}]'.format(titrant=self.titrant['name']),
+                'unit': 'µM'
+            },
+            'conc_analyte': {
+                'description':'[{analyte}]'.format(analyte=self.analyte['name']),
+                'unit': 'µM'
+            },
+            'conc_ratio': {
+                'description': '[{titrant}]/[{analyte}]'.format(
+                    titrant=self.titrant['name'], analyte=self.analyte['name']),
+                'unit': 'µM'
+            }
+        }
+
         return self.isInit
 
     def dump_init_file(self, initFile=None):
@@ -308,70 +319,69 @@ class Titration(BaseTitration):
     IGNORE_LINE_PATTERN = re.compile(r"^\d.*")
 
 
-    def __init__(self, source = None, name=None, cutoff = None, initFile=None, **kwargs):
+    def __init__(self, name=None, cutoff=None, **kwargs):
         """
         Load titration files, check their integrity
         `source` is either a directory containing `.list` file, or is a list of `.list` files
         Separate complete vs incomplete data
         """
 
+        BaseTitration.__init__(self, **kwargs)
+
         self.name = ""
+
         self.residues = dict() # all residues {position:AminoAcid object}
         self.complete = dict() # complete data residues
-        self.incomplete = dict() # incomplete data res
-        self.selected = dict()
+        self.incomplete = dict() # incomplete data residues
+        self.selected = dict() # selected residues
         self.intensities = list() # 2D array of intensities
+
         self.dataSteps = 0
         self.cutoff = None
-        self.source = None
-        self.files = []
-        self.dirPath = None
-        # init plots
-        self.stackedHist = None
-        self.hist = dict()
 
-        BaseTitration.__init__(self)
+        self.files = []
+
+        #BaseTitration.__init__(self)
 
         ## FILE PATH PROCESSING
         # fetch all .list files in source dir, parse
         # add a step for each file
-        if source:
-            try:
-                self.files = self.update(source)
-            except IOError as error:
-                print("{error}".format(error=error), file=sys.stderr)
-                exit(1)
-
-
-        ## TITRATION PARAMETERS
-        if self.dirPath and initFile is None:
-            initFile = self.extract_init_file(self.dirPath)
-        super().__init__(initFile)
-
 
         ## INIT CUTOFF
         if cutoff:
             self.set_cutoff(cutoff)
 
         ## finish
-        if not self.name:
-            self.name = "Unnamed Titration"
+        self.name = self.name or "Unnamed Titration"
 
 
-## --------------------------------
-##    Titration + RMN Analysis
-## --------------------------------
+## ---------------------------------------------
+##      Titration + RMN Analysis
+## ---------------------------------------------
 
+    def set_sequence(self, sequence, offset=0):
+        raise NotImplementedError
 
-    def add_step(self, titrationFile, volume=None):
+    def add_step(self, fileName, titrationStream, volume=None):
         "Adds a titration step described in `titrationFile`"
+        print("[Step {step}]\tLoading NMR data from {titration_file}".format(
+            step=self.dataSteps, titration_file=fileName),
+            file=sys.stderr)
 
-        print("[Step {step}]\tLoading NMR data from {titration_file}".format(step=self.dataSteps, titration_file=titrationFile), file=sys.stderr)
         # verify file
-        step = self.validate_filepath(titrationFile, verifyStep=True)
+        step = self.validate_filepath(fileName, verifyStep=True)
         # parse it
-        self.parse_titration_file(titrationFile)
+        try:
+            self.parse_titration_file(titrationStream)
+        except ValueError as parseError:
+            print("{error} in file {file}.".format(
+                error=parseError, file=fileName),
+                file=sys.stderr)
+            return
+
         self.dataSteps += 1
+        self.files.append(fileName)
+
         if volume is not None:
             if self.steps < self.dataSteps:
                 super().add_volume(volume)
@@ -379,7 +389,7 @@ class Titration(BaseTitration):
                 super().update_volumes({step:volume})
 
 
-        # create data-empty residues for missing positions
+        # create residues with no data for missing positions
         for pos in range(min(self.residues), max(self.residues)):
             if pos not in self.residues:
                 self.residues.update({pos: AminoAcid(position=pos)})
@@ -393,33 +403,17 @@ class Titration(BaseTitration):
                 self.incomplete.update({pos:res})
 
         print("\t\t{incomplete} incomplete residue out of {total}".format(
-             incomplete=len(self.incomplete), total=len(self.complete)), file=sys.stderr)
+             incomplete=len(self.incomplete), total=len(self.complete)),
+             file=sys.stderr)
 
         # Recalculate (position, chem shift intensity) coordinates for histogram plot
         self.intensities = [] # 2D array, by titration step then residu position
         for step in range(self.dataSteps): # intensity is null for reference step, ignoring
             self.intensities.append([residue.chemshiftIntensity[step] for residue in self.complete.values()])
-        # generate colors for each titration step
-        self.colors = plt.cm.get_cmap('hsv', self.dataSteps)
-        # close stale stacked hist
-        if self.stackedHist and not self.stackedHist.closed:
-            self.stackedHist.close()
 
     def set_cutoff(self, cutoff):
         "Sets cut off for all titration steps"
-        try:
-            # check cut off validity and store it
-            cutoff = float(cutoff)
-            self.cutoff = cutoff
-            # update cutoff in open hists
-            for hist in self.hist.values():
-                hist.set_cutoff(cutoff)
-            if self.stackedHist:
-                self.stackedHist.set_cutoff(cutoff)
-            return self.cutoff
-        except TypeError as err:
-            print("Invalid cut-off value : {error}".format(error=err), file=sys.stderr)
-            return self.cutoff
+        raise NotImplementedError
 
     def validate_filepath(self, filePath, verifyStep=False):
         """
@@ -432,36 +426,35 @@ class Titration(BaseTitration):
             if verifyStep and int(matching.group("step")) != self.dataSteps:
                 raise IOError("File {file} expected to contain data for titration step #{step}."
                                 "Are you sure this is the file you want ?"
-                                "In this case it must be named like *{step}.list".format(file=filePath, step=self.dataSteps))
+                                "In this case it must be named like (name){step}.list".format(
+                                    file=filePath, step=self.dataSteps))
             # retrieve titration step number parsed from file name
             return int(matching.group("step"))
         else:
             # found incorrect line format
-            raise IOError("Refusing to parse file {file}.\nPlease check it is named like (name)(step).list".format(file=filePath))
+            raise IOError("Refusing to parse file {file}.\nPlease check it is named like (name)(step).list".format(
+                file=filePath))
 
-
-
-    def parse_titration_file(self, titrationFile):
+    def parse_titration_file(self, stream):
         """
         Titration file parser.
         Returns a new dict which keys are residues' position and values are AminoAcid objects.
         If residues argument is provided, updates AminoAcid by adding parsed chemical shift values.
         Throws ValueError if incorrect lines are encountered in file.
         """
-        try :
-            with open(titrationFile, "r", encoding = "utf-8") as titration:
-                for lineNb, line in enumerate(titration) :
-                    try:
-                        self.parse_line(line)
-                    except ValueError as parseError:
-                        print("{error} at line {line} in file {file}".format(
-                            error=parseError, line=lineNb, file=titrationFile), file=sys.stderr)
-                        continue
-        except IOError as fileError:
-            print("{error}".format(error=fileError), file=sys.stderr)
-            return
+        for lineNb, line in enumerate(stream) :
+            try:
+                chemshifts = self.parse_line(line)
+                if chemshifts is not None:
+                    self.add_chemshifts(chemshifts)
+            except ValueError as parseError:
+                parseError.args = ("{error} at line {line}".format(
+                    error=parseError, line=lineNb), )
+                raise
+                continue
 
     def parse_line(self, line):
+        "Parses a line from titration file, returning a dictionnaryof parsed data"
         line = line.strip()
         # ignore empty lines and header lines
         if self.IGNORE_LINE_PATTERN.match(line):
@@ -473,7 +466,7 @@ class Titration(BaseTitration):
                 for castFunc, key in zip((float, float, int), sorted(chemshifts)):
                     chemshifts[key] = castFunc(chemshifts[key])
                 # add or update residue
-                return self.add_chemshifts(chemshifts)
+                return chemshifts
             else:
                 # non parsable, non ignorable line
                 raise ValueError("Found unparsable line")
@@ -488,6 +481,240 @@ class Titration(BaseTitration):
             # create AminoAcid object in residues dict
             self.residues[position] = AminoAcid(**chemshifts)
         return self.residues[position]
+
+
+
+
+## -------------------------
+##    Utils
+## -------------------------
+
+    def select_residues(self, *positions):
+        "Select a subset of residues"
+        for pos in positions:
+            try:
+                self.selected[pos] = self.residues[pos]
+            except KeyError:
+                print("Residue at position {pos} does not exist. Skipping selection.".format(pos=pos), file=sys.stderr)
+                continue
+        return self.selected
+
+
+    def deselect_residues(self, *positions):
+        "Deselect some residues. Calling with no arguments will deselect all."
+        try:
+            if not positions:
+                self.selected = dict()
+            else:
+                for pos in positions:
+                    self.selected.pop(pos)
+            return self.selected
+        except KeyError:
+            pass
+
+
+## --------------------------
+##    Properties
+## --------------------------
+
+    @property
+    def filtered(self):
+        "Returns list of filtered residue having last intensity >= cutoff value"
+        if self.cutoff is not None:
+            return dict([(res.position, res) for res in self.complete.values() if res.chemshiftIntensity[-1] >= self.cutoff])
+        else:
+            return dict()
+
+    @property
+    def sortedSteps(self):
+        """
+        Sorted list of titration steps, beginning at step 1.
+        Reference step 0 is ignored.
+        """
+        return list(range(1,self.dataSteps))
+
+    @property
+    def added(self):
+        return self.volumes[:self.dataSteps] if len(volumes) >= self.dataSteps else self.volumes
+
+
+class TitrationCLI(Titration):
+
+    def __init__(self, working_directory, name=None, cutoff=None, initFile=None, **kwargs):
+
+        if not os.path.isdir(working_directory):
+            raise IOError("{dir} does not exist")
+            exit(1)
+
+        self.dirPath = working_directory
+
+        Titration.__init__(self, name=name, **kwargs)
+
+        # init plots
+        self.stackedHist = None
+        self.hist = dict()
+
+        ## FILE PATH PROCESSING
+        # fetch all .list files in source dir, parse
+        # add a step for each file
+        try:
+            self.update()
+        except IOError as error:
+            print("{error}".format(error=error), file=sys.stderr)
+            exit(1)
+
+        initFile = initFile or self.extract_init_file(self.dirPath)
+
+        if initFile: self.load_init_path(initFile)
+
+        if cutoff:
+            self.set_cutoff(cutoff)
+
+
+    def add_step(self, titrationFilePath, volume=None):
+        try:
+            with open(titrationFilePath, 'r') as titrationStream:
+                Titration.add_step(self, titrationFilePath, titrationStream, volume=volume)
+
+            # generate colors for each titration step
+            self.colors = plt.cm.get_cmap('hsv', self.dataSteps)
+
+            # close stale stacked hist
+            if self.stackedHist and not self.stackedHist.closed:
+                self.stackedHist.close()
+
+        except IOError as fileError:
+            print("{error}".format(error=fileError), file=sys.stderr)
+            return
+
+
+    def set_cutoff(self, cutoff):
+        "Sets cut off for all titration steps"
+        try:
+            # check cut off validity and store it
+            cutoff = float(cutoff)
+            self.cutoff = cutoff
+            # update cutoff in open hists
+            for hist in self.hist.values():
+                hist.set_cutoff(cutoff)
+            if self.stackedHist:
+                self.stackedHist.set_cutoff(cutoff)
+            return self.cutoff
+        except TypeError as err:
+            print("Invalid cut-off value : {error}".format(
+                error=err), file=sys.stderr)
+            return self.cutoff
+
+## -------------------------
+##    Utils
+## -------------------------
+
+    def extract_dir(self, directory = None):
+        extract_dir = directory or self.dirPath
+        if not ( extract_dir and os.path.isdir(extract_dir)): return []
+
+        extract_dir = os.path.abspath(extract_dir)
+
+        # update protocole if init file is present
+        initFile = self.extract_init_file(extract_dir)
+        if initFile:
+            with open(initFile, 'r') as initStream:
+                self.load_init_file(initStream)
+
+        files = set(glob.glob(os.path.join(extract_dir, '*.list')))
+        if len(files) < 1:
+            raise ValueError("Directory {dir} does not contain any `.list` titration file.".format(
+                dir=extract_dir))
+        return files
+
+    def extract_source(self, source=None):
+        """
+        Handles source data depending on type (file list, directory, saved file).
+        """
+        source = source or self.dirPath
+        # extract list of files
+        if type(source) is list:
+            if len(source) <= 1:
+                if os.path.isdir(source[0]):
+                    files = self.extract_dir(source.pop())
+            for file in source:
+                if not os.path.isfile(file):
+                    raise IOError("{path} is not a file.".format(path=file))
+                    return
+            files = set(map(os.path.abspath, source))
+        elif os.path.isdir(source):
+            files=self.extract_dir(source)
+        else:
+            files = set(source)
+        return files
+
+    def update(self, source=None):
+        files = self.extract_source(source)
+
+        # exclude already known files
+        files = files.difference(set(self.files))
+
+        # sort files before adding them
+        try:
+            files = sorted(files, key=self.validate_filepath)
+        except (ValueError, IOError) as error:
+            raise
+            return
+
+        # load files
+        for file in files:
+            self.add_step(file)
+
+        return files
+
+    def save(self, path):
+        "Save method for titration object"
+        try:
+            # matplotlib objects can't be saved
+            stackedHist = self.stackedHist
+            hist = self.hist
+            self.stackedHist= None
+            self.hist = dict()
+            with open(path, 'wb') as saveHandle:
+                pickle.dump(self, saveHandle)
+            # restore matplotlib objects
+            self.stackedHist = stackedHist
+            self.hist = hist
+        except IOError as fileError:
+            print("Could not save titration : {error}\n".format(error=fileError), file=sys.stderr)
+
+    def load(self, path):
+        "Loads previously saved titration in place of current instance"
+        try:
+            with open(path, 'rb') as loadHandle:
+                self = pickle.load(loadHandle)
+                if type(self) == Titration:
+                    return self
+                else:
+                    raise ValueError("{file} does not contain a Titration object".format(file=path))
+        except (ValueError, IOError) as loadError:
+            print("Could not load titration : {error}\n".format(error=loadError), file=sys.stderr)
+
+## -------------------------------------------
+##      Properties
+## -------------------------------------------
+
+    @property
+    def summary(self):
+        "Returns a short summary of current titration status as string."
+        summary = '\n'.join(["--------------------------------------------",
+                            "> {name}".format(name=self.name),
+                            "--------------------------------------------",
+                            "Source dir :\t{dir}".format(dir=self.dirPath),
+                            "Steps :\t\t{steps} (reference step 0 to {last})".format(steps=self.dataSteps, last=max(self.dataSteps -1, 0)),
+                            "Cut-off :\t{cutoff}".format(cutoff=self.cutoff),
+                            "Total residues :\t\t{res}".format(res=len(self.residues)),
+                            " - Complete residues :\t\t{complete}".format(complete=len(self.complete)),
+                            " - Incomplete residues :\t{incomplete}".format(incomplete=len(self.incomplete)),
+                            " - Filtered residues :\t\t{filtered}".format(filtered=len(self.filtered)),
+                            "--------------------------------------------\n"  ])
+        return summary
+
 
 ## ------------------------
 ##    Plotting
@@ -539,6 +766,7 @@ class Titration(BaseTitration):
 
 
     def plot_titration(self, residue):
+        "Plots a titration curve for `residue`, using intensity at each step"
         curve = TitrationCurve(self.concentrationRatio[:self.dataSteps], residue,
                                 titrant=self.titrant['name'],
                                 analyte=self.analyte['name'])
@@ -546,164 +774,3 @@ class Titration(BaseTitration):
         return curve
 
 
-## -------------------------
-##    Utils
-## -------------------------
-
-    def extract_source(self, source):
-        """
-        Handles source data depending on type (file list, directory, saved file).
-        Should be called only on __init__()
-        """
-        files = []
-        if not source:
-            return files
-        if type(source) is list:
-            if len(source) <= 1:
-                file = source.pop()
-                if file.endswith('.pkl'):
-                    return self.load(file)
-                elif os.path.isdir(file):
-                    self.dirPath = os.path.abspath(file)
-                    files = glob.glob(os.path.join(self.dirPath, '*.list'))
-                    if len(files) < 1:
-                        raise ValueError("Directory {dir} does not contain any `.list` titration file.".format(
-                            dir=self.dirPath))
-                else:
-                    return file
-                if self.dirPath is None:
-                    self.dirPath = os.path.dirname(file)
-            else:
-                for file in source:
-                    if not os.path.isfile(file):
-                        raise IOError("{path} is not a file.".format(path=file))
-                        return
-                files = list(map(os.path.abspath, source))
-                if self.dirPath is None:
-                    self.dirPath = os.path.dirname(files[0])
-
-
-        return files
-
-    def update(self, source=None):
-        files = []
-        if not source:
-            if self.dirPath:
-                files = self.extract_source(self.dirPath)
-            else:
-                raise IOError("Nothing to update from, please provide an argument (files or directory path)")
-                return
-        else:
-            files = self.extract_source(source)
-        # exclude already known file
-        files = [ file for file in files if file not in self.files ]
-        try:
-            files = sorted(files, key=self.validate_filepath)
-        except (ValueError, IOError) as error:
-            raise error
-            return
-        for file in files:
-            self.add_step(file)
-        if self.dirPath:
-            initFile = self.extract_init_file(self.dirPath)
-            if initFile:
-                self.load_init_file(initFile)
-        return files
-
-
-    def select_residues(self, *positions):
-        "Select a subset of residues"
-        for pos in positions:
-            try:
-                self.selected[pos] = self.residues[pos]
-            except KeyError:
-                print("Residue at position {pos} does not exist. Skipping selection.".format(pos=pos), file=sys.stderr)
-                continue
-        return self.selected
-
-
-    def deselect_residues(self, *positions):
-        "Deselect some residues. Calling with no arguments will deselect all."
-        try:
-            if not positions:
-                self.selected = dict()
-            else:
-                for pos in positions:
-                    self.selected.pop(pos)
-            return self.selected
-        except KeyError:
-            pass
-
-
-    def save(self, path):
-        "Save method for titration object"
-        try:
-            # matplotlib objects can't be saved
-            stackedHist = self.stackedHist
-            hist = self.hist
-            self.stackedHist= None
-            self.hist = dict()
-            with open(path, 'wb') as saveHandle:
-                pickle.dump(self, saveHandle)
-            # restore matplotlib objects
-            self.stackedHist = stackedHist
-            self.hist= hist
-        except IOError as fileError:
-            print("Could not save titration : {error}\n".format(error=fileError), file=sys.stderr)
-
-    def load(self, path):
-        "Loads previously saved titration in place of current instance"
-        try:
-            with open(path, 'rb') as loadHandle:
-                self = pickle.load(loadHandle)
-                if type(self) == Titration:
-                    return self
-                else:
-                    raise ValueError("{file} does not contain a Titration object".format(file=path))
-        except (ValueError, IOError) as loadError:
-            print("Could not load titration : {error}\n".format(error=loadError), file=sys.stderr)
-
-
-## --------------------------
-##    Properties
-## --------------------------
-
-    @property
-    def filtered(self):
-        "Returns list of filtered residue having last intensity >= cutoff value"
-        if self.cutoff is not None:
-            return dict([(res.position, res) for res in self.complete.values() if res.chemshiftIntensity[-1] >= self.cutoff])
-        else:
-            return dict()
-
-    @property
-    def sortedSteps(self):
-        """
-        Sorted list of titration steps, beginning at step 1.
-        Reference step 0 is ignored.
-        """
-        return sorted(range(1,self.dataSteps))
-
-    @property
-    def summary(self):
-        "Returns a short summary of current titration status as string."
-        summary = '\n'.join(["--------------------------------------------",
-                            "> {name}".format(name=self.name),
-                            "--------------------------------------------",
-                            "Source dir :\t{dir}".format(dir=self.dirPath),
-                            "Steps :\t\t{steps} (reference step 0 to {last})".format(steps=self.dataSteps, last=max(self.dataSteps -1, 0)),
-                            "Cut-off :\t{cutoff}".format(cutoff=self.cutoff),
-                            "Total residues :\t\t{res}".format(res=len(self.residues)),
-                            " - Complete residues :\t\t{complete}".format(complete=len(self.complete)),
-                            " - Incomplete residues :\t{incomplete}".format(incomplete=len(self.incomplete)),
-                            " - Filtered residues :\t\t{filtered}".format(filtered=len(self.filtered)),
-                            "--------------------------------------------\n"  ])
-        return summary
-
-    @property
-    def added(self):
-        return self.volumes[:self.dataSteps] if len(volumes) >= self.dataSteps else self.volumes
-
-    @property
-    def pending(self):
-        return self.volumes[self.dataSteps:] if self.dataSteps < len(volumes) else []
