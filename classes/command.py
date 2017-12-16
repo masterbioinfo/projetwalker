@@ -1,5 +1,7 @@
 import os
 from cmd2 import Cmd, options, make_option
+from classes.Titration import Titration
+from tabulate import tabulate
 
 class ShiftShell(Cmd):
     """ Command line interface wrapper for Titration
@@ -10,7 +12,8 @@ class ShiftShell(Cmd):
     def __init__(self, *args, **kwargs):
         self.cutoff=None
         self.allow_cli_args = False
-        self.titration = kwargs.get('titration')
+
+        self.titration =  kwargs.get('titration')
 
         # environment attributes
         self.name = self.titration.name
@@ -30,11 +33,13 @@ class ShiftShell(Cmd):
         self.complete_concentrations=self.path_complete
         self.complete_make_init=self.path_complete
         self.complete_init=self.path_complete
+        self.complete_update=self.path_complete
 
         self.intro = "\n".join([  "\n\n\tWelcome to Shift2Me !",
                                 "{summary}\n{intro}".format(
                                     summary=self.titration.summary,
                                     intro=self.intro)])
+
 
 ## --------------------------------------------
 ##      COMMANDS
@@ -70,8 +75,6 @@ class ShiftShell(Cmd):
         else:
             self.do_help("add_volumes")
 
-
-
     @options([], arg_desc="[<path/to/file.csv>]")
     def do_csv(self, arg, opts=None):
         """Prints each titration step experimental conditions, such as volumes and concentration of each molecule.
@@ -80,8 +83,7 @@ class ShiftShell(Cmd):
          $ csv > path/to/file.csv
         """
         if self.titration.isInit:
-            table = self.titration.protocole_as_table
-            table.write(self.stdout, format='csv')
+            self.titration.protocole.to_csv(self.stdout, index=True)
         else:
             self.pfeedback("Titration parameters are not set. Please load a protocole file.")
             self.pfeedback("See `help init`")
@@ -102,8 +104,7 @@ class ShiftShell(Cmd):
                                     "Initial volume :\t{volume} µL\n".format(
                                         volume=self.titration.startVol),
                                     "------- Current status ---------------------\n\n"]))
-            table = self.titration.protocole_as_table
-            table.write(self.stdout, format='ascii.fixed_width_two_line')
+            self.poutput(tabulate(self.titration.protocole, headers='keys', tablefmt='psql'))
         else:
             self.pfeedback("Titration parameters are not set. Please load a protocole file.")
             self.pfeedback("See `help init`")
@@ -123,17 +124,22 @@ class ShiftShell(Cmd):
         self.pfeedback("Dumped titration protocole at : {path}".format(path=path))
 
     @options([], arg_desc='<protocole>.yml')
-    def do_init(self, arg, opts=None):
+    def do_init(self, initFile, opts=None):
         """ Loads a YAML formatted file.yml describing titration protocole.
         To generate a template protocole descriptor as <file> :
             $ dump_protocole <file>.yml
         """
-        if not arg:
+        if not initFile:
             self.do_help('init')
             return
-        self.titration.load_init_file(arg)
-        self.pfeedback("Loaded protocole from {path}.".format(path = arg))
-        self.pfeedback("Use `status` command to show protocole details.")
+        initFile = " ".join(initFile) # ugly fix for cmd2 bad path completion
+        self.pfeedback("Loading protocole from {path}.".format(path = initFile))
+        try:
+            self.titration.load_init_path(initFile)
+        except Exception as error:
+            self.pfeedback(error)
+            return
+        self.pfeedback("Done. Use `status` command to show protocole details.")
 
 ## RMN ANALYSIS CMDS ---------------------------------
 
@@ -213,12 +219,10 @@ class ShiftShell(Cmd):
                 self.pfeedback(error)
                 continue
 
-
     @options([])
     def do_filter(self, args, opts=None):
         "Output residues having intensity >= cut-off"
         self.poutput(" ".join([str(pos) for pos in self.titration.filtered]))
-
 
     @options([], arg_desc="[all] [filtered] [complete] [incomplete] [positions_slice]")
     def do_select(self, args, opts=None):
@@ -281,7 +285,6 @@ class ShiftShell(Cmd):
         "Prints a summary of current titration state"
         self.poutput(self.titration.summary)
 
-
     @options([make_option('-p', '--plot', action="store_true", help="Set cut-off and plot.")], arg_desc = '<float>')
     def do_cutoff(self, args, opts=None):
         """ Sets cutoff value to filter residues with high chemshift intensity.
@@ -312,7 +315,6 @@ class ShiftShell(Cmd):
             for residue in arg:
                 self.titration.plot_titration(self.titration.complete.get(int(residue)))
 
-
     @options([make_option('-e', '--export', help="Export hist as image")],
             arg_desc='(<titration_step> | all)')
     def do_hist(self, args, opts=None):
@@ -330,7 +332,6 @@ class ShiftShell(Cmd):
 
         if opts.export: # export figure as png
             hist.figure.savefig(opts.export, dpi = hist.figure.dpi)
-
 
     @options([
         make_option('-s', '--split', action="store_true", help="Sublot each residue individually."),
@@ -356,11 +357,9 @@ class ShiftShell(Cmd):
             fig = self.titration.plot_shiftmap(residues, split=opts.split)
             if opts.export:
                 fig.savefig(opts.export, dpi=fig.dpi)
-
         except ValueError as invalidArgErr:
             self.pfeedback(invalidArgErr)
             return
-
 
 ## --------------------------------------------
 ##      UTILS

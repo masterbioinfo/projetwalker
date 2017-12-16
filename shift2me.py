@@ -4,7 +4,6 @@
 Shift2Me : 2D-NMR chemical shifts analysis for protein interactions.
 
 Usage:
-    shift2me.py [-c <cutoff>] [-i <titration.json>] [-t <file.json>] [<file.list> <file.list> ...]
     shift2me.py [-c <cutoff>] [-i <titration.json>] [-t <file.json>] ( <dir> | <saved_job> )
     shift2me.py -h
 
@@ -26,29 +25,32 @@ Authors : Hermès PARAQUINDES, Louis Duchemin, Marc-Antoine GUERY and Rainier-Nu
 
 from docopt import docopt
 from matplotlib import pyplot as plt
-from classes.Titration import BaseTitration, Titration
+from classes.Titration import BaseTitration, TitrationCLI
 from classes.command import ShiftShell
 
 
 if __name__ == '__main__':
-    args = docopt(__doc__)
-    #print(args)
+    ARGS = docopt(__doc__)
 
+    TITRATION_KWARGS = {
+        "working_directory":ARGS["<dir>"],
+        "cutoff": ARGS["--cut-off"] or 0.1,
+        "initFile": ARGS['--init-file']
+    }
 
-    source = args["<file.list>"] or args["<dir>"]
-    titration = Titration(source, cutoff=args["--cut-off"], initFile=args['--init-file'])
+    titration = TitrationCLI(**TITRATION_KWARGS)
 
     # Build titration instance
-    if args["--template"]:
-        template = args["--template"]
+    if ARGS["--template"]:
+        template = ARGS["--template"]
         templateBuilder = titration if titration.isInit else BaseTitration()
         templateBuilder.dump_init_file(initFile = template)
         print("Generated template file at {file}".format(file=template))
-        exit()
+        exit(0)
 
     # Turn off MPL interactive mode
     plt.ioff()
     # Init CLI
-    cli = ShiftShell(titration = titration)
+    CLI = ShiftShell(titration = titration)
     # Start main loop
-    cli.cmdloop()
+    CLI.cmdloop()
