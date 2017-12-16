@@ -1,6 +1,7 @@
 import os
 from cmd2 import Cmd, options, make_option
 from classes.Titration import Titration
+from tabulate import tabulate
 
 class ShiftShell(Cmd):
     """ Command line interface wrapper for Titration
@@ -82,8 +83,7 @@ class ShiftShell(Cmd):
          $ csv > path/to/file.csv
         """
         if self.titration.isInit:
-            table = self.titration.protocole_as_table
-            table.write(self.stdout, format='csv')
+            self.titration.protocole.to_csv(self.stdout, index=True)
         else:
             self.pfeedback("Titration parameters are not set. Please load a protocole file.")
             self.pfeedback("See `help init`")
@@ -104,8 +104,7 @@ class ShiftShell(Cmd):
                                     "Initial volume :\t{volume} µL\n".format(
                                         volume=self.titration.startVol),
                                     "------- Current status ---------------------\n\n"]))
-            table = self.titration.protocole_as_table
-            table.write(self.stdout, format='ascii.fixed_width_two_line')
+            self.poutput(tabulate(self.titration.protocole, headers='keys', tablefmt='psql'))
         else:
             self.pfeedback("Titration parameters are not set. Please load a protocole file.")
             self.pfeedback("See `help init`")

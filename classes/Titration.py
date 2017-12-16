@@ -18,7 +18,8 @@ import json
 import yaml
 from collections import OrderedDict
 from math import *
-from astropy.table import Table, Column, MaskedColumn
+
+import pandas as pd
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -29,33 +30,228 @@ from classes.plots import Hist, MultiHist, ShiftMap, SplitShiftMap, TitrationCur
 from classes.widgets import CutOffCursor
 
 
+## --------------------------------------------------------------------
+##      Import modules settings
+## --------------------------------------------------------------------
 
-represent_dict_order = lambda self, data:  self.represent_mapping('tag:yaml.org,2002:map', data.items())
+represent_dict_order = lambda self, data: self.represent_mapping('tag:yaml.org,2002:map', data.items())
 """ setup YAML for ordered dict output : https://stackoverflow.com/a/8661021 """
 yaml.add_representer(OrderedDict, represent_dict_order)
 
+# Setup pandas float precision
+pd.set_option('precision', 3)
+
+
+## --------------------------------------------------------------------
+##      Shift2Me classes
+## --------------------------------------------------------------------
 
 class BaseTitration(object):
 
     INIT_FIELDS=('name', 'analyte', 'titrant', 'start_volume', 'add_volumes')
+    COLUMN_ALIASES = ('vol_add', 'vol_titrant', 'vol_total', 'conc_titrant', 'conc_analyte', 'ratio')
 
     def __init__(self, initStream=None, **kwargs):
 
         self.isInit = False
-        self.steps = 0
+        self.steps = 1
+        self.titrant = {
+            "name" : 'titrant',
+            "concentration" : 0
+        }
+        self.analyte = {
+            "name" : 'analyte',
+            'concentration' : 0
+        }
+
+        self.startVol = 0
+        self.analyteStartVol = 0
+
+        self.volumes = [0]
 
         if initStream is not None: # init from file
             self.load_init_file(initStream)
         elif kwargs: # init from dict
             self.load_init_dict(kwargs)
 
+## ----------------------------------------------------------
+##      Protocole using pandas
+## ----------------------------------------------------------
+    @property
+    def protocole(self):
+        self._protocole = pd.DataFrame(index=list(range(self.steps)) or [0], columns=self.COLUMN_ALIASES, data=0)
+        self.update_protocole()
+        self.set_protocole_headers()
+        self._protocole.index.name = "Step"
+        return self._protocole
+
+    def update_protocole(self):
+        self._protocole['vol_add'] = self.volumes
+        self._protocole['vol_titrant'] = self._protocole['vol_add'].cumsum()
+        self._protocole['vol_total'] = self.startVol + self._protocole['vol_titrant']
+        self._protocole['conc_titrant'] = self._protocole['vol_titrant'] * self.titrant['concentration'] / self._protocole['vol_total']
+        self._protocole['conc_analyte'] = self.analyteStartVol * self.analyte['concentration'] / self._protocole['vol_total']
+        self._protocole['ratio'] = self._protocole['conc_titrant'] / self._protocole['conc_analyte']
+
+    def set_protocole_headers(self):
+        headers = list(map(
+            lambda s: s.format(
+                titrant=self.titrant['name'],
+                analyte=self.analyte['name']),
+            [
+                'Added {titrant} (µL)',
+                'Total {titrant} (µL)',
+                'Total volume (µL)',
+                '[{titrant}] (µM)',
+                '[{analyte}] (µM)',
+                '[{titrant}]/[{analyte}]'
+            ]))
+        self._protocole.columns = list(headers)
+
+## -----------------------------------------------------
+##         Input/output
+## -----------------------------------------------------
+
+    @staticmethod
+    def extract_init_file(dirPath):
+        initFileList = glob.glob(os.path.join(dirPath, '*.yml')) or glob.glob(os.path.join(dirPath,'*.json'))
+        if len(initFileList) > 1:
+            initFile = min(initFileList, key=os.path.getctime)
+            print("{number} init files found in {source}. Using most recent one : {file}".format(
+                                number=len(initFileList), source=dirPath, file=initFile ), 
+                                file=sys.stderr)
+        elif initFileList:
+            initFile = initFileList.pop()
+        else:
+            initFile = None
+        return initFile
+
+    def validate(self):
+        valid = True
+
+        if not self.titrant['name']: 
+            self.titrant['name'] = 'titrant'
+        if not self.analyte['name']:
+            self.analyte['name'] = 'analyte'
+
+        if self.titrant['concentration'] <= 0:
+            self.titrant['concentration'] = 0
+            valid = False
+        
+        if self.analyte['concentration'] <= 0:
+            self.analyte['concentration'] = 0
+            valid = False
+
+        if self.startVol <= 0:
+            self.startVol = 0
+            valid=False
+        if self.analyteStartVol <= 0:
+            self.analyteStartVol = 0
+            valid=False
+        if self.analyteStartVol >= self.startVol:
+            valid=False
+
+        if self.volumes[0] != 0:
+            valid=False
+        
+        return valid
+
+
+    @staticmethod
+    def validate_init_dict(initDict):
+        try:
+            for role in ['titrant', 'analyte']:
+                concentration = float(initDict[role]['concentration'])
+                if concentration <=0:
+                    raise ValueError("Invalid concentration ({conc}) for {role}".format(conc=concentration, role=role))
+
+            volAnalyte = float(initDict['start_volume']['analyte'])
+            volTotal = float(initDict['start_volume']['total'])
+            for volume in (volAnalyte, volTotal):
+                if volume <= 0:
+                    raise ValueError("Invalid volume ({vol}) for {volKey}".format(vol=volume, volKey=volumeKey))
+            if  volAnalyte > volTotal:
+                raise ValueError("Initial analyte volume ({analyte}) cannot be greater than total volume {total}".format(analyte=volAnalyte, total=volTotal))
+            return initDict
+        except TypeError as typeError:
+            typeError.args = ("Could not convert value to number : {error}".format(error=typeError), )
+            raise
+        except KeyError as keyError:
+            keyError.args = ("Missing required data for protocole initialization. Hint: {error}".format(error=keyError), )
+            raise
+
+    def load_init_path(self, initFile):
+        loaders = {
+            '.yml' : yaml,
+            '.json' : json
+        }
+        root, ext = os.path.splitext(initFile)
+
+        loader = loaders.get(ext)
+        if loader is None:
+            raise IOError("Invalid init file extension for {init} : accepted are .yml or .json".format(init=initFile))
+        
+        try:
+            with open(initFile, 'r') as initStream:
+                self.load_init_file(initStream, loader)
+        except IOError as error:
+            raise
+            return
+
+        print("[Protocole]\tLoading protocole parameters from {initFile}".format(
+            initFile=initFile), 
+            file=sys.stderr)
+
+    def load_init_file(self, initStream, loader=yaml):
+        try:
+            initDict = loader.load(initStream)
+            if initDict:
+                self.load_init_dict(initDict)
+            return self.isInit
+        except IOError as fileError:
+            raise
+        except (ValueError,yaml.YAMLError) as valError:
+            valError.args = ("Error : {error}".format(error=valError), )
+            raise
+
+    def load_init_dict(self, initDict):
+        initDict = self.validate_init_dict(initDict)
+        if initDict is None:
+            return
+
+        #set name
+        self.name = self.set_name(initDict.get('name'))
+
+        self.titrant = initDict['titrant']
+        self.analyte = initDict['analyte']
+        for initConcentration in (self.titrant, self.analyte):
+            initConcentration['concentration'] = float(initConcentration['concentration'])
+        
+        self.analyteStartVol = float(initDict['start_volume']['analyte'])
+        self.startVol = float(initDict['start_volume']['total'])
+        self.set_volumes(initDict.get('add_volumes', self.volumes))
+        self.isInit = self.validate()
+        return self.isInit
+
+    def dump_init_file(self, initFile=None):
+        try:
+            fh = open(initFile, 'w') if initFile else sys.stdout
+            yaml.dump(self.as_init_dict, fh, default_flow_style=False, indent=4)
+            if fh is not sys.stdout:
+                fh.close()
+            return initFile
+        except IOError as fileError:
+            print("{error}".format(error=fileError), file=sys.stderr)
+            return
+
+
 
 ## -------------------------------------------------
 ##         Manipulation methods
 ## -------------------------------------------------
-    def set_name(self, name):
+    def set_name(self, name=None):
         "Sets Titration instance name"
-        self.name = str(name)
+        self.name = str(name) if name is not None else self.name or "Unnamed Titration"
         return self.name
 
     def add_volume(self, volume):
@@ -83,61 +279,14 @@ class BaseTitration(object):
             self.add_volume(vol)
         return self.steps
 
-    def step_as_dict(self, step):
-        dictStep = dict()
-        dictStep["#step"] = step
-        dictStep["vol added {titrant} (µL)".format(titrant=self.titrant['name']) ] = self.volumes[step]
-        dictStep["vol {titrant} (µL)".format(titrant=self.titrant['name']) ] = self.volTitrant[step]
-        dictStep["vol total (µL)"] = self.volTotal[step]
-        dictStep["[{analyte}] (µM)".format(analyte=self.analyte['name']) ] = round(self.concentrationAnalyte[step], 4)
-        dictStep["[{titrant}] (µM)".format(titrant=self.titrant['name']) ] = round(self.concentrationTitrant[step], 4)
-        dictStep["[{titrant}]/[{analyte}]".format(titrant=self.titrant['name'], analyte=self.analyte['name']) ] = round(self.concentrationRatio[step], 4)
-        return dictStep
-
 ## -----------------------------------------------------
 ##         Properties
 ## -----------------------------------------------------
 
-    @property
-    def protocole(self):
-        order = ('steps', 'vol_add', 'vol_cumul', 'vol_tot', 'conc_titrant', 'conc_analyte', 'conc_ratio')
-        protocole={
-            'steps' : list(range(self.steps)),
-            'vol_add': self.volumes,
-            'vol_cumul' : self.volTitrant,
-            'vol_tot': self.volTotal,
-            'conc_titrant':[round(c, 4) for c in self.concentrationTitrant],
-            'conc_analyte': [round(c, 4) for c in self.concentrationAnalyte],
-            'conc_ratio' : [round(ratio,4) for ratio in self.concentrationRatio],
-        }
-        return OrderedDict([ (field, protocole[field]) for field in order ])
 
     @property
     def is_consistent(self):
         return True if len(self.volumes) == self.steps else False
-
-    @property
-    def volTitrant(self):
-        volCumul = [0]
-        for vol in self.volumes[1:]:
-            volCumul.append(volCumul[-1] + vol)
-        return volCumul
-
-    @property
-    def volTotal(self):
-        return [vol + self.startVol for vol in self.volTitrant]
-
-    @property
-    def concentrationAnalyte(self):
-        return [self.analyteStartVol*self.analyte['concentration'] / volTot for volTot in self.volTotal]
-
-    @property
-    def concentrationTitrant(self):
-        return [volTitrantStep*self.titrant['concentration'] / volTot for volTitrantStep, volTot in zip(self.volTitrant, self.volTotal)]
-
-    @property
-    def concentrationRatio(self):
-        return [concTitrant/concAnalyte for concTitrant, concAnalyte in zip(self.concentrationTitrant, self.concentrationAnalyte)]
 
     @property
     def as_init_dict(self):
@@ -154,149 +303,6 @@ class BaseTitration(object):
         }
         initDict.update([ (field, unordered[field]) for field in self.INIT_FIELDS])
         return initDict
-
-
-    @property
-    def protocole_as_table(self):
-        table = Table()
-        protocole = self.protocole
-        for key, value in protocole.items():
-            field = self.FIELDS[key]
-            name = field['description']
-            if field.get('unit'):
-                name = "{name} ({unit})".format(name=name, unit=field['unit'])
-            col = Column(value, **field, name=name)
-            table.add_column(col)
-        return table
-
-
-## -----------------------------------------------------
-##         Input/output
-## -----------------------------------------------------
-
-    @staticmethod
-    def extract_init_file(dirPath):
-        initFileList = glob.glob(os.path.join(dirPath, '*.yml')) or glob.glob(os.path.join(dirPath,'*.json'))
-        if len(initFileList) > 1:
-            initFile = min(initFileList, key=os.path.getctime)
-            raise ValueError("{number} init files found in {source}. Using most recent one : {file}".format(
-                                number=len(initFileList), source=dirPath, file=initFile ))
-        elif initFileList:
-            initFile = initFileList.pop()
-        else:
-            initFile = None
-        return initFile
-
-    @staticmethod
-    def validate_init_dict(initDict):
-        try:
-            for role in ['titrant', 'analyte']:
-                concentration = float(initDict[role]['concentration'])
-                if concentration <=0:
-                    raise ValueError("Invalid concentration ({conc}) for {role}".format(conc=concentration, role=role))
-
-            volAnalyte = float(initDict['start_volume']['analyte'])
-            volTotal = float(initDict['start_volume']['total'])
-            for volume in (volAnalyte, volTotal):
-                if volume <= 0:
-                    raise ValueError("Invalid volume ({vol}) for {volKey}".format(vol=volume, volKey=volumeKey))
-            if  volAnalyte > volTotal:
-                raise ValueError("Initial analyte volume ({analyte}) cannot be greater than total volume {total}".format(analyte=volAnalyte, total=volTotal))
-            return initDict
-        except TypeError as typeError:
-            typeError.args = ("Could not convert value to number : {error}".format(error=typeError), )
-            raise
-        except KeyError as keyError:
-            keyError.args = ("Missing required data for protocole initialization. Hint: {error}".format(error=keyError), )
-            raise
-
-    def load_init_path(self, initFile):
-        root, ext = os.path.splitext(initFile)
-        if ext == '.yml':
-                loader = yaml
-        elif ext == '.json':
-                loader = json
-        else:
-            raise IOError("Invalid init file extension for {init} : accepted are .yml or .json".format(init=initFile))
-        try:
-            with open(initFile, 'r') as initStream:
-                self.load_init_file(initStream, loader)
-        except IOError as error:
-            raise
-            return
-
-        print("[Protocole]\tLoading protocole parameters from {initFile}".format(
-            initFile=initFile), file=sys.stderr)
-
-    def load_init_file(self, initStream, loader=yaml):
-        try:
-            initDict = loader.load(initStream)
-            if initDict:
-                self.load_init_dict(initDict)
-            return self.isInit
-        except IOError as fileError:
-            raise
-        except (ValueError,yaml.YAMLError) as valError:
-            valError.args = ("Error : {error}".format(error=valError), )
-            raise
-
-    def load_init_dict(self, initDict):
-        initDict = self.validate_init_dict(initDict)
-        if initDict is None:
-            return
-        self.titrant = initDict['titrant']
-        self.analyte = initDict['analyte']
-        for initConcentration in (self.titrant, self.analyte):
-            initConcentration['concentration'] = float(initConcentration['concentration'])
-        self.name = initDict.get('name', self.name or 'Unnamed Titration')
-        self.analyteStartVol = float(initDict['start_volume']['analyte'])
-        self.startVol = float(initDict['start_volume']['total'])
-        self.set_volumes(initDict.get('add_volumes', []))
-        self.isInit = True
-
-        self.FIELDS = {
-            'steps': {'description': 'Step'},
-            'vol_add': {
-                'description': '{titrant} vol added'.format(titrant=self.titrant['name']),
-                'unit': 'µL'
-            },
-            'vol_cumul': {
-                'description': 'Total {titrant} vol'.format(titrant=self.titrant['name']),
-                'unit': 'µL'
-            },
-            'vol_tot': {
-                'description': 'Total vol',
-                'unit': 'µL'
-            },
-            'conc_titrant': {
-                'description': '[{titrant}]'.format(titrant=self.titrant['name']),
-                'unit': 'µM'
-            },
-            'conc_analyte': {
-                'description':'[{analyte}]'.format(analyte=self.analyte['name']),
-                'unit': 'µM'
-            },
-            'conc_ratio': {
-                'description': '[{titrant}]/[{analyte}]'.format(
-                    titrant=self.titrant['name'], analyte=self.analyte['name']),
-                'unit': 'µM'
-            }
-        }
-
-        return self.isInit
-
-    def dump_init_file(self, initFile=None):
-        try:
-            fh = open(initFile, 'w') if initFile else sys.stdout
-            yaml.dump(self.as_init_dict, fh, default_flow_style=False, indent=4)
-            if fh is not sys.stdout:
-                fh.close()
-            return initFile
-        except IOError as fileError:
-            print("{error}".format(error=fileError), file=sys.stderr)
-            return
-
-
 
 
 ##----------------------------------------------------------------------------------------------------------
