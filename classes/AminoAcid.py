@@ -30,6 +30,8 @@ class AminoAcid(object):
         self._deltaChemshiftH = None
         self._deltaChemshiftN = None
         self._chemshiftIntensity = None
+        self.code = kwargs.get('code')
+
     def __str__(self):
         return str((self.position, self.chemshiftH, self.chemshiftN))
 
