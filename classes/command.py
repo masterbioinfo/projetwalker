@@ -213,7 +213,7 @@ class ShiftShell(Cmd):
             try:
                 if arg not in argMap:
                     raise ValueError("Skipping invalid argument {arg}.".format(arg=arg))
-                self.poutput(" ".join([str(res.position) for res in argMap[arg].values()]))
+                self.poutput(" ".join(sorted([str(res.position) for res in argMap[arg].values()])))
 
             except ValueError as error:
                 self.pfeedback(error)
@@ -245,14 +245,15 @@ class ShiftShell(Cmd):
             "complete" : self.titration.complete,
             "incomplete" : self.titration.incomplete
         }
-        selection = []
+        selection = set()
         for arg in args:
             if arg in argMap:
                 args.remove(arg)
-                selection += list(argMap[arg])
+                selection.add(argMap[arg])
 
-        selection += self.parse_residue_slice(args)
-        self.titration.select_residues(*selection)
+        # parse remaining args as residue slice
+        selection |= self.parse_residue_slice(args)
+        self.titration.select_residues(*sorted(selection))
 
 
     @options([])
@@ -371,7 +372,7 @@ class ShiftShell(Cmd):
             5:8 will yield 5,6,7
             5: will yield all positions from 5 to last.
         """
-        selection = []
+        selection = set()
         for arg in sliceList:
             arg = arg.split(':')
             arg = [ int(subArg) if subArg else None for subArg in arg]
@@ -379,13 +380,13 @@ class ShiftShell(Cmd):
                 if all(subArg is None for subArg in arg):
                     break
                 elif arg[0] is None:
-                    selection += range(min(self.titration.residues), arg[1])
+                    selection |= set(range(min(self.titration.residues), arg[1]))
                 elif arg[1] is None:
-                    selection += range(arg[0], max(self.titration.residues))
+                    selection |= set(range(arg[0], max(self.titration.residues)))
                 else:
-                    selection += range(sorted(arg))
+                    selection |= set(range(*sorted(arg)))
             elif len(arg) == 1:
-                selection += arg
+                selection.add(arg)
             else:
                 break
         return selection
