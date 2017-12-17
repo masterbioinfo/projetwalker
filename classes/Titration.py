@@ -229,7 +229,7 @@ class BaseTitration(object):
         
         self.analyteStartVol = float(initDict['start_volume']['analyte'])
         self.startVol = float(initDict['start_volume']['total'])
-        self.set_volumes(initDict.get('add_volumes', self.volumes)[0].split())
+        self.set_volumes(initDict.get('add_volumes', self.volumes))
         self.isInit = self.validate()
         return self.isInit
 
