@@ -262,8 +262,8 @@ class BaseTitration(object):
 
     def set_volumes(self, volumes):
         "Set tiration volumes, updating steps to match number of volumes"
-        self.steps = len(volumes)
-        self.volumes = list(map(float, volumes))
+        self.steps = len(volumes[0].split(","))
+        self.volumes = list(map(float, volumes[0].split(",")))
 
     def update_volumes(self, stepVolumes):
         "Updates protocole volume from a dict \{step_nb: volume\}"
