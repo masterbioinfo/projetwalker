@@ -383,7 +383,7 @@ class ShiftShell(Cmd):
                 elif arg[1] is None:
                     selection += range(arg[0], max(self.titration.residues))
                 else:
-                    selection += range(sorted(arg))
+                    selection += range(arg[0], arg[1])
             elif len(arg) == 1:
                 selection += arg
             else:
