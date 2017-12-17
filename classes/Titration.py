@@ -77,15 +77,22 @@ class BaseTitration(object):
 ## ----------------------------------------------------------
 ##      Protocole using pandas
 ## ----------------------------------------------------------
+## ----------------------------------------------------------
     @property
     def protocole(self):
+        return self.make_protocole()
+
+    def make_protocole(self, index=True):
         self._protocole = pd.DataFrame(index=list(range(self.steps)) or [0], columns=self.COLUMN_ALIASES, data=0)
         self.update_protocole()
         self.set_protocole_headers()
-        self._protocole.index.name = "Step"
+        if index:
+            self._protocole.set_index('Step', inplace=True)
         return self._protocole
 
+
     def update_protocole(self):
+        self._protocole['step'] = list(range(self.steps))
         self._protocole['vol_add'] = self.volumes
         self._protocole['vol_titrant'] = self._protocole['vol_add'].cumsum()
         self._protocole['vol_total'] = self.startVol + self._protocole['vol_titrant']
@@ -99,6 +106,7 @@ class BaseTitration(object):
                 titrant=self.titrant['name'],
                 analyte=self.analyte['name']),
             [
+                'Step',
                 'Added {titrant} (µL)',
                 'Total {titrant} (µL)',
                 'Total volume (µL)',
@@ -118,7 +126,7 @@ class BaseTitration(object):
         if len(initFileList) > 1:
             initFile = min(initFileList, key=os.path.getctime)
             print("{number} init files found in {source}. Using most recent one : {file}".format(
-                                number=len(initFileList), source=dirPath, file=initFile ), 
+                                number=len(initFileList), source=dirPath, file=initFile ),
                                 file=sys.stderr)
         elif initFileList:
             initFile = initFileList.pop()
@@ -129,7 +137,7 @@ class BaseTitration(object):
     def validate(self):
         valid = True
 
-        if not self.titrant['name']: 
+        if not self.titrant['name']:
             self.titrant['name'] = 'titrant'
         if not self.analyte['name']:
             self.analyte['name'] = 'analyte'
@@ -137,7 +145,7 @@ class BaseTitration(object):
         if self.titrant['concentration'] <= 0:
             self.titrant['concentration'] = 0
             valid = False
-        
+
         if self.analyte['concentration'] <= 0:
             self.analyte['concentration'] = 0
             valid = False
@@ -153,7 +161,7 @@ class BaseTitration(object):
 
         if self.volumes[0] != 0:
             valid=False
-        
+
         return valid
 
 
@@ -190,7 +198,7 @@ class BaseTitration(object):
         loader = loaders.get(ext)
         if loader is None:
             raise IOError("Invalid init file extension for {init} : accepted are .yml or .json".format(init=initFile))
-        
+
         try:
             with open(initFile, 'r') as initStream:
                 self.load_init_file(initStream, loader)
@@ -199,7 +207,7 @@ class BaseTitration(object):
             return
 
         print("[Protocole]\tLoading protocole parameters from {initFile}".format(
-            initFile=initFile), 
+            initFile=initFile),
             file=sys.stderr)
 
     def load_init_file(self, initStream, loader=yaml):
@@ -226,7 +234,7 @@ class BaseTitration(object):
         self.analyte = initDict['analyte']
         for initConcentration in (self.titrant, self.analyte):
             initConcentration['concentration'] = float(initConcentration['concentration'])
-        
+
         self.analyteStartVol = float(initDict['start_volume']['analyte'])
         self.startVol = float(initDict['start_volume']['total'])
         self.set_volumes(initDict.get('add_volumes', self.volumes))
