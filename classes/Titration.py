@@ -262,7 +262,6 @@ class BaseTitration(object):
 
     def set_volumes(self, volumes):
         "Set tiration volumes, updating steps to match number of volumes"
-        print(volumes)
         self.steps = len(volumes)
         self.volumes = list(map(float, volumes))
 
@@ -560,7 +559,6 @@ class TitrationCLI(Titration):
         # init plots
         self.stackedHist = None
         self.hist = dict()
-        self.concentrationRatio = [value for value in self.protocole['[titrant]/[analyte]']]
         ## FILE PATH PROCESSING
         # fetch all .list files in source dir, parse
         # add a step for each file
@@ -705,6 +703,9 @@ class TitrationCLI(Titration):
 ## -------------------------------------------
 ##      Properties
 ## -------------------------------------------
+    @property
+    def concentrationRatio(self):
+    	return [value for value in self.protocole['[titrant]/[analyte]']]
     @property
     def summary(self):
         "Returns a short summary of current titration status as string."
