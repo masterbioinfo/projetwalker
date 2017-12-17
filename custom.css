@@ -6,3 +6,12 @@
     text-overflow: initial;
     white-space: initial;
 }
+
+.protocole-table thead > tr{
+    height: 50px;
+    vertical-align: bottom;
+}
+
+.protocole-table tr{
+    height: 31px;
+}
