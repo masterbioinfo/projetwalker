@@ -1,6 +1,32 @@
+
+# Table of contents
+----
+1. [Summary](#summary)
+2. [Tutoriel](#tutoriel)
+
+	2.1. [Introduction](#introduction)
+
+    2.2. [Launch Shift2Me](#launch)
+
+    2.3. [Basics commands](#basics_commands)
+
+    2.4. [Initiating your protocol titration](#init)
+
+    2.5. [Filter and select residues](#filter_select)
+
+    2.6. [2D shift map, histograms and titration curve](#graphs)
+
+    2.7. [Save and load](#save_load)
+
+    2.8. [Exit Shift2Me](#exit)
+
+
+3. [Commands](#commands)
+
+
 Shift2Me :sparkles: : 2D-NMR chemical shifts analyzer for protein protein interactions (PPI).
 ===============================
-
+---
 
 This program is developped by **_Louis DUCHEMIN, Hermes PARAQINDES, Marc-Antoine GUERY and Rainier-Numa GEORGES_**, students in **Master 1 Molecular Bio-Informatic** of **Claude Bernard Lyon 1 University (UCBL)**, mandated by **_Maggy HOLOGNE and Olivier WALKER_** **PhDs** of **Institut des Sciences Analytiques (ISA, CNRS - UMR 5280)**.
 
@@ -17,7 +43,7 @@ Université Claude Bernard Lyon 1
 ```
 ------------------------------------------
 
-# Summary:
+# Summary <a name="summary"></a>:
 
 ------------------------------------------
 Shift2me is a 2D-NMR chemical shifts analyzer for PPI. The goal of the program is to identify the residues implicated in a PPI.
@@ -36,11 +62,11 @@ Different graphs will be generated at the end.
 
 ------------------------------------------
 
-# Tutorial:
+# Tutorial <a name="tutoriel"></a>:
 
 ------------------------------------------
 
-## Introduction:
+## 1-Introduction <a name="introduction"></a> :
 
 Shift2Me use a shell terminal like Linux. You can use autocompletion with TAB touch. For exemple, to write the "select" command you can write "sel" then push TAB touch to do autocompletion of "sel" in "select". You have access to shortcuts:
 
@@ -49,7 +75,7 @@ Shift2Me use a shell terminal like Linux. You can use autocompletion with TAB to
 	* @ *: load
 	* @@ *: relative load
 
-## 1-Launch Shift2Me :
+## 2	-Launch Shift2Me <a name="launch"></a>:
 At the first place, you must provide to Shift2Me a list of files including NMR experiment datas.
 
 1. To launch Shift2Me, you should indicate a data directory path. If the directory includes the data issued from the NMR experiment, the program will analyze it automatically. All the titration steps added after the program is launched will be saved in the directory indicated at launch. For example : if the directory path is "data/listes/listPP/", you can launch the program using the command:
@@ -76,7 +102,7 @@ All this information is accessible with the command :
 summary
 ```
 
-## 2-Basics commands :
+## 3-Basics commands <a name="basics_commands"></a> :
 
 1. You have access at any time to help section of Shift2Me. To show all the commands available, you can enter :
 ```
@@ -104,7 +130,7 @@ To name your work _Ubiquitin titration_, use:
 set_name "Ubiquitin Titration"
 ```
 
-## 3-Initiating your protocol titration :
+## 4-Initiating your protocol titration <a name="init"></a>:
 You should fill and submit a protocol file so you will have access to all plots available.
 1. You can indicate all titrations parameters in a .yml file. To create a .yml file that contains these parameters use the command :
 ```
@@ -112,7 +138,7 @@ dump_protocole <file_name>
 ```
 After creating the .yml file, open the file using a text editor inside the shell terminal of Shift2Me. Example :
 ```
-!nano <file_name.yml
+!nano <file_name.yml>
 ```
 The .yml file contains all the information above:
 ```
@@ -151,7 +177,7 @@ For example, if your current set of volumes is  _3 3.5 4_, then replace it enter
 ```
 set_volumes 3 4 5
 ```
-## 4-Filter and select residues :
+## 5-Filter and select residues <a name="filter_select"></a> :
 You can select relevant residues in order to show them on the different graphic representations available (see next section).
 1. To set or modify the cutoff value of your job, use the command :
 ```
@@ -200,7 +226,7 @@ For example, to show selected residues :
 residues selected
 ```
 
-## 5-2D shift map, histograms and titration curve:
+## 6-2D shift map, histograms and titration curve <a name="graphs"></a>:
 This is the essential part of Shift2Me. Those graphic representations will help you to define a suitable cutoff filtering residues implicated in PPI and thus determine affinnity parameters.
 
 1. You can display the whole 2D shift map with (x= ^1^H ppm, y= ^15^N ppm)by entering **shiftmap** command. This graphs shows the evolution of the chemicals shifts of ^15^N and ^1^H (in ppm) during each titration step for all the residues. Chemicals shifts are modeled on the graph with differents colors (one color per titration step). Residues sets availabale are complete, filtered and selected residues.
@@ -237,7 +263,7 @@ You can interact with the histograms by using the mouse. You can select a new cu
 ```
 Example : Curve 218
 ```
-## 6-Save and load:
+## 7-Save and load <a name="save_load"></a>:
 Before leaving Shift2Me, you should save the state of your job or you history commands.
 1. At any time you can save your current job with **save_job** command.
  ```
@@ -261,7 +287,7 @@ load_job data/listes/listPP/save.pkl
 load history0911.txt
 ```
 
-## 7-Exit Shift2Me:
+## 8-Exit Shift2Me <a name="exit"></a>:
 
 1. To quit Shift2Me, enter "quit" command. You will go back to the bash shell of Linux.
 ```
@@ -269,9 +295,7 @@ quit
 ```
 ------------------------------------------
 
-# Commands:
+# Commands <a name="commands"></a>:
 
 ------------------------------------------
 To see the full list of commands with their description, please refer to the documentation file.
-
-
