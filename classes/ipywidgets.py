@@ -434,7 +434,7 @@ class ProtocoleContainer(HBox):
 
     def __init__(self, *args, **kwargs):
         HBox.__init__(self, *args, **kwargs, layout=Layout(justify_content='space-around'))
-        self.volumes = VolumePanel(layout=Layout(width='250px'))
+        self.volumes = VolumePanel(layout=Layout(width='250px', height="auto"))
         self.volumes.validate_button.on_click(self.on_submit)
         self.protocole = ProtocolePanel()
         self.children = (self.volumes, self.protocole)

@@ -15,3 +15,7 @@
 .protocole-table tr{
     height: 31px;
 }
+
+.volumes-container.panel {
+    display: inline-table;
+}
