@@ -141,6 +141,10 @@ You should fill and submit a protocol file so you will have access to all plots 
 ```
 dump_protocole <file_name>
 ```
+Or you can create the templete file .yml when launching the Shif2Me program.
+```
+shift2me.py [-t <file.yml>] ( <dir> | <saved_job> )
+```
 After creating the .yml file, open the file using a text editor inside the shell terminal of Shift2Me. Example :
 ```
 !nano <file_name.yml>
@@ -204,7 +208,7 @@ Do not change any other part of the file.
 You should be careful with _add_volumes_ field when filling it. Indeed for each volume you enter, respect **exactly** the format mentionned above as **_- volume_** .
 Notice that all volumes are in **µL** and concentrations are in **µM**.
 Finally you can initiate your .yml file _myprotocol.yml_ either when launching Shif2Me with the shell **terminal** command :
-``` 
+```
 python3 shift2me.py data/listes/listPP -i myprotocol.yml
 ```
 Or after the program is launched inside the terminal of Shif2Me using :
@@ -241,6 +245,10 @@ cutoff
 For example, if you want to apply an intensity threshold of 0.2, type :
 ```
 cutoff 0.2
+```
+An intensity threshold can be also applied when launching Shift2Me.
+```
+shift2me.py [-c <cutoff>]( <dir> | <saved_job> )
 ```
 2. You can filter all the residues that have an equal or higher cutoff than the one indicated :
 ```
@@ -356,4 +364,3 @@ quit
 
 ------------------------------------------
 To see the full list of commands with their description, please refer to the documentation file.
-

@@ -4,15 +4,13 @@
 2. [Command Line](#command-Line)
 
 	2.1. [Protocole Commands](#protocole-commands)
-
-      - [init](#init)
-      - [add_volumes](#add_volumes)
-      - [csv](#csv)
-      - [dump_protocole](#dump_protocole)
-      - [set_name ](#set_name)
-      - [set_volumes ](#set_volumes)
-      - [show ](#show)
-      - [status ](#status)
+	- [dump_protocole](#dump_protocole)
+    - [init](#init)
+    - [add_volumes](#add_volumes)
+    - [csv](#csv)
+    - [set_name ](#set_name)
+    - [set_volumes ](#set_volumes)
+    - [status ](#status)
 
     2.2. [NMR Analysis Commands](#nmr-analysis)
     + [Initiate the analysis Commands](#initiate)
@@ -38,6 +36,7 @@
     	* [py](#py)
     	* [pyscrypt](#pyscrypt)
     	* [shell](#shell)
+			* [show ](#show)
     	* [shortcuts](#shortcuts)
     + [History and Exit the program](#history_exit)
     	* [history](#history)
@@ -80,7 +79,7 @@ Different graphs will be generated at the end.
 The commands that launch Shift2Me program are :
 
 ```
-shift2me.py [-c <cutoff>] [-i <titration.json>] [-t <file.json>] ( <dir> | <saved_job> )
+shift2me.py [-c <cutoff>] [-i <titration.yml>] [-t <file.yml>] ( <dir> | <saved_job> )
 ```
 To obatain help
 ```    
@@ -90,12 +89,12 @@ To obatain help
 Options:
 
  -c <cutoff> --cut-off=<cutoff>         			   Set default cutoff at <cutoff> (float).
- -i <titration.json>, --init-file=<titration.json>     Initialize titration from file.json (JSON format)
- -t <file.json>, --template=<file.json>                Initialize a template titration.json file,
+ -i <titration.yml>, --init-file=<titration.yml>     Initialize titration from file.yml (YAML format)
+ -t <file.yml>, --template=<file.yml>                Initialize a template titration.yml file,
                                                         to be filled with titration parameters.
  -h --help                                             Print help and usage
 ```
-The user should indicate a directory as option to the program or add a .list file after launching the program.
+The user should indicate a directory as option to the program. Every file added after the program is launched will be saved to the directory indicated.
 
 Once the program launched, a shell terminal will be appear. After analyzing the data files, a summary of iformation will show up :
 
@@ -107,7 +106,7 @@ Once the program launched, a shell terminal will be appear. After analyzing the 
  		- Incomplete residues	-> Number of residues with incomplete informations (not retained in the study)
  		- Filtered residues		-> Number of residus filtered (0 in the first time)
 
-By typing help or ?, a list of all commmands disponible will appear.
+By typing help or ? a list of all commmands disponible will appear.
 ```
 help or ?
 ```
@@ -121,7 +120,34 @@ help <comand>
 ## Protocole manipulation Commands <a name="protocole-commands"></a> :
 Commands used to set the experience settings such as the volume added for each titration, concentration etc.
 
+* #### dump_protocole command <a name="dump_protocole"></a> :
+This command will output a YAML file that contains all the protocole settings. The user can fill the template with all the experience parameters. Notice that all volumes are in **µL** and concentrations are in **µM**.
+```
+Outputs titration parameters.
+Argument may be a file path to write into. Defaults to stdout.
+
+Usage : dump_protocole <file_name>
+```
+
+The .yml template file contains all the following informations :
+```
+_description: This file defines a titration's initial parameters.
+name: Unnamed Titration
+analyte:
+    concentration: 0
+    name: analyte
+titrant:
+    concentration: 0
+    name: titrant
+start_volume:
+    analyte: 0
+    total: 0
+add_volumes:
+- 0
+```
+
 * #### init command <a name="init"></a> :
+
 ```
 Loads a YAML formatted file.yml describing titration protocole.
         To generate a template protocole descriptor as <file> :
@@ -137,6 +163,7 @@ Options:
 * #### add_volumes command <a name="add_volumes"></a>:
 ```
 Add volumes to currently existing volumes in titration.
+
 Usage: add_volumes <vol(µL)> [<vol(µL)> ...]
 
 Options:
@@ -156,42 +183,34 @@ Options:
   -h, --help  show this help message and exit
 
 ```
-* #### dump_protocole command <a name="dump_protocole"></a> :
-```
-Outputs titration parameters.
-Argument may be a file path to write into. Defaults to stdout.
-```
 
 * #### set_name command <a name="set_name"></a> :
 ```
 Sets titration name
+
+Usage: set_name Ubiquitin
 ```
 * #### set_volumes command <a name="set_volumes"></a> :
 ```
 Sets added titrant volumes for current titration, replacing existing volumes.
+
 Usage: set_volumes <vol (µL)> <vol (µL)> ...
 
 Options:
   -h, --help  show this help message and exit
 ```
 
-* #### show command <a name="show"></a> :
-
-```
-Shows value of a parameter.
-Usage: show [options] arg
-
-Options:
-  -h, --help  show this help message and exit
-  -l, --long  describe function of parameter
-```
 * #### status command <a name="status"></a> :
 
 ```
 Outputs titration parameters, and current status of protocole.
 
-```
+Usage : status
 
+```
+output :
+Step |Added titrant (µL) | Total titrant (µL) | Total volume (µL) | [titrant] (µM) | [analyte] (µM) | [titrant]/[analyte] |
+- | - | - | - | - | - | - |
 ## NMR analysis Commands <a name="nmr-analysis"></a> :
 Commands that will analyse tha data provided by the NMR experience and generate the graphs as described in the Introduction section.
 
@@ -210,6 +229,7 @@ Add a titration file as next step. Associate a volume to this step with -v optio
                         Volume of titrant solution to add titration step
 ```
 * #### load command <a name="load"></a>:
+For more information about this command, see also the **[save](#save)** comand
 ```
 Runs commands in script file that is encoded as either ASCII or UTF-8 text.
 
@@ -221,8 +241,12 @@ Script should contain one command per line, just like command would be typed in 
 
 ```
 * #### load_job <a name="load_job"></a> :
+For more information about this command, see also the **[save_job](#save_job) command.
+
 ```
 Loads previously saved titration, replacing active titration
+
+Usage : load_job <file_saved_path>
 
 ```
 * #### update command <a name="update"></a>:
@@ -259,6 +283,17 @@ Options:
 ```
 Prints a summary of current titration state
 
+Usage : summary
+```
+Output :
+```
+* Source dir 		-> the data path
+* Steps				-> the number of steps experiments
+* Cutoff			-> cutoff selected
+* Total reisdues	-> Total residus in the study
+	- Complete residues 	-> Total residues in the study
+	- Incomplete residues	-> Number of residues with incomplete informations (not retained in the study)
+	- Filtered residues		-> Number of residus filtered (0 in the first time)
 ```
 
 ### Graphs generaters Commands <a name="graph"></a> :
@@ -267,7 +302,6 @@ Prints a summary of current titration state
 * #### shiftmap command <a name="shiftmap"></a> :
 ```
 Plot chemical shifts for H and N atoms for each residue at each titration step.
-        Invocation with no arguments will plot all residues with complete data.
 
 Usage: shiftmap [options] ( complete | filtered | selected )
 
@@ -275,7 +309,7 @@ Options:
   -h, --help            show this help message and exit
   -s, --split           Sublot each residue individually.
   -e EXPORT, --export=EXPORT
-                        Export 2D shifts map as image
+                        Export 2D shifts map as .png image file
 ```
 
 * #### hist command <a name="hist"></a>:
@@ -363,8 +397,9 @@ Options:
 
 ```
 
-### Save Command <a name="save_"></a> :
+### Save Commands <a name="save_"></a> :
 ---
+Commands used to save the command history of Shif2Me terminal or save the experience.
 * #### save command <a name="save"></a>:
 ```
 Saves command(s) from history to file.
@@ -379,10 +414,14 @@ Saves command(s) from history to file.
 ```
 Saves active titration to binary file
 
+Usage : save_job [file_name_optional]
+
 ```
+The file name is an option. If the experience has a titration name, then the command will save the jon at the same name.
 
 ### Shell and Python Commands <a name="shell_python"></a>:
 ---
+These commands are generated automatically by cmd2 module. They can be used to execute shell or python commands.
 * #### py command <a name="py"></a> :
 ```
 py <command>: Executes a Python command.
@@ -420,6 +459,17 @@ Execute a command as if at the OS prompt.
 Lists shortcuts (aliases) available.
 
 ```
+* #### show command <a name="show"></a> :
+
+```
+Shows value of a parameter.
+Usage: show [options] arg
+
+Options:
+  -h, --help  show this help message and exit
+  -l, --long  describe function of parameter
+```
+
 Shortcuts for other commands:
 
 1. !: shell
@@ -461,6 +511,8 @@ Options:
 * #### quit <a name="quit"></a>:
 ```
 Exits this application.
+
+Usage : quit
 ```
 
 
