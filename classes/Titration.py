@@ -49,7 +49,7 @@ pd.set_option('precision', 3)
 class BaseTitration(object):
 
     INIT_FIELDS=('name', 'analyte', 'titrant', 'start_volume', 'add_volumes')
-    COLUMN_ALIASES = ('vol_add', 'vol_titrant', 'vol_total', 'conc_titrant', 'conc_analyte', 'ratio')
+    COLUMN_ALIASES = ('step',  'vol_add', 'vol_titrant', 'vol_total', 'conc_titrant', 'conc_analyte', 'ratio')
 
     def __init__(self, initStream=None, **kwargs):
 
