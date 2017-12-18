@@ -214,8 +214,8 @@ class ShiftMap(BaseFig):
         self.colormap = plt.cm.get_cmap('hsv', len(self.residues[0].chemshiftH))
         super().__init__()
         self.figure.suptitle('Chemical shifts 2D map')
-        self.figure.text(0.5, 0.04, 'H Chemical Shift', ha='center')
-        self.figure.text(0.04, 0.5, 'N Chemical Shift', va='center', rotation='vertical')
+        self.figure.text(0.5, 0.04, 'N Chemical Shift', ha='center')
+        self.figure.text(0.04, 0.5, 'H Chemical Shift', va='center', rotation='vertical')
 
     def setup_axes(self):
         for res in self.residues :

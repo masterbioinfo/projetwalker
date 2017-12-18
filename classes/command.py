@@ -46,7 +46,7 @@ class ShiftShell(Cmd):
 ## --------------------------------------------
 
     def do_set_name(self, arg):
-        "Sets titration name"
+        "Sets titration name."
         if arg:
             self.titration.set_name(arg)
             self.name = arg
@@ -83,7 +83,7 @@ class ShiftShell(Cmd):
          $ csv > path/to/file.csv
         """
         if self.titration.isInit:
-            self.titration.protocole.to_csv(self.stdout, index=True)
+            self.titration.protocole.to_csv(arg[0], index=True)
         else:
             self.pfeedback("Titration parameters are not set. Please load a protocole file.")
             self.pfeedback("See `help init`")
@@ -110,9 +110,8 @@ class ShiftShell(Cmd):
             self.pfeedback("See `help init`")
 
     def do_dump_protocole(self, arg):
-        """
-        Outputs titration parameters.
-        Argument may be a file path to write into. Defaults to stdout.
+        """Outputs titration parameters in a YAML formatted file. 
+        Argument may be a file path to write into. Defaults to a YAML file named as your titration is.
         """
         if not arg or os.path.isdir(arg):
             path = os.path.join(arg, '{titration}.yml'.format(titration=self.titration.name))
@@ -125,7 +124,7 @@ class ShiftShell(Cmd):
 
     @options([], arg_desc='<protocole>.yml')
     def do_init(self, initFile, opts=None):
-        """ Loads a YAML formatted file.yml describing titration protocole.
+        """Loads a YAML formatted file.yml describing titration protocole.
         To generate a template protocole descriptor as <file> :
             $ dump_protocole <file>.yml
         """
@@ -145,9 +144,8 @@ class ShiftShell(Cmd):
 
     @options([], arg_desc='[ <directory> | <titration_file.list> ... ]')
     def do_update(self, arg, opts=None):
-        """
-        Update titration from <source>.
-        If source is a directory, will add all the .list files
+        """Update titration from <source>.
+        If source is a directory, will add all the .list files.
         with appropriate naming regarding expected next steps.
         If source is a list of files, add all the files,
         checking they have correct name regarding expected steps.
@@ -169,7 +167,7 @@ class ShiftShell(Cmd):
 
     @options([make_option('-v', '--volume', help="Volume of titrant solution to add titration step")],arg_desc='<titration_file_##.list>')
     def do_add_step(self, arg, opts=None):
-        """"Add a titration file as next step. Associate a volume to this step with -v option.
+        """Add a titration file as next step. Associate a volume to this step with -v option.
         Example : add_step titration_10.list -v 10
         """
         if arg:
@@ -178,7 +176,10 @@ class ShiftShell(Cmd):
             self.do_help("add_step")
 
     def do_save_job(self, arg):
-        "Saves active titration to binary file"
+        """Saves active titration to binary pickle formatted file.
+         Argument may be a file path to write into. 
+         Invocation with no argument saves to a pickle formatted file named as your titration is.
+         """
         if not arg or os.path.isdir(arg):
             path = os.path.join(arg, '{titration}.pkl'.format(titration=self.titration.name))
         elif not arg.endswith(".pkl"):
@@ -189,7 +190,7 @@ class ShiftShell(Cmd):
         self.pfeedback("Saved job at : {path}.".format(path = path))
 
     def do_load_job(self, arg):
-        "Loads previously saved titration, replacing active titration"
+        "Loads previously saved titration in pickle format, replacing active titration."
         self.pfeedback('Loading titration from : {source}'.format(source=arg))
         try:
             self.titration.load(arg)
@@ -199,7 +200,7 @@ class ShiftShell(Cmd):
 
     @options([], arg_desc="( filtered | selected | complete | incomplete )")
     def do_residues(self, args, opts=None):
-        "Output specific titration infos to standard output"
+        "Output residues number from predifined sets to standard output."
         argMap = {
             "filtered" : self.titration.filtered,
             "selected" : self.titration.selected,
@@ -219,9 +220,8 @@ class ShiftShell(Cmd):
                 self.pfeedback(error)
                 continue
 
-    @options([])
     def do_filter(self, args, opts=None):
-        "Output residues having intensity >= cut-off"
+        "Output residues having their intensity superior or equal to current cutoff."
         self.poutput(" ".join([str(pos) for pos in self.titration.filtered]))
 
     @options([], arg_desc="[all] [filtered] [complete] [incomplete] [positions_slice]")
@@ -257,7 +257,7 @@ class ShiftShell(Cmd):
 
     @options([])
     def do_deselect(self, args, opts=None):
-        """ Remove a subset of residues from current selection, specifying either :
+        """Remove a subset of residues from current selection, specifying either :
          - a predefined set of residues
          - 1 or more slices of residue positions, with python-ish syntax.
            e.g : ':100' matches positions from start to 100
@@ -282,12 +282,12 @@ class ShiftShell(Cmd):
         self.titration.deselect_residues(*selection)
 
     def do_summary(self, args):
-        "Prints a summary of current titration state"
+        "Outputs a summary of current titration state."
         self.poutput(self.titration.summary)
 
-    @options([make_option('-p', '--plot', action="store_true", help="Set cut-off and plot.")], arg_desc = '<float>')
+    @options([make_option('-p', '--plot', action="store_true", help="Set cutoff and show last step histogram.")], arg_desc = '<float>')
     def do_cutoff(self, args, opts=None):
-        """ Sets cutoff value to filter residues with high chemshift intensity.
+        """Sets cutoff value to filter residues with high chemshift intensity.
         """
         try:
             if not args :
@@ -318,11 +318,10 @@ class ShiftShell(Cmd):
     @options([make_option('-e', '--export', help="Export hist as image")],
             arg_desc='(<titration_step> | all)')
     def do_hist(self, args, opts=None):
-        """ Plot chemical shift intensity per residu as histograms
-        Accepted arguments are any titration step except 0 (reference)
+        """Plot chemical shift intensity per residu as histograms.
+        Accepted arguments are any titration step.
         or 'all' to plot all steps as stacked histograms.
-        Defaults to plotting the last step when no arguments
-        are provided.
+        Invocation with no argument plots the last step.
         """
         step = args[0] if args else self.titration.dataSteps -1
         if step == 'all': # plot stacked hist
@@ -339,8 +338,7 @@ class ShiftShell(Cmd):
     ],
     arg_desc='( complete | filtered | selected )')
     def do_shiftmap(self, args, opts=None):
-        """ Plot chemical shifts for H and N atoms for each residue at each titration step.
-        Invocation with no arguments will plot all residues with complete data.
+        """Plot chemical shifts for H and N atoms for each residue at all titration steps.
         """
         argMap = {
             "complete" : self.titration.complete,
@@ -356,7 +354,7 @@ class ShiftShell(Cmd):
             residues = argMap[args[0]].values()
             fig = self.titration.plot_shiftmap(residues, split=opts.split)
             if opts.export:
-                fig.savefig(opts.export, dpi=fig.dpi)
+                fig.figure.savefig(opts.export, dpi=fig.figure.dpi)
         except ValueError as invalidArgErr:
             self.pfeedback(invalidArgErr)
             return
