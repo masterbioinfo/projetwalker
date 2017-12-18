@@ -42,7 +42,8 @@ class AttrControlMixin(TitrationWidget):
         setattr(self.titration, self.endpoint, value)
 
     def get_value(self):
-        return getattr(self.titration, self.endpoint)
+        self.value = getattr(self.titration, self.endpoint)
+        return self.value
 
     @staticmethod
     def validate(value):
@@ -52,7 +53,7 @@ class WidgetKwargs(object):
     widget_kw = {}
 
     @classmethod
-    def update(cls, kwargs):
+    def update_kwargs(cls, kwargs):
         for key, value in cls.widget_kw.items():
             if key not in kwargs:
                 kwargs.update({key:value})
@@ -64,7 +65,7 @@ class TextControlWidget(AttrControlMixin, Text, WidgetKwargs):
     def __init__(self, target, *args, **kwargs):
 
         AttrControlMixin.__init__(self, target)
-        type(self).update(kwargs)
+        type(self).update_kwargs(kwargs)
         Text.__init__(self, *args,**kwargs)
         self.value = self.get_value()
 
@@ -80,7 +81,7 @@ class FloatControlWidget(AttrControlMixin, BoundedFloatText, WidgetKwargs):
     def __init__(self, target, *args, **kwargs):
         AttrControlMixin.__init__(self, target)
 
-        type(self).update(kwargs)
+        type(self).update_kwargs(kwargs)
         BoundedFloatText.__init__(self, *args,**kwargs)
         self.value = self.get_value()
 
@@ -140,6 +141,9 @@ class NameWidget(TextControlWidget):
     def on_change(self, change):
         self.titration.set_name(change['new'])
 
+    def update(self):
+        self.value = self.titration.name
+
 
 class ConcentrationWidget(AttrControlMixin, BoundedFloatText, WidgetKwargs):
     """Sets concentration for one of the molecule
@@ -158,7 +162,7 @@ class ConcentrationWidget(AttrControlMixin, BoundedFloatText, WidgetKwargs):
         kwargs.update({
             'value' : getattr(self.titration, target)['concentration'],
         })
-        type(self).update(kwargs)
+        type(self).update_kwargs(kwargs)
 
         BoundedFloatText.__init__(self, *args, **kwargs)
         AttrControlMixin.__init__(self, target)
@@ -166,6 +170,10 @@ class ConcentrationWidget(AttrControlMixin, BoundedFloatText, WidgetKwargs):
     def set_value(self, value):
         "Set concentration for target molecule."
         getattr(self.titration, self.endpoint)['concentration'] = value
+
+    def get_value(self):
+        self.value = getattr(self.titration, self.endpoint)['concentration']
+        return self.value
 
 
 class MoleculeNameWidget(AttrControlMixin, Text, WidgetKwargs):
@@ -186,7 +194,7 @@ class MoleculeNameWidget(AttrControlMixin, Text, WidgetKwargs):
             'value': getattr(self.titration, target)['name'],
         })
 
-        type(self).update(kwargs)
+        type(self).update_kwargs(kwargs)
 
         Text.__init__(self, *args, **kwargs)
         AttrControlMixin.__init__(self, target)
@@ -194,6 +202,10 @@ class MoleculeNameWidget(AttrControlMixin, Text, WidgetKwargs):
     def set_value(self, value):
         "Set name for target molecule."
         getattr(self.titration, self.endpoint)['name'] = value
+
+    def get_value(self):
+        self.value = getattr(self.titration, self.endpoint)['name']
+        return self.value
 
 class SingleMolContainer(TitrationWidget,VBox):
     # styles = {
@@ -212,15 +224,18 @@ class SingleMolContainer(TitrationWidget,VBox):
         VBox.__init__(self, *args, **kwargs)
 
         if desc:
-            label = Label(value=target.title(), layout=Layout(left="150px"), justify_content="flex-end")
-            name_field = MoleculeNameWidget(target, description = "Name:", **self.desc_kwargs)
-            conc_field = ConcentrationWidget(target, description = "Concentration (µM):", **self.desc_kwargs)
+            self.label = Label(value=target.title(), layout=Layout(left="150px"), justify_content="flex-end")
+            self.name_field = MoleculeNameWidget(target, description = "Name:", **self.desc_kwargs)
+            self.conc_field = ConcentrationWidget(target, description = "Concentration (µM):", **self.desc_kwargs)
         else:
-            label = Label(value=target.title())
-            name_field = MoleculeNameWidget(target)
-            conc_field = ConcentrationWidget(target)
-        self.children = (label, name_field, conc_field)
+            self.label = Label(value=target.title())
+            self.name_field = MoleculeNameWidget(target)
+            self.conc_field = ConcentrationWidget(target)
+        self.children = (self.label, self.name_field, self.conc_field)
 
+    def update(self):
+        self.name_field.get_value()
+        self.conc_field.get_value()
 
 class MoleculesContainer(TitrationWidget, HBox):
 
@@ -231,11 +246,13 @@ class MoleculesContainer(TitrationWidget, HBox):
         # labels = VBox()
         # for label in ('', 'Name:', 'Concentration (µM):'):
         #     labels.children += (Label(label, width=120), )
-        analyte = SingleMolContainer('analyte', desc=True)
-        titrant = SingleMolContainer('titrant')
-        self.children = (analyte, titrant)
+        self.analyte = SingleMolContainer('analyte', desc=True)
+        self.titrant = SingleMolContainer('titrant')
+        self.children = (self.analyte, self.titrant)
 
-
+    def update(self):
+        self.analyte.update()
+        self.titrant.update()
 
 
 class StartParamContainer(TitrationWidget, PanelContainer):
@@ -248,29 +265,46 @@ class StartParamContainer(TitrationWidget, PanelContainer):
     def __init__(self, *args, **kwargs):
         PanelContainer.__init__(self, layout=Layout(width='400px'), *args, **kwargs)
         TitrationWidget.__init__(self)
+
+        self.observers = set()
+
         name_kw = dict(self.layout_kw)
         name_kw['layout'] = Layout(width="335px")
         
-        titrationName = NameWidget(**name_kw)
-        titrationName.add_class('panel-header-title')
+        self.titrationName = NameWidget(**name_kw)
+        self.titrationName.add_class('panel-header-title')
 
-        analyteStartVol = FloatControlWidget(
+        self.analyteStartVol = FloatControlWidget(
             'analyteStartVol', 
             description='Analyte volume (µL):', 
             **self.layout_kw)
-        startVol = FloatControlWidget(
+        self.startVol = FloatControlWidget(
             'startVol', 
             description='Total volume (µL):', 
             **self.layout_kw)
 
-        titrationName.observe(self.on_change, 'value')
+        self.molecules = MoleculesContainer()
+
+        self.titrationName.observe(self.on_change, 'value')
         
-        analyteStartVol.observe(self.on_change, 'value')
-        startVol.observe(self.on_change, 'value')
+        self.analyteStartVol.observe(self.on_change, 'value')
+        self.startVol.observe(self.on_change, 'value')
 
-        self.set_heading([titrationName])
-        self.set_content([MoleculesContainer(),analyteStartVol, startVol])
+        self.set_heading([self.titrationName])
+        self.set_content([self.molecules,self.analyteStartVol, self.startVol])
 
+    def add_observer(self, obs):
+        self.observers.add(obs)
+
+    def on_change(self, change):
+        for obs in self.observers:
+            obs.update()
+
+    def update(self):
+        self.titrationName.update()
+        self.analyteStartVol.get_value()
+        self.startVol.get_value()
+        self.molecules.update()
 
 
 class VolumeWidget(TitrationWidget, BoundedFloatText, WidgetKwargs):
@@ -284,7 +318,7 @@ class VolumeWidget(TitrationWidget, BoundedFloatText, WidgetKwargs):
 
     def __init__(self, step_id, *args, **kwargs):
         self.step_id = int(step_id)
-        type(self).update(kwargs)
+        type(self).update_kwargs(kwargs)
         kwargs['description'] = "Step {number:d}".format(number=self.step_id)
         BoundedFloatText.__init__(self, *args,**kwargs)
         TitrationWidget.__init__(self)
@@ -305,7 +339,6 @@ class ProtocolePanel(TitrationWidget, PanelContainer):
         self.protocole = HTML(self.titration.make_protocole(index=False).to_html(index=False))
         self.protocole._dom_classes += ('rendered_html', 'protocole-table')
         self.set_content([self.protocole])
-
 
 
 class VolumePanel(TitrationWidget, PanelContainer):
@@ -364,6 +397,11 @@ class VolumePanel(TitrationWidget, PanelContainer):
             self.add_volume()
 
 
+    def update(self):
+        self.volWidgets = []
+        for volume in self.titration.volumes:
+            self.add_volume()
+        self.update_children()
 
     def update_children(self):
         self.volumesBox.children = self.volWidgets
@@ -415,15 +453,20 @@ class ProtocoleContainer(HBox):
 
     def __init__(self, *args, **kwargs):
         HBox.__init__(self, *args, **kwargs, layout=Layout(justify_content='space-around'))
+
         self.volumes = VolumePanel(layout=Layout(width='250px', height="auto"))
         self.volumes.validate_button.on_click(self.on_submit)
+
         self.protocole = ProtocolePanel()
+
         self.children = (self.volumes, self.protocole)
 
     def on_submit(self, button):
         self.protocole.update()
 
-
+    def update(self):
+        self.volumes.update()
+        self.protocole.update()
 
 class TitrationDirUploader(TitrationWidget, DirectoryUploadWidget, Button):
 
@@ -431,11 +474,22 @@ class TitrationDirUploader(TitrationWidget, DirectoryUploadWidget, Button):
         DirectoryUploadWidget.__init__(self, *args, **kwargs)
         self.label = "Upload titration directory..."
         self.output = Output()
+        self.observers = set()
+
+    def dispatch(self):
+        for obs in self.observers:
+            obs.update()
+
+    def add_observer(self, obs):
+        "Observer must have a update() method"
+        self.observers.add(obs)
+
     @observe('files')
     def _files_changed(self, *args):
         if self.files:
             self.extract_chemshifts()  
             self.extract_protocole()
+            self.dispatch()
     
     @observe('base64_files')
     def _base64_files_changed(self, *args):
