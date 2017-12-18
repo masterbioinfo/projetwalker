@@ -83,7 +83,7 @@ class ShiftShell(Cmd):
          $ csv > path/to/file.csv
         """
         if self.titration.isInit:
-            self.titration.protocole.to_csv(self.stdout, index=True)
+            self.titration.protocole.to_csv(arg[0], index=True)
         else:
             self.pfeedback("Titration parameters are not set. Please load a protocole file.")
             self.pfeedback("See `help init`")
@@ -169,7 +169,7 @@ class ShiftShell(Cmd):
 
     @options([make_option('-v', '--volume', help="Volume of titrant solution to add titration step")],arg_desc='<titration_file_##.list>')
     def do_add_step(self, arg, opts=None):
-        """"Add a titration file as next step. Associate a volume to this step with -v option.
+        """Add a titration file as next step. Associate a volume to this step with -v option.
         Example : add_step titration_10.list -v 10
         """
         if arg:
@@ -340,7 +340,6 @@ class ShiftShell(Cmd):
     arg_desc='( complete | filtered | selected )')
     def do_shiftmap(self, args, opts=None):
         """ Plot chemical shifts for H and N atoms for each residue at each titration step.
-        Invocation with no arguments will plot all residues with complete data.
         """
         argMap = {
             "complete" : self.titration.complete,
