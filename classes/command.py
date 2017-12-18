@@ -145,7 +145,7 @@ class ShiftShell(Cmd):
     @options([], arg_desc='[ <directory> | <titration_file.list> ... ]')
     def do_update(self, arg, opts=None):
         """Update titration from <source>.
-        If source is a directory, will add all the .list files
+        If source is a directory, will add all the .list files.
         with appropriate naming regarding expected next steps.
         If source is a list of files, add all the files,
         checking they have correct name regarding expected steps.
