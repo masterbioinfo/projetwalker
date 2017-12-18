@@ -356,7 +356,7 @@ class ShiftShell(Cmd):
             residues = argMap[args[0]].values()
             fig = self.titration.plot_shiftmap(residues, split=opts.split)
             if opts.export:
-                fig.savefig(opts.export, dpi=fig.dpi)
+                fig.figure.savefig(opts.export, dpi=fig.figure.dpi)
         except ValueError as invalidArgErr:
             self.pfeedback(invalidArgErr)
             return
