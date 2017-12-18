@@ -82,6 +82,11 @@ At the first place, you must provide to Shift2Me a list of files including NMR e
 ```
 python3 shift2me.py data/listes/listPP
 ```
+To add _15N_UIM-SH3-37_07.list_ file after the program is launched, use the command :
+```
+add_step 15N_UIM-SH3-37_07.list
+```
+
 To add one or more .list file stored in the repository _data/listupdated_ after the program is launched, use the command :
 ```
 update data/listupdated
@@ -140,7 +145,7 @@ After creating the .yml file, open the file using a text editor inside the shell
 ```
 !nano <file_name.yml>
 ```
-The .yml file contains all the information above:
+The .yml template file contains all the following informations :
 ```
 _description: This file defines a titration's initial parameters.
 name: Unnamed Titration
@@ -153,11 +158,61 @@ titrant:
 start_volume:
     analyte: 0
     total: 0
-add_volumes: []
+add_volumes:
+- 0
 ```
+The fields you need to fill are **_concentration_** from _analyte_ and _titrant_ as well as **_analyte_** and **_total_** from _start_volume_ (those fields cannot be equal to _0_). Other fields (i.e. **_name_** from _analyte_ and _titrant_ as well as **_add_volumes_**) are optional.
+See below an example of necessary modifications to make before you initiate a titration protocol :
+```
+_description: This file defines a titration's initial parameters.
+name: Unnamed Titration
+analyte:
+    concentration: 5
+    name: analyte
+titrant:
+    concentration: 1
+    name: titrant
+start_volume:
+    analyte: 10
+    total: 100
+add_volumes:
+- 0
+```
+Indeed, incomplete _add_volumes_ field does not prevent to initiate your protocol titration. You could add these volumes using the command **add_volumes** (see next section).
+See below an example of the modifications you could make at most before initiate your protocol titration :
+```
+_description: This file defines a titration's initial parameters.
+name: Ubiquitin Titration
+analyte:
+    concentration: 5
+    name: Ubiquitin
+titrant:
+    concentration: 1
+    name: SH3
+start_volume:
+    analyte: 10
+    total: 100
+add_volumes:
+- 0
+- 1
+- 4
+- 6
+- 6
+- 7.5
+```
+Do not change any other part of the file.
+You should be careful with _add_volumes_ field when filling it. Indeed for each volume you enter, respect **exactly** the format mentionned above as **_- volume_** .
 Notice that all volumes are in **µL** and concentrations are in **µM**.
+Finally you can initiate your .yml file _myprotocol.yml_ either when launching Shif2Me with the shell **terminal** command :
+``` 
+python3 shift2me.py data/listes/listPP -i myprotocol.yml
+```
+Or after the program is launched inside the terminal of Shif2Me using :
+```
+init myprotocol.yml
+```
 
-Shift2Me will perform data analysis even without completing the protocole file (.yml), but it can not generate the curve graphs for the filtered residues.
+Shift2Me will perform data analysis even without completing the protocole file (.yml), nevertheless it can not generate the curve graphs for the filtered residues.
 
 3. The program gives the possibility to add volumes of each titration step with the command :
 ```
@@ -260,9 +315,11 @@ hist
 You can interact with the histograms by using the mouse. You can select a new cutoff with one drag and drop of the mouse. Chemical shifts bigger than the cutoff are colored in orange, others chemicals shifts are colored in blue. Only chemicals shifts bigger than the cutoff are retained by the filter. This cutoff will be saved as the new cutoff of your job.
 
 3. To display titration curve, enter **curve** command follow by a residue number.The curve shows the intensity of the chemical shifts of the residue in fuction of the the ratio of the concentration (in µM) of the titrant protein to the concentration (in µM) of the titrated protein.
+If you want to show the titration curve of residue 218, enter :
 ```
-Example : Curve 218
+curve 218
 ```
+An error may occur when typing this command. If such an issue happen, check your .yml titration protocol file. In fact _add_volumes_ field must contain as many volumes as the number of titration steps based on the number of .list files you provided. Use commands **status** and **summary** to compare number of volumes and number of steps.
 ## 7-Save and load <a name="save_load"></a>:
 Before leaving Shift2Me, you should save the state of your job or you history commands.
 1. At any time you can save your current job with **save_job** command.
@@ -299,3 +356,4 @@ quit
 
 ------------------------------------------
 To see the full list of commands with their description, please refer to the documentation file.
+
