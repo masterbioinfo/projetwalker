@@ -53,6 +53,7 @@ class BaseTitration(object):
 
     def __init__(self, initStream=None, **kwargs):
 
+        self.name = None
         self.isInit = False
         self.steps = 1
         self.titrant = {

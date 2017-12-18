@@ -4,13 +4,13 @@
 Shift2Me : 2D-NMR chemical shifts analysis for protein interactions.
 
 Usage:
-    shift2me.py [-c <cutoff>] [-i <titration.json>] [-t <file.json>] ( <dir> | <saved_job> )
+    shift2me.py [-c <cutoff>] [-i <titration.yml>] [-t <file.yml>] ( <dir> | <saved_job> )
     shift2me.py -h
 
 Options:
   -c <cutoff>, --cut-off=<cutoff>                       Set default cutoff at <cutoff> (float).
-  -i <titration.json>, --init-file=<titration.json>     Initialize titration from file.json (JSON format)
-  -t <file.json>, --template=<file.json>                Initialize a template titration.json file,
+  -i <titration.yml>, --init-file=<titration.yml>     Initialize titration from file.yml (YML format)
+  -t <file.yml>, --template=<file.yml>                Initialize a template titration.yml file,
                                                         to be filled with titration parameters.
   -h --help                                             Print help and usage
 
@@ -46,7 +46,6 @@ if __name__ == '__main__':
         templateBuilder = titration if titration.isInit else BaseTitration()
         templateBuilder.dump_init_file(initFile = template)
         print("Generated template file at {file}".format(file=template))
-        exit(0)
 
     # Turn off MPL interactive mode
     plt.ioff()
