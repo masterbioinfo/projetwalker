@@ -7,6 +7,14 @@
     white-space: initial;
 }
 
+.intensity-panel .panel-header-title {
+    font-size: 20px;
+}
+
+.intensity-panel .widget-label{
+    font-weight: bold;
+}
+
 .protocole-table thead > tr{
     height: 50px;
     vertical-align: bottom;
@@ -18,4 +26,12 @@
 
 .volumes-container.panel {
     display: inline-table;
+}
+
+.widget-readout {
+    font-weight:bold;
+}
+
+.data-files-view .panel-body {
+    font-family: Courier New, Courier, monospace;
 }

@@ -1,4 +1,4 @@
-from ipywidgets import Box, HBox, VBox, BoundedFloatText, Button, Text, Widget, Label, Layout, HTML, Output
+from ipywidgets import *
 from ipyfileupload.widgets import DirectoryUploadWidget
 from traitlets import observe
 import base64, io
@@ -533,12 +533,17 @@ class TitrationFilesView(TitrationWidget, PanelContainer ):
     def __init__(self, *args, **kwargs):
         
         PanelContainer.__init__(self, *args,**kwargs)
+
+        self.add_class('data-files-view')
+
         self.label = Label("Data files")
-        self.label._dom_classes += ('panel-header-title',)
-        self.layout.width="200px"
+        self.label.add_class('panel-header-title')
+        self.layout.width="250px"
         self.set_heading([self.label])
         self.update()
 
     def update(self):
         self.files = [Label(fname) for fname in self.titration.files]
         self.set_content(self.files)
+
+
