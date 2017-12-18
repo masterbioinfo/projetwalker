@@ -3,6 +3,8 @@ from ipyfileupload.widgets import DirectoryUploadWidget
 from traitlets import observe
 import base64, io
 
+from classes.Titration import Titration
+
 class TitrationWidget(Widget):
     "Root class for titration GUI elements"
     titration=None
@@ -34,6 +36,7 @@ class AttrControlMixin(TitrationWidget):
             self.set_value(change['new'])
         else:
             self.invalid_callback(change)
+        self.change_callback()
 
     def invalid_callback(self, change):
         pass
@@ -48,6 +51,9 @@ class AttrControlMixin(TitrationWidget):
     @staticmethod
     def validate(value):
         return True
+
+    def change_callback(self):
+        pass
 
 class WidgetKwargs(object):
     widget_kw = {}
@@ -231,7 +237,13 @@ class SingleMolContainer(TitrationWidget,VBox):
             self.label = Label(value=target.title())
             self.name_field = MoleculeNameWidget(target)
             self.conc_field = ConcentrationWidget(target)
+
+
         self.children = (self.label, self.name_field, self.conc_field)
+
+    def container_observe(self, func, name = 'value'):
+        self.name_field.observe(func, name)
+        self.conc_field.observe(func, name)
 
     def update(self):
         self.name_field.get_value()
@@ -249,6 +261,10 @@ class MoleculesContainer(TitrationWidget, HBox):
         self.analyte = SingleMolContainer('analyte', desc=True)
         self.titrant = SingleMolContainer('titrant')
         self.children = (self.analyte, self.titrant)
+
+    def container_observe(self, func, name='value'):
+        self.analyte.container_observe(func, name)
+        self.titrant.container_observe(func, name)
 
     def update(self):
         self.analyte.update()
@@ -284,6 +300,7 @@ class StartParamContainer(TitrationWidget, PanelContainer):
             **self.layout_kw)
 
         self.molecules = MoleculesContainer()
+        self.molecules.container_observe(self.on_change)
 
         self.titrationName.observe(self.on_change, 'value')
         
@@ -398,6 +415,7 @@ class VolumePanel(TitrationWidget, PanelContainer):
 
 
     def update(self):
+        self.steps = 0
         self.volWidgets = []
         for volume in self.titration.volumes:
             self.add_volume()
