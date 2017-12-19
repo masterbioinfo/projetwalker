@@ -44,8 +44,6 @@ Different graphs will be generated at the end.
 - __Histogram__ : A histogram for each titration will show the delta of the chemical shifts in function of the residue number. In order to select the residues implicated in a PPI, the user can choose a cutoff.
 
 - __Curves__ : A curve can be generated for each residue implicated in a PPI. The curve shows the delta of the chemical shifts of the residue in fuction of the the ratio of the concentration of the titrant protein to the concentration of the titrated protein.
-- __A representation 3D__ of the protein structure is added for the graphical mode. The user can choose a PDB code, the residues numbers and change the representation mode.
-
 
 ------------------------------------------
 
