@@ -120,11 +120,13 @@ Click on **Validate** once you completed the fields.
 ## 4-Interact with graphs
 This is the essential part of Shift2Me. Those graphic representations will help you to define a suitable cutoff filtering residues implicated in PPI and thus determine affinnity parameters.
 
-2. Shiftmaps.
+2. Shiftmaps
 
 The Shiftmap shows residues filtered regarding the cutoff set with histogram. Hover the plot with mouse to show **residue number, chemical shift intensities and titration step**.
 
+3. Titration curves
 
+The last rap
 ## 8-Exit Shift2Me <a name="exit"></a>:
 
 
