@@ -72,7 +72,7 @@ First of all, ensure you have a python 3 (or more) version. To check your versio
 ```
 pip -V python
 ```
-You need to install jupyter and specific widgets to use __GUI__ mode od ShiftoMe.
+You need to install jupyter and specific widgets to use graphical mode of ShiftoMe.
 
 1. To install jupyter notebook, run the command :
 ``` 
@@ -80,21 +80,21 @@ pip3 install jupyter
 ```
 See [jupyter documentation](http://jupyter.readthedocs.io/en/latest/install.html) for installation.
 
-2. To install and activate ipywidgets, ipyfileupload and bqplot, run the commands :
+2. To clone ShifttoMe via gitHub and install its dependancies, run the following commands :
 ``` 
-pip3 install ipywidgets
+git clone https://github.com/masterbioinfo/projetwalker.git
+pip3 install -r requirements.txt
+```
+A repository _projetwalker_ which contains ShifttoMe is created.
+
+3. To activate jupyter widgets, run the commands :
+```
 jupyter nbextension enable --py widgetsnbextension
-```
-```
-pip3 ipyfileupload
+
 jupyter nbextension enable --py --sys-prefix ipyfileupload
-```
-```
-pip3 bqplot
+
 jupyter nbextension enable --py --sys-prefix bqplot
 ```
-
-3.Finally you need all the requirements we mentionned for our __CLI__ version of ShiftoMe
 
 ## 2-Launch Shift2Me <a name="launch"></a>:
 Reach the directory in which the file _GUI.ipynb_ is located and run the command :
@@ -107,9 +107,10 @@ Access to the file _GUI.ipynb_. Your are now in the __GUI__ interface of ShiftoM
 See [jupyter documentation](http://jupyter-notebook.readthedocs.io/en/stable/examples/Notebook/Notebook%20Basics.html) for notebook usage.
 
 ## 3-Upload your files <a name="upload"></a>:
-Run the first cell of __GUI__ ShifttoMe. Select **Upload titration directory** to upload all the files provided by your NMR titration.
 
-Your files apper in the window:
+1. Click on **Upload titration directory** to upload all the .list files provided by your NMR titration. You must choose a directory in which all the .list files will be loaded.
+
+Your files appear in the window:
 
 Data files|
 ---|---
@@ -125,14 +126,14 @@ Data files|
 15N_UIM-SH3-37_09.list |
 15N_UIM-SH3-37_10.list |
 
+2. The second cell outputs a protocol titration.
 
-## 4-Initiating your protocol titration <a name="init"></a>:
-You should fill and submit a protocol file so you will have access to all plots available.
+You should fill and submit a protocol file so you will have access to all plots available. **Analyte** fields refer to the protein you add step by step, **Titrant** fields refer to the protein whose quantity is constant along NMR titration.
+- _Name_ fields will set the name of your titration, analyte or titrant.
+- _Concentration_ fields assign **initial concentrations** of the proteins in µM.
+- _Analyte volume_ and _Total volume_ refer to the volumes in µL added at step 0 of titration (without titrant). _Total volume_ includes **proteic volumes and solvant**.
 
-Run the second cell of __GUI__ Shitf2Me.
-
-Select **Validate** once you completed the fields.
-
+Click on **Validate** once you completed the fields.
 
 ## 8-Exit Shift2Me <a name="exit"></a>:
 This is the essential part of Shift2Me. Those graphic representations will help you to define a suitable cutoff filtering residues implicated in PPI and thus determine affinnity parameters.
