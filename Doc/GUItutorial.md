@@ -20,27 +20,12 @@
 
     2.8. [Exit Shift2Me](#exit)
 
-
-3. [Commands](#commands)
+3. [About](#about)
 
 
 Shift2Me :sparkles: : 2D-NMR chemical shifts analyzer for protein protein interactions (PPI).
 ===============================
----
 
-This program is developped by **_Louis DUCHEMIN, Hermes PARAQINDES, Marc-Antoine GUERY and Rainier-Numa GEORGES_**, students in **Master 1 Molecular Bio-Informatic** of **Claude Bernard Lyon 1 University (UCBL)**, mandated by **_Maggy HOLOGNE and Olivier WALKER_** **PhDs** of **Institut des Sciences Analytiques (ISA, CNRS - UMR 5280)**.
-
-```
-Institut des Sciences Analytiques
-CNRS - UMR 5280
-5 Rue de la DOUA
-69100 Villeurbanne - FRANCE
-```
-```
-Université Claude Bernard Lyon 1
-43 Boulevard du 11 Novembre 1918
-69100 Villeurbanne - FRANCE
-```
 ------------------------------------------
 
 # Summary <a name="summary"></a>:
@@ -72,16 +57,16 @@ First of all, ensure you have a python 3 (or more) version. To check your versio
 ```
 pip -V python
 ```
-You need to install jupyter and specific widgets to use graphical mode of ShiftoMe.
+You need to install jupyter notebook and specific widgets to use graphical mode of ShiftoMe.
 
 1. To install jupyter notebook, run the command :
-``` 
+```
 pip3 install jupyter
 ```
 See [jupyter documentation](http://jupyter.readthedocs.io/en/latest/install.html) for installation.
 
-2. To clone ShifttoMe via gitHub and install its dependancies, run the following commands :
-``` 
+2. To clone Shift2Me via gitHub and install its dependancies, run the following commands :
+```
 git clone https://github.com/masterbioinfo/projetwalker.git
 pip3 install -r requirements.txt
 ```
@@ -128,12 +113,41 @@ Your files appear in the window:
 
 2. The second cell outputs a protocol titration.
 
-You should fill and submit a protocol file so you will have access to all plots available. **Analyte** fields refer to the protein you add step by step, **Titrant** fields refer to the protein whose quantity is constant along NMR titration.
+You should fill and submit the protocol settings to have access to all plots available. **Analyte** fields refer to the protein you add step by step, **Titrant** fields refer to the protein whose quantity is constant along NMR titration.
 - _Name_ fields will set the name of your titration, analyte or titrant.
 - _Concentration_ fields assign **initial concentrations** of the proteins in µM.
 - _Analyte volume_ and _Total volume_ refer to the volumes in µL added at step 0 of titration (without titrant). _Total volume_ includes **proteic volumes and solvant**.
 
 Click on **Validate** once you completed the fields.
 
+## 5-Histogram
+Below the protocol, a data vizualisation cell, containing the graphs will appear. The first graph displayed is the histogram. 
+On the left of the graph, are situated two sliders with which the user can interact. The first one allows the user to choose a titration step. The second one, to set a new cutoff. Intensities bigger than the cutoff are colored in orange, the rest is colored in blue. Only the intensities bigger than the cutoff are retained by the filter.
+
 ## 8-Exit Shift2Me <a name="exit"></a>:
 This is the essential part of Shift2Me. Those graphic representations will help you to define a suitable cutoff filtering residues implicated in PPI and thus determine affinnity parameters.
+
+
+# About <a name="about"></a> :
+---
+This program is developped by :
+
+- **_Louis DUCHEMIN_**
+- **_Marc-Antoine GUERY_**
+- **_Hermes PARAQINDES_**
+- **_Rainer-Numa GEORGES_**
+
+	students in [**Master 1 Molecular Bio-Informatic**](https://www.bioinfo-lyon.fr/) of [**Claude Bernard Lyon 1 University (UCBL)**](https://www.univ-lyon1.fr/), mandated by **_Maggy HOLOGNE and Olivier WALKER_** **PhDs** of [**Institut des Sciences Analytiques (ISA, CNRS - UMR 5280)**](https://isa-lyon.fr/).
+
+```
+Institut des Sciences Analytiques
+CNRS - UMR 5280
+5 Rue de la DOUA
+69100 Villeurbanne - FRANCE
+```
+```
+Université Claude Bernard Lyon 1
+43 Boulevard du 11 Novembre 1918
+69100 Villeurbanne - FRANCE
+```
+------------------------------------------

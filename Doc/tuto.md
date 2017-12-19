@@ -307,7 +307,7 @@ To show the histogram of the last step, enter:
 ```
 hist
 ```
-You can interact with the histograms by using the mouse. You can select a new cutoff with one drag and drop of the mouse. Chemical shifts bigger than the cutoff are colored in orange, others chemicals shifts are colored in blue. Only chemicals shifts bigger than the cutoff are retained by the filter. This cutoff will be saved as the new cutoff of your job.
+You can interact with the histograms by using the mouse. You can select a new cutoff with one drag and drop of the mouse. Intensities bigger than the cutoff are colored in orange, others chemicals shifts are colored in blue. Only chemicals shifts bigger than the cutoff are retained by the filter. This cutoff will be saved as the new cutoff of your job.
 
 3. To display titration curve, enter **curve** command follow by a residue number.The curve shows the intensity of the chemical shifts of the residue in fuction of the the ratio of the concentration (in µM) of the titrant protein to the concentration (in µM) of the titrated protein.
 If you want to show the titration curve of residue 218, enter :
