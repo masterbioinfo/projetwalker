@@ -10,8 +10,6 @@
 
     2.3. [Upload](#upload)
 
-    2.4. [Initiating your protocol titration](#init)
-
     2.5. [Filter and select residues](#filter_select)
 
     2.6. [2D shift map, histograms and titration curve](#graphs)
@@ -26,22 +24,6 @@
 
 Shift2Me :sparkles: : 2D-NMR chemical shifts analyzer for protein protein interactions (PPI).
 ===============================
----
-
-This program is developped by **_Louis DUCHEMIN, Hermes PARAQINDES, Marc-Antoine GUERY and Rainier-Numa GEORGES_**, students in **Master 1 Molecular Bio-Informatic** of **Claude Bernard Lyon 1 University (UCBL)**, mandated by **_Maggy HOLOGNE and Olivier WALKER_** **PhDs** of **Institut des Sciences Analytiques (ISA, CNRS - UMR 5280)**.
-
-```
-Institut des Sciences Analytiques
-CNRS - UMR 5280
-5 Rue de la DOUA
-69100 Villeurbanne - FRANCE
-```
-```
-Université Claude Bernard Lyon 1
-43 Boulevard du 11 Novembre 1918
-69100 Villeurbanne - FRANCE
-```
-------------------------------------------
 
 # Summary <a name="summary"></a>:
 
@@ -113,7 +95,7 @@ See [jupyter documentation](http://jupyter-notebook.readthedocs.io/en/stable/exa
 Your files appear in the window:
 
 |Data files|
-|------|
+---|---
 |15N_UIM-SH3-37_00.list |
 |15N_UIM-SH3-37_01.list |
 |15N_UIM-SH3-37_02.list |
@@ -126,14 +108,39 @@ Your files appear in the window:
 |15N_UIM-SH3-37_09.list |
 |15N_UIM-SH3-37_10.list |
 
-2. The second cell outputs a protocol titration.
+2. Fill a protocol titration.
 
-You should fill and submit a protocol file so you will have access to all plots available. **Analyte** fields refer to the protein you add step by step, **Titrant** fields refer to the protein whose quantity is constant along NMR titration.
+You should fill and submit a protocol titration so you will have access to all plots available. **Analyte** fields refer to the protein you add step by step, **Titrant** fields refer to the protein whose quantity is constant along NMR titration.
 - _Name_ fields will set the name of your titration, analyte or titrant.
 - _Concentration_ fields assign **initial concentrations** of the proteins in µM.
 - _Analyte volume_ and _Total volume_ refer to the volumes in µL added at step 0 of titration (without titrant). _Total volume_ includes **proteic volumes and solvant**.
 
 Click on **Validate** once you completed the fields.
 
-## 8-Exit Shift2Me <a name="exit"></a>:
+## 4-Interact with graphs
 This is the essential part of Shift2Me. Those graphic representations will help you to define a suitable cutoff filtering residues implicated in PPI and thus determine affinnity parameters.
+
+2. Shiftmaps.
+
+The Shiftmap shows residues filtered regarding the cutoff set with histogram. Hover the plot with mouse to show **residue number, chemical shift intensities and titration step**.
+
+
+## 8-Exit Shift2Me <a name="exit"></a>:
+
+
+---
+## 9-About <a name="about"></a>:
+This program is developped by **_Louis DUCHEMIN, Hermes PARAQINDES, Marc-Antoine GUERY and Rainier-Numa GEORGES_**, students in **Master 1 Molecular Bio-Informatic** of **Claude Bernard Lyon 1 University (UCBL)**, mandated by **_Maggy HOLOGNE and Olivier WALKER_** **PhDs** of **Institut des Sciences Analytiques (ISA, CNRS - UMR 5280)**.
+
+```
+Institut des Sciences Analytiques
+CNRS - UMR 5280
+5 Rue de la DOUA
+69100 Villeurbanne - FRANCE
+```
+```
+Université Claude Bernard Lyon 1
+43 Boulevard du 11 Novembre 1918
+69100 Villeurbanne - FRANCE
+```
+------------------------------------------
