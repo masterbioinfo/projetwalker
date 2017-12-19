@@ -314,12 +314,12 @@ class StartParamContainer(TitrationWidget, PanelContainer):
         self.set_heading([self.titrationName])
         self.set_content([self.molecules,self.analyteStartVol, self.startVol])
 
-    def add_observer(self, obs):
-        self.observers.add(obs)
+    def add_observer(self, func):
+        self.observers.add(func)
 
     def on_change(self, change):
         for obs in self.observers:
-            obs.update()
+            obs(change)
 
     def update(self):
         self.titrationName.update()
@@ -343,6 +343,7 @@ class VolumeWidget(TitrationWidget, BoundedFloatText, WidgetKwargs):
         kwargs['description'] = "Step {number:d}".format(number=self.step_id)
         BoundedFloatText.__init__(self, *args,**kwargs)
         TitrationWidget.__init__(self)
+        self.add_class('volume-input-widget')
 
 
 class ProtocolePanel(TitrationWidget, PanelContainer):
@@ -501,11 +502,11 @@ class TitrationDirUploader(TitrationWidget, DirectoryUploadWidget):
 
     def dispatch(self):
         for obs in self.observers:
-            obs.update()
+            obs()
 
-    def add_observer(self, obs):
+    def add_observer(self, func):
         "Observer must have a update() method"
-        self.observers.add(obs)
+        self.observers.add(func)
 
     @observe('files')
     def _files_changed(self, *args):
@@ -552,7 +553,7 @@ class TitrationFilesView(TitrationWidget, PanelContainer ):
         self.set_heading([self.label])
         self.uploader = TitrationDirUploader()
         self.uploader.add_class('file-uploader')
-        self.uploader.add_observer(self)
+        self.uploader.add_observer(self.update)
         self.add_footer([self.uploader])
         self.update()
 

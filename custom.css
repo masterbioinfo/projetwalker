@@ -16,6 +16,15 @@
     font-weight: bold;
 }
 
+.panel-shift2me .widget-inline-hbox .widget-label {
+    padding-right: 8px;
+    margin-right: 0px;
+}
+
+.volume-input-widget {
+    padding-right: 10%;
+}
+
 .protocole-table thead>tr {
     height: 50px;
     vertical-align: bottom;
@@ -47,7 +56,7 @@
 }
 
 .data-files-view .dataframe tr {
-    height: 30px;
+    height: 35px;
 }
 
 .panel-footer .file-uploader .btn {
