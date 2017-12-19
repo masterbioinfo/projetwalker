@@ -48,7 +48,7 @@ if __name__ == '__main__':
         templateBuilder = titration if titration.isInit else BaseTitration()
         templateBuilder.dump_init_file(initFile = template)
         print("Generated template file at {file}".format(file=template))
-
+        exit(0)
     # Turn off MPL interactive mode
     plt.ioff()
     # Init CLI
