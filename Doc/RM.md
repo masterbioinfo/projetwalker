@@ -66,7 +66,6 @@ Different graphs will be generated at the end.
 <<<<<<< HEAD
 - __Curves__ : A curve can be generated for each residue implicated in a PPI. The curve shows the **delta of the chemical shifts** of the residue in function of the the **ratio of the concentration of the titrant protein to the concentration of the titrated protein**.
 
-- __A representation 3D__ of the protein structure is added for the graphical mode. The user can choose a PDB code, the residues numbers and change the representation mode.
 
 
 # Installation <a name="installation"></a>
@@ -536,7 +535,6 @@ It is being released the 19/12/17 in profit of <a href= "https://isa-lyon.fr/">*
 
 The graph visualzers for the GUI offered by the program were built using :
   - <a href="https://github.com/jupyter/ipywidgets">ipywidgets</a> - UI library for interactivity in Jupyter notebooks
-  - <a href="http://3dmol.csb.pitt.edu/doc/index.html">3Dmol.js</a> - 3D molecular visualization library for web browsers
   - <a href="https://bqplot.readthedocs.io/">bqplot</a> - Plotting library for IPython/Jupyter Notebooks
 
 
