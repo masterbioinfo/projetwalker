@@ -224,8 +224,8 @@ class SingleMolContainer(TitrationWidget,VBox):
     # }
 
     desc_kwargs = {
-        'style': {'description_width': '130px'},
-        'layout': Layout(width="230px")
+        'style': {'description_width': '60px'},
+        'layout': Layout(width="160px")
     }
 
     def __init__(self, target, desc=False, *args, **kwargs):
@@ -233,12 +233,13 @@ class SingleMolContainer(TitrationWidget,VBox):
 
         VBox.__init__(self, *args, **kwargs)
 
+        self.add_class('align-right')
+        self.label = Label(value=target.title(), layout=Layout(width="100px"))
+        self.label.add_class('form-head-label')
         if desc:
-            self.label = Label(value=target.title(), layout=Layout(left="150px"), justify_content="flex-end")
             self.name_field = MoleculeNameWidget(target, description = "Name:", **self.desc_kwargs)
-            self.conc_field = ConcentrationWidget(target, description = "Concentration (µM):", **self.desc_kwargs)
+            self.conc_field = ConcentrationWidget(target, description = "[µM]:", **self.desc_kwargs)
         else:
-            self.label = Label(value=target.title())
             self.name_field = MoleculeNameWidget(target)
             self.conc_field = ConcentrationWidget(target)
 
@@ -278,8 +279,8 @@ class MoleculesContainer(TitrationWidget, HBox):
 class StartParamContainer(TitrationWidget, PanelContainer):
 
     layout_kw = {
-        'style': {'description_width': '130px'},
-        'layout': Layout(width="230px")
+        'style': {'description_width': '100px'},
+        'layout': Layout(width="200px")
     }
 
     def __init__(self, *args, **kwargs):
@@ -291,28 +292,42 @@ class StartParamContainer(TitrationWidget, PanelContainer):
         # name_kw = dict(self.layout_kw)
         # name_kw['layout'] = Layout(width="335px")
 
-        self.titrationName = NameWidget()
-        self.titrationName.add_class('panel-header-title')
+        panelHeader = Label('Protocole parameters')
+        panelHeader.add_class('panel-header-title')
 
-        self.analyteStartVol = FloatControlWidget(
-            'analyteStartVol',
-            description='Analyte volume (µL):',
-            **self.layout_kw)
-        self.startVol = FloatControlWidget(
-            'startVol',
-            description='Total volume (µL):',
-            **self.layout_kw)
+        self.titrationName = NameWidget(layout=Layout(margin='auto'))
+        self.titrationName.add_class('bold-label')
 
         self.molecules = MoleculesContainer()
         self.molecules.container_observe(self.on_change)
 
         self.titrationName.observe(self.on_change, 'value')
 
+        volumeLabel = Label('Initial volumes', layout=Layout(width="100px"))
+        volumeLabel.add_class('form-head-label')
+        self.analyteStartVol = FloatControlWidget(
+            'analyteStartVol',
+            description='Analyte (µL):',
+            **self.layout_kw)
+        self.startVol = FloatControlWidget(
+            'startVol',
+            description='Total (µL):',
+            **self.layout_kw)
+
         self.analyteStartVol.observe(self.on_change, 'value')
         self.startVol.observe(self.on_change, 'value')
+        volumeForm = VBox([
+            volumeLabel,
+            self.analyteStartVol,
+            self.startVol
+        ])
+        volumeForm.add_class('align-right')
 
-        self.set_heading([self.titrationName])
-        self.set_content([self.molecules,self.analyteStartVol, self.startVol])
+        initialForm = HBox([self.molecules, volumeForm], layout=Layout(justify_content='space-around'))
+
+
+        self.set_heading([panelHeader])
+        self.set_content([self.titrationName, initialForm ])
 
     def add_observer(self, func):
         self.observers.add(func)
