@@ -129,9 +129,11 @@ Outputs titration parameters, and current status of protocole.
 Usage : status
 
 ```
+
 output :
-|Step |Added titrant (µL) | Total titrant (µL) | Total volume (µL) | [titrant] (µM) | [analyte] (µM) | [titrant]/[analyte] |
-| - | - | - | - | - | - | - |
+| Step | Added titrant (µL) | Total titrant (µL) | Total volume (µL) | [titrant] (µM) | [analyte] (µM) | [titrant]/[analyte] |
+| ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
+
 
 * #### dump_protocole command <a name="dump_protocole"></a> :
 This command will output a YAML file that contains all the protocole settings. The user can fill the template with all the experience parameters. Notice that all volumes are in **µL** and concentrations are in **µM**.
@@ -215,13 +217,9 @@ Options:
 
 ```
 Outputs titration parameters, and current status of protocole.
-
-Usage : status
-
 ```
-output :
-| Step | Added titrant (µL) | Total titrant (µL) | Total volume (µL) | [titrant] (µM) | [analyte] (µM) | [titrant]/[analyte] |
-| ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
+
+
 ## NMR analysis Commands <a name="nmr-analysis"></a> :
 Commands that will analyse tha data provided by the NMR experience and generate the graphs as described in the Introduction section.
 
