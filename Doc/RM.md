@@ -496,6 +496,7 @@ Map2D graph:
 
 ![Shiftmap](pic/shiftmap.png)
 
+Histograms:
 
 ![Simple histogram](pic/hist8.jpeg)
 
@@ -503,6 +504,7 @@ Map2D graph:
 
 
 Curves:
+
 ![Titration curve](pic/Curve218.jpeg)
 
 </p>
