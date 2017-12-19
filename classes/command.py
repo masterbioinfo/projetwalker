@@ -83,7 +83,7 @@ class ShiftShell(Cmd):
          $ csv > path/to/file.csv
         """
         if self.titration.isInit:
-            self.titration.protocole.to_csv(arg[0], index=True)
+            self.titration.protocole.to_csv(self.stdout, index=True)
         else:
             self.pfeedback("Titration parameters are not set. Please load a protocole file.")
             self.pfeedback("See `help init`")
