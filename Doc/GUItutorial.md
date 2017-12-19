@@ -112,19 +112,19 @@ See [jupyter documentation](http://jupyter-notebook.readthedocs.io/en/stable/exa
 
 Your files appear in the window:
 
-Data files|
----|---
-15N_UIM-SH3-37_00.list |
-15N_UIM-SH3-37_01.list |
-15N_UIM-SH3-37_02.list |
-15N_UIM-SH3-37_03.list |
-15N_UIM-SH3-37_04.list |
-15N_UIM-SH3-37_05.list |
-15N_UIM-SH3-37_06.list |
-15N_UIM-SH3-37_07.list |
-15N_UIM-SH3-37_08.list |
-15N_UIM-SH3-37_09.list |
-15N_UIM-SH3-37_10.list |
+|Data files|
+|------|
+|15N_UIM-SH3-37_00.list |
+|15N_UIM-SH3-37_01.list |
+|15N_UIM-SH3-37_02.list |
+|15N_UIM-SH3-37_03.list |
+|15N_UIM-SH3-37_04.list |
+|15N_UIM-SH3-37_05.list |
+|15N_UIM-SH3-37_06.list |
+|15N_UIM-SH3-37_07.list |
+|15N_UIM-SH3-37_08.list |
+|15N_UIM-SH3-37_09.list |
+|15N_UIM-SH3-37_10.list |
 
 2. The second cell outputs a protocol titration.
 
