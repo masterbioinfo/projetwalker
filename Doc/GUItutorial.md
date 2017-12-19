@@ -32,13 +32,11 @@ Given a .list file format, which contains the Residues numbers and the chemical 
 
 Different graphs will be generated at the end.
 
-- __Shiftmap__ : Two-dimensional graph wich shows the evolution of the chemicals shifts of **<sup>15</sup>N** and **<sup>1</sup>H** during each titration for all the residues.
+- __Shiftmap__ : Two-dimensional graph wich shows the evolution of the **chemicals shifts** of **<sup>15</sup>N** and **<sup>1</sup>H** during each titration for all the residues.
 
-- __Histogram__ : A histogram for each titration will show the delta of the chemical shifts in function of the residue number. In order to select the residues implicated in a PPI, the user can choose a cutoff.
+- __Histogram__ : A histogram for each titration will show the **delta of the chemical shifts** in function of the **residue number**. In order to select the residues implicated in a PPI, the user can choose a cutoff.
 
-- __Curves__ : A curve can be generated for each residue implicated in a PPI. The curve shows the delta of the chemical shifts of the residue in fuction of the the ratio of the concentration of the titrant protein to the concentration of the titrated protein.
-- __A representation 3D__ of the protein structure is added for the graphical mode. The user can choose a PDB code, the residues numbers and change the representation mode.
-
+- __Curves__ : A curve can be generated for each residue implicated in a PPI. The curve shows the **delta of the chemical shifts** of the residue in fuction of the the **ratio of the concentration of the titrant protein to the concentration of the titrated protein**.
 
 ------------------------------------------
 
@@ -49,7 +47,7 @@ Different graphs will be generated at the end.
 ## 1-Installation <a name="installation"></a> :
 First of all, ensure you have a python 3 (or more) version. To check your version, enter in the terminal shell :
 ```
-pip -V python
+pip show python
 ```
 You need to install jupyter notebook and specific widgets to use graphical mode of ShiftoMe.
 
@@ -87,9 +85,9 @@ See [jupyter documentation](http://jupyter-notebook.readthedocs.io/en/stable/exa
 
 ## 3-Upload your files <a name="upload"></a>:
 
-1. Click on **Upload titration directory** to upload all the .list files provided by your NMR titration. You must choose a directory in which all the .list files will be loaded.
+1. <a name="dir"></a> Click on **Upload titration directory** to choose a directory which contains all the .list files provided by your NMR titration 
 
-Your files appear in the window:
+Your files appear in the output:
 
 |Data files|
 |------|
@@ -105,7 +103,9 @@ Your files appear in the window:
 |15N_UIM-SH3-37_09.list |
 |15N_UIM-SH3-37_10.list |
 
-2. The second cell outputs a protocol titration.
+If you want to upload another directory, notice that the **last directory** uploaded **replaces the previous one**. Furthermore, uploading a **new directory** without any YAML formatted protocol file **does not change values of [protocol titration](#protocol)**.
+
+2. The second cell outputs a protocol titration.<a name ="protocol"></a>
 
 You should fill and submit the protocol settings to have access to all plots available. **Analyte** fields refer to the protein you add step by step, **Titrant** fields refer to the protein whose quantity is constant along NMR titration.
 - _Name_ fields will set the name of your titration, analyte or titrant.
@@ -114,12 +114,14 @@ You should fill and submit the protocol settings to have access to all plots ava
 
 Click on **Validate** once you completed the fields.
 
+Notice that if you had already a **YAML formatted protocol file** during [directory uploading](#dir), its content will be written in corresponding fields of **protocol titration**.
+
 ## 4-Interact with graphs <a name="graphs"></a> :
 This is the essential part of Shift2Me. Those graphic representations will help you to define a suitable cutoff filtering residues implicated in PPI and thus determine affinnity parameters.
 1. Histograms
 
 Below the protocol, a data vizualisation containing the graphs will appear. The first graph displayed is the histogram.
-On the left of the graph, are situated two sliders with which the user can interact. The first one allows the user to choose a titration step. The second one, to set a new cutoff. Intensities bigger than the cutoff are colored in orange, the rest is colored in blue. Only the intensities bigger than the cutoff are retained by the filter. Hover the histogram with mouse to show **residue number** and the **chemicals shifts** of **<sup>1</sup>H** and **<sup>15</sup>N**.
+On the left of the graph, are situated two sliders with which the user can interact. The first one allows the user to choose a **titration step**. The second one, to set a new **cutoff**. Intensities bigger than the cutoff are colored in orange, the rest is colored in blue. Only the intensities bigger than the cutoff are retained by the filter. Hover the histogram with mouse to show **residue number** and the **chemicals shifts** of **<sup>1</sup>H** and **<sup>15</sup>N**.
 
 2. Shiftmaps
 
@@ -127,7 +129,7 @@ The Shiftmap shows residues filtered regarding the cutoff set with histogram. Ho
 
 3. Titration curves
 
-The third tab displays the curve graphs. On top of the plot, the user can choose the residue number to display the curve. To display the curve of a residue not included in the filtered set, please uncheck the filtered residue option.
+The third tab displays the curve graphs. On top of the plot, the user can choose the **residue number** to display the curve. To display the curve of a residue not included in the filtered set, please uncheck the **filtered residue option**.
 
 4. Protein 3D representation
 
