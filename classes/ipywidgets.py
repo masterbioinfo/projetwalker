@@ -101,7 +101,8 @@ class PanelContainer(VBox):
     def __init__(self, heading=[], content=[], footer=None, *args, **kwargs):
         VBox.__init__(self, *args, **kwargs)
 
-        self._dom_classes += ('panel', 'panel-default')
+        self.add_class('panel')
+        self.add_class('panel-default')
 
         self.heading = self.HeaderBox(heading)
         self.content = self.ContentBox(content)
@@ -110,8 +111,8 @@ class PanelContainer(VBox):
         if footer is not None:
             self.add_footer(footer)
 
-        self.heading._dom_classes += ("panel-heading",)
-        self.content._dom_classes += ('panel-body',)
+        self.heading.add_class("panel-heading")
+        self.content.add_class('panel-body')
 
         if self.footer:
             self.children = (self.heading, self.content, self.footer)
@@ -121,7 +122,7 @@ class PanelContainer(VBox):
 
     def add_footer(self, widget_list=[]):
         self.footer=self.FooterBox(widget_list)
-        self.footer._dom_classes += ('panel-footer',)
+        self.footer.add_class('panel-footer')
         self.children = (self.heading, self.content, self.footer)
 
     def set_heading(self, widget_list):

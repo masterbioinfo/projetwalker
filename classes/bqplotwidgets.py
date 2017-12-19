@@ -2,9 +2,10 @@ import bqplot
 import math 
 from itertools import chain
 from ipywidgets import *
+import numpy as np
 from classes.ipywidgets import TitrationWidget, PanelContainer
 
-class IntensityBarPlot(bqplot.Figure, TitrationWidget):
+class IntensityBarPlot(TitrationWidget, bqplot.Figure):
     
     def __init__(self, step, stacked=False, *args, **kwargs):
         
@@ -184,6 +185,129 @@ class IntensityPanel(TitrationWidget, PanelContainer):
 
         self.plot_widgets = IntensityPlot()
 
+        #self.toolbar = bqplot.Toolbar(figure= self.plot_widgets.plot)
+
         self.set_heading([self.label])
 
         self.set_content([self.plot_widgets])
+
+
+
+class ShiftMap(bqplot.Figure, TitrationWidget):
+    
+    def __init__(self, *args, **kwargs):
+        
+        residues = self.titration.filtered.values()
+        
+        self.x_scale = bqplot.LinearScale(
+            min = min(chain.from_iterable([res.chemshiftH for res in residues])) * 0.99,
+            max = max(chain.from_iterable([res.chemshiftH for res in residues])) * 1.01
+        )
+        self.y_scale = bqplot.LinearScale(
+            min = min(chain.from_iterable([res.chemshiftN for res in residues])) * 0.98,
+            max = max(chain.from_iterable([res.chemshiftN for res in residues])) * 1.02
+        )
+        self.c_scale = bqplot.ColorScale(scheme='Purples')
+        
+        self.ax_x = bqplot.Axis(
+            label="Proton chemical shifts", 
+            scale=self.x_scale,
+            tick_format='0.2f',
+            grid_lines='dashed',
+            grid_color='#D1D0CE',
+            num_ticks=10
+            #visible = not stacked
+        )
+        
+        self.ax_y = bqplot.Axis(
+            label="Azote chemical shifts", 
+            scale=self.y_scale, 
+            orientation='vertical', 
+            tick_format='0.2f',
+            grid_lines='dashed',
+            grid_color='#D1D0CE',
+            num_ticks=10
+            #visible = not stacked
+        )
+        
+        self.ax_c = bqplot.ColorAxis(
+            label_location='middle', 
+            scale=self.c_scale, 
+            orientation='vertical', 
+            side='right',
+            label="Step",
+            #label_color = 'blue',
+            offset = {'scale':self.x_scale,'value':0}
+        )
+        
+        self.x_data = []
+        self.y_data = []
+        self.c_data = []
+        x_label = []
+        y_label = []
+        labels = []
+        names = []
+        
+        for res in residues:
+            self.x_data += res.chemshiftH
+            self.y_data += res.chemshiftN
+            self.c_data += list(range(self.titration.dataSteps))
+            names += [str(res.position)]*len(res.chemshiftH)
+            x_label.append(res.chemshiftH[-1])
+            y_label.append(res.chemshiftN[-1])
+            labels.append(str(res.position))
+            
+        self.labels = bqplot.Label(
+            x = x_label,
+            y = y_label,
+            text = labels,
+            x_offset=5,
+            y_offset=5,
+            scales= {'x': self.x_scale, 'y': self.y_scale},
+            font_weight='normal',
+            colors=['orange']
+        )
+        
+        self.scatter = bqplot.Scatter(
+            x=self.x_data, 
+            y=self.y_data, 
+            color=self.c_data,
+            marker='circle',
+            stroke='#FFFFFF',
+            names=names,
+            display_names=False,
+            names_unique=False,
+            #default_opacities = np.linspace(0.1, 0.8, num=self.titration.dataSteps).tolist(),
+            stroke_width = 0,
+            scales= {'x': self.x_scale, 'y': self.y_scale, 'color':self.c_scale},
+            selected_style={'stroke': 'white', 'fill': 'orange'},
+            interactions = {
+                'legend_hover': 'highlight_axes',
+                'hover': 'tooltip', 
+                #'click': 'select',
+            }
+        )
+
+        self.set_tooltips()
+        
+        bqplot.Figure.__init__(
+            self, 
+            marks=[self.scatter], 
+            axes=[self.ax_x, self.ax_y, self.ax_c],
+            title="Chemical shifts",
+            *args, **kwargs)
+        
+        self.layout=Layout(width='100%', height='width')
+        
+    def set_tooltips(self):
+        # Adding a tooltip on hover in addition to select on click
+        def_tt = bqplot.Tooltip(
+            fields=['name', 'x', 'y', 'color'], 
+            formats=['', '.2f', '.2f', ''],
+            labels=['Residue', 'H', 'N', 'Step'])
+        self.scatter.tooltip=def_tt
+        self.scatter.interactions = {
+            'legend_hover': 'highlight_axes',
+            'hover': 'tooltip', 
+            'click': 'select',
+        }
