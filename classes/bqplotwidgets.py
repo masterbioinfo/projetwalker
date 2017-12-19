@@ -308,44 +308,63 @@ class ShiftMap(bqplot.Figure, TitrationWidget):
         
 
 class ChemshiftPanel(TitrationWidget, PanelContainer):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, uploader=None, *args, **kwargs):
         PanelContainer.__init__(self, *args, **kwargs)
 
-        
+        self.uploader= uploader
         
         self.add_class('intensity-panel')
 
         self.label = Label("Chemical shifts")
         self.label.add_class('panel-header-title')
 
-        self.plot_widgets = IntensityPlot()
-        self.shiftmap = ShiftMap()
-        
         tab_titles = ['Intensities', "Shiftmap"]
         self.tabs = Tab()
-        self.tabs.children = [self.plot_widgets, self.shiftmap]
+        
         for num, title in enumerate(tab_titles):
             self.tabs.set_title(num, title)
 
         #self.toolbar = bqplot.Toolbar(figure= self.plot_widgets.plot)
 
         self.set_heading([self.label])
-
-        self.set_content([self.tabs])
-        self.tabs.disabled=True
         
         self.tabs.observe(self.tab_switch, 'selected_index')
-        
+
+        self.placeholder = VBox([
+            HTML(
+                "<h2>Titration files are not loaded.</h2>"
+                "<p>No data to display.</p>"
+                ""
+            )])
+        if self.uploader:
+            self.placeholder.children += (self.uploader,)
+            self.uploader.add_observer(self)
+
+        self.placeholder.add_class('well')
+        self.placeholder.add_class('plot-placeholder')
+
+        self.shiftmap_placeholder = HTML(
+            "<h2>No residues to show in shiftmap.</h2>"
+            "<p>Select residues to show using the cutoff slider in <code>Intensity</code> tab.</p>"
+            "<p>You may also select specific residues by clicking on bars (<code>Ctrl+click</code> to add)</p>")
+        self.shiftmap_placeholder.add_class('well')
+        self.shiftmap_placeholder.add_class('plot-placeholder')
+
+        self.update()
+
     def tab_switch(self, change):
         if change['new'] == 1:
             if self.titration.filtered:
                 self.shiftmap.update()
                 self.tabs.children = [self.plot_widgets, self.shiftmap]
             else:
-                placeholder = HTML(
-                    "<div><h2>No residues to show in shiftmap.</h2>"
-                    "<p>Select residues to show using the cutoff slider in <code>Intensity</code> tab.</p>"
-                    "<p>You may also select specific residues by clicking on bars (<code>Ctrl+click</code> to add)</p></div>")
-                placeholder.add_class('well')
-                placeholder.add_class('plot-placeholder')
-                self.tabs.children = [self.plot_widgets, placeholder]
+                self.tabs.children = [self.plot_widgets, self.shiftmap_placeholder]
+
+    def update(self):
+        if self.titration.files:
+            self.plot_widgets = IntensityPlot()
+            self.shiftmap = ShiftMap()
+            self.tabs.children = [self.plot_widgets, self.shiftmap]
+            self.set_content([self.tabs])
+        else:
+            self.set_content([self.placeholder])

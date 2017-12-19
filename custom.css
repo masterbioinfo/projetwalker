@@ -40,7 +40,7 @@
     width: 100%;
 }
 
-.widget-tab-contents .plot-placeholder.well .widget-html-content > div {
+.panel .panel-body .plot-placeholder.well .jupyter-widgets {
     text-align: center;
     font-size: 16px;
     font-weight: initial;
@@ -48,14 +48,22 @@
     margin: auto;
 }
 
-.widget-tab-contents .plot-placeholder.well h2 {
+.plot-placeholder.well h2 {
     font-weight: bold;
 }
 
-.widget-tab-contents .plot-placeholder.well code {
+.plot-placeholder.well code {
     font-weight: bold;
 }
 
 .p-TabBar-tabLabel{
     font-weight:bold;
+}
+
+.btn-group.file-uploader {
+    text-align: center;
+}
+
+.btn-group.file-uploader .btn{
+    float: none;
 }
