@@ -10,6 +10,8 @@
 
     2.3. [Upload](#upload)
 
+    2.4. [Initiating your protocol titration](#init)
+
     2.5. [Filter and select residues](#filter_select)
 
     2.6. [2D shift map, histograms and titration curve](#graphs)
@@ -18,12 +20,13 @@
 
     2.8. [Exit Shift2Me](#exit)
 
-
-3. [Commands](#commands)
+3. [About](#about)
 
 
 Shift2Me :sparkles: : 2D-NMR chemical shifts analyzer for protein protein interactions (PPI).
 ===============================
+
+------------------------------------------
 
 # Summary <a name="summary"></a>:
 
@@ -54,16 +57,16 @@ First of all, ensure you have a python 3 (or more) version. To check your versio
 ```
 pip -V python
 ```
-You need to install jupyter and specific widgets to use graphical mode of ShiftoMe.
+You need to install jupyter notebook and specific widgets to use graphical mode of ShiftoMe.
 
 1. To install jupyter notebook, run the command :
-``` 
+```
 pip3 install jupyter
 ```
 See [jupyter documentation](http://jupyter.readthedocs.io/en/latest/install.html) for installation.
 
-2. To clone ShifttoMe via gitHub and install its dependancies, run the following commands :
-``` 
+2. To clone Shift2Me via gitHub and install its dependancies, run the following commands :
+```
 git clone https://github.com/masterbioinfo/projetwalker.git
 pip3 install -r requirements.txt
 ```
@@ -95,7 +98,7 @@ See [jupyter documentation](http://jupyter-notebook.readthedocs.io/en/stable/exa
 Your files appear in the window:
 
 |Data files|
----|---
+|------|
 |15N_UIM-SH3-37_00.list |
 |15N_UIM-SH3-37_01.list |
 |15N_UIM-SH3-37_02.list |
@@ -108,9 +111,9 @@ Your files appear in the window:
 |15N_UIM-SH3-37_09.list |
 |15N_UIM-SH3-37_10.list |
 
-2. Fill a protocol titration.
+2. The second cell outputs a protocol titration.
 
-You should fill and submit a protocol titration so you will have access to all plots available. **Analyte** fields refer to the protein you add step by step, **Titrant** fields refer to the protein whose quantity is constant along NMR titration.
+You should fill and submit the protocol settings to have access to all plots available. **Analyte** fields refer to the protein you add step by step, **Titrant** fields refer to the protein whose quantity is constant along NMR titration.
 - _Name_ fields will set the name of your titration, analyte or titrant.
 - _Concentration_ fields assign **initial concentrations** of the proteins in µM.
 - _Analyte volume_ and _Total volume_ refer to the volumes in µL added at step 0 of titration (without titrant). _Total volume_ includes **proteic volumes and solvant**.
@@ -119,6 +122,10 @@ Click on **Validate** once you completed the fields.
 
 ## 4-Interact with graphs
 This is the essential part of Shift2Me. Those graphic representations will help you to define a suitable cutoff filtering residues implicated in PPI and thus determine affinnity parameters.
+1. Histograms
+
+Below the protocol, a data vizualisation containing the graphs will appear. The first graph displayed is the histogram.
+On the left of the graph, are situated two sliders with which the user can interact. The first one allows the user to choose a titration step. The second one, to set a new cutoff. Intensities bigger than the cutoff are colored in orange, the rest is colored in blue. Only the intensities bigger than the cutoff are retained by the filter.
 
 2. Shiftmaps
 
@@ -128,11 +135,19 @@ The Shiftmap shows residues filtered regarding the cutoff set with histogram. Ho
 
 The last rap
 ## 8-Exit Shift2Me <a name="exit"></a>:
+This is the essential part of Shift2Me. Those graphic representations will help you to define a suitable cutoff filtering residues implicated in PPI and thus determine affinnity parameters.
 
 
+# About <a name="about"></a> :
 ---
-## 9-About <a name="about"></a>:
-This program is developped by **_Louis DUCHEMIN, Hermes PARAQINDES, Marc-Antoine GUERY and Rainier-Numa GEORGES_**, students in **Master 1 Molecular Bio-Informatic** of **Claude Bernard Lyon 1 University (UCBL)**, mandated by **_Maggy HOLOGNE and Olivier WALKER_** **PhDs** of **Institut des Sciences Analytiques (ISA, CNRS - UMR 5280)**.
+This program is developped by :
+
+- **_Louis DUCHEMIN_**
+- **_Marc-Antoine GUERY_**
+- **_Hermes PARAQINDES_**
+- **_Rainer-Numa GEORGES_**
+
+	students in [**Master 1 Molecular Bio-Informatic**](https://www.bioinfo-lyon.fr/) of [**Claude Bernard Lyon 1 University (UCBL)**](https://www.univ-lyon1.fr/), mandated by **_Maggy HOLOGNE and Olivier WALKER_** **PhDs** of [**Institut des Sciences Analytiques (ISA, CNRS - UMR 5280)**](https://isa-lyon.fr/).
 
 ```
 Institut des Sciences Analytiques
