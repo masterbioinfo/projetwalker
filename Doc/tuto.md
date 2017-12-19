@@ -35,11 +35,11 @@ Shift2Me :sparkles: : 2D-NMR chemical shifts analyzer for protein protein intera
 ------------------------------------------
 Shift2me is a 2D-NMR chemical shifts analyzer for PPI. The goal of the program is to identify the residues implicated in a PPI.
 
-Given a .list file format, which contains the Residues numbers and the chemical shifts of ^15^N and ^1^H, the program will calculate the delta of the chemical shifts for each titration done during the experience.
+Given a .list file format, which contains the Residues numbers and the chemical shifts of **<sup>15</sup>N** and **<sup>1</sup>H**, the program will calculate the delta of the chemical shifts for each titration done during the experience.
 
 Different graphs will be generated at the end.
 
-- __Shiftmap__ : Two-dimensional graph wich shows the evolution of the chemicals shifts of ^15^N and ^1^H during each titration for all the residues.
+- __Shiftmap__ : Two-dimensional graph wich shows the evolution of the chemicals shifts of **<sup>15</sup>N** and **<sup>1</sup>H** during each titration for all the residues.
 
 - __Histogram__ : A histogram for each titration will show the delta of the chemical shifts in function of the residue number. In order to select the residues implicated in a PPI, the user can choose a cutoff.
 
@@ -279,7 +279,7 @@ residues selected
 ## 6-2D shift map, histograms and titration curve <a name="graphs"></a>:
 This is the essential part of Shift2Me. Those graphic representations will help you to define a suitable cutoff filtering residues implicated in PPI and thus determine affinnity parameters.
 
-1. You can display the whole 2D shift map with (x= ^1^H ppm, y= ^15^N ppm)by entering **shiftmap** command. This graphs shows the evolution of the chemicals shifts of ^15^N and ^1^H (in ppm) during each titration step for all the residues. Chemicals shifts are modeled on the graph with differents colors (one color per titration step). Residues sets availabale are complete, filtered and selected residues.
+1. You can display the whole 2D shift map with (x= **<sup>1</sup>H** ppm, y= **<sup>15</sup>N** ppm)by entering **shiftmap** command. This graphs shows the evolution of the chemicals shifts of **<sup>15</sup>N** and **<sup>1</sup>H** (in ppm) during each titration step for all the residues. Chemicals shifts are modeled on the graph with differents colors (one color per titration step). Residues sets availabale are complete, filtered and selected residues.
 For example, to show selected residues shiftmap, use:
 ```
 shiftmap selected

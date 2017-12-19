@@ -68,23 +68,26 @@ Different graphs will be generated at the end.
 
 # Installation <a name="installation"></a>
 ----
-To install ShiftoMe, type :
+To install Shift2Me, you should clone the [**GitHub project**](https://github.com/masterbioinfo/projetwalker) via a Linux terminal :
 ```
-pip3 -r shiftome
+git clone https://github.com/masterbioinfo/projetwalker.git
 ```
 
 
 # Command Line <a name="command-Line"></a>
 ----
-
+Once the cloning has finished, you should use the command **cd, to open the directory that contains the program Shif2Me  :
+```
+cd projetwalker
+```
 The commands that launch Shift2Me program are :
 
 ```
-shift2me.py [-c <cutoff>] [-i <titration.yml>] [-t <file.yml>] ( <dir> | <saved_job> )
+python3 shift2me.py [-c <cutoff>] [-i <titration.yml>] [-t <file.yml>] ( <dir> | <saved_job> )
 ```
 To obtain help
 ```    
- shift2me.py -h
+python3 shift2me.py -h
 ```
 ```
 Options:
@@ -131,9 +134,10 @@ Usage : status
 ```
 
 output :
+```
 | Step | Added titrant (µL) | Total titrant (µL) | Total volume (µL) | [titrant] (µM) | [analyte] (µM) | [titrant]/[analyte] |
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-
+```
 
 * #### dump_protocole command <a name="dump_protocole"></a> :
 This command will output a YAML file that contains all the protocole settings. The user can fill the template with all the experience parameters. Notice that all volumes are in **µL** and concentrations are in **µM**.
@@ -217,7 +221,7 @@ Options:
 
 ```
 Outputs titration parameters, and current status of protocole.
-```
+
 
 
 ## NMR analysis Commands <a name="nmr-analysis"></a> :
@@ -447,10 +451,11 @@ Lists shortcuts (aliases) available.
 ```
 
 Shortcuts for other commands:
-
-1. !: shell
-2. ?: help
-
+```
+!: shell
+?: help
+```
+For all the commands that are not documented here, please refer to the [**cmd2**](https://github.com/python-cmd2/cmd2) module documentation
 
 ### History and Exit commands <a name="history_exit"></a> :
 ---
@@ -484,6 +489,7 @@ Usage : quit
 
 Map2D graph:
 
+<p align="center">
 
 ![Shiftmap](Shiftmap2D.jpeg)
 
@@ -497,7 +503,7 @@ Histogram:
 Curves:
 ![curve](Curve218.jpeg)
 
-
+</p>
 
 ## Authors <a name="authors"></a>
 
@@ -522,7 +528,7 @@ It is being released the 19/12/17 in profit of <a href= "https://isa-lyon.fr/">*
 The graph visualzers for the GUI offered by the program were built using :
   - <a href="https://github.com/jupyter/ipywidgets">ipywidgets</a> - UI library for interactivity in Jupyter notebooks
   - <a href="http://3dmol.csb.pitt.edu/doc/index.html">3Dmol.js</a> - 3D molecular visualization library for web browsers
-  - <a href="https://plot.ly/python/">Plotly</a> - An interactive, browser-based graphing library for Python
+  - <a href="https://bqplot.readthedocs.io/">bqplot</a> - Plotting library for IPython/Jupyter Notebooks
 
 
 
