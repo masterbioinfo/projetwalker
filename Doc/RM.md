@@ -14,7 +14,7 @@
 
     2.2. [NMR Analysis Commands](#nmr-analysis)
     + [Initiate the analysis Commands](#initiate)
-       	* [summary](#summary)
+        * [summary](#summary)
     	* [add_step](#add_step)
     	* [load_job](#load_job)
     	* [update](#update)
@@ -53,18 +53,19 @@
 Shift2Me :sparkles: : 2D-NMR chemical shifts analyzer for protein protein interactions (PPI).
 ===============================
 ---
-Shift2me is a 2D-NMR chemical shifts analyzer for PPI. The goal of the program is to identify the residues implicated in a PPI.
+Shift2Me is a 2D-NMR chemical shifts analyzer for PPI. The goal of the program is to identify the residues implicated in a PPI.
 
-Given a .list file format, which contains the Residues numbers and the chemical shifts of 15N and 1H, the program will calculate the delta of the chemical shifts for each titration done during the experience.
+Given a .list file format, which contains the residue numbers and the chemical shifts of 15N and 1H, the program will calculate the delta of the chemical shifts for each titration done during the experience.
 
 Different graphs will be generated at the end.
 
-- __A map2D__ : Two-dimensional graph wich shows the evolution of the chemicals shifts of 15N and 1H during each titration for all the residues.
+- __Shiftmap__ : Two-dimensional graph wich shows the evolution of the chemicals shifts of **<sup>15</sup>N** and **<sup>1</sup>H** during each titration for all the residues.
 
-- __Histogram__ : A histogram for each titration will show the delta of the chemical shifts in function of the residue number. In order to select the residues implicated in a PPI, the user can choose a cutoff.
+- __Histogram__ : A histogram for each titration will show the **delta of the chemical shifts** in function of the **residue number**. In order to select the residues implicated in a PPI, the user can choose a **cutoff**.
 
-- __Curves__ : A curve can be generated for each residue implicated in a PPI. The curve shows the delta of the chemical shifts of the residue in fuction of the the ratio of the concentration of the titrant protein to the concentration of the titrated protein.
-- In __GUI__ mode, a representation 3D of the protein structure is added. The user can choose a PDB code, the residues numbers and change the representation mode.
+- __Curves__ : A curve can be generated for each residue implicated in a PPI. The curve shows the **delta of the chemical shifts** of the residue in function of the the **ratio of the concentration of the titrant protein to the concentration of the titrated protein**.
+
+- In __GUI__ mode, a representation 3D of the protein structure is added. The user can choose a PDB code, the residue numbers and change the representation mode.
 
 # Installation <a name="installation"></a>
 ----
@@ -72,14 +73,14 @@ To install Shift2Me, you should clone the [**GitHub project**](https://github.co
 ```
 git clone https://github.com/masterbioinfo/projetwalker.git
 ```
-Then install all the dependancies of the requirements.txt file
+Then install all the dependancies of the _requirements.txt_ file
 ```
 pip3 install -r requirements.txt
 ```
 
 # Command Line <a name="command-Line"></a>
 ----
-Once the cloning has finished, you should use the command **cd, to open the directory that contains the program Shif2Me  :
+Once the cloning has finished, you should use the command **cd**, to open the directory that contains the program Shif2Me  :
 ```
 cd projetwalker
 ```
@@ -103,7 +104,7 @@ Options:
 ```
 The user should indicate a directory as option to the program. Every file added after the program is launched will be saved to the directory indicated.
 
-Once the program launched, a shell terminal will be appear. After analyzing the data files, a summary of iformation will show up :
+Once the program is launched, a shell terminal will appear. After analyzing the data files, a summary of informations will show up :
 
 	* Source dir 		-> the data path
 	* Steps				-> the number of steps experiments
@@ -113,12 +114,12 @@ Once the program launched, a shell terminal will be appear. After analyzing the 
  		- Incomplete residues	-> Number of residues with incomplete informations (not retained in the study)
  		- Filtered residues		-> Number of residus filtered (0 in the first time)
 
-By typing help or ? a list of all commmands disponible will appear.
+By typing **help** or **?** a list of all commmands available will appear.
 ```
 help or ?
 ```
 
-To show more information for one specific command type :
+To show more informations for one specific command, type :
 
 ```
 help <comand>
@@ -130,22 +131,22 @@ Commands used to set the experience settings such as the volume added for each t
 * #### status command <a name="status"></a> :
 
 ```
-Outputs titration parameters, and current status of protocole.
+Output titration parameters, and current status of protocole.
 
 Usage : status
 
 ```
 
-output :
+Output :
 
 | Step | Added titrant (µL) | Total titrant (µL) | Total volume (µL) | [titrant] (µM) | [analyte] (µM) | [titrant]/[analyte] |
 |------|--------------------|--------------------|-------------------|----------------|----------------|---------------------|
 
 
 * #### dump_protocole command <a name="dump_protocole"></a> :
-This command will output a YAML file that contains all the protocole settings. The user can fill the template with all the experience parameters. Notice that all volumes are in **µL** and concentrations are in **µM**.
+This command will output a YAML file that contains all the protocole settings. The user can fill the template with all the experiment parameters. Notice that all volumes are in **µL** and concentrations are in **µM**.
 ```
-Outputs titration parameters.
+Output titration parameters.
 Argument may be a file path to write into. Defaults to stdout.
 
 Usage : dump_protocole <file_name>
@@ -171,25 +172,25 @@ add_volumes:
 * #### init command <a name="init"></a> :
 
 ```
-Loads a YAML formatted file.yml describing titration protocole.
+Load a YAML formatted file.yml describing titration protocole.
         To generate a template protocole descriptor as <file> :
             $ dump_protocole <file>.yml
 
 Usage: init <protocole>.yml
 
 Options:
-  -h, --help  show this help message and exit
+  -h, --help  Show this help message and exit
 
 ```
 
 * #### set_volumes command <a name="set_volumes"></a> :
 ```
-Sets added titrant volumes for current titration, replacing existing volumes.
+Set added titrant volumes for current titration, replacing existing volumes.
 
 Usage: set_volumes <vol (µL)> <vol (µL)> ...
 
 Options:
-  -h, --help  show this help message and exit
+  -h, --help  Show this help message and exit
 ```
 
 * #### add_volumes command <a name="add_volumes"></a>:
@@ -199,28 +200,27 @@ Add volumes to currently existing volumes in titration.
 Usage: add_volumes <vol(µL)> [<vol(µL)> ...]
 
 Options:
-  -h, --help  show this help message and exit
+  -h, --help  Show this help message and exit
 
 ```
 
 * #### set_name command <a name="set_name"></a> :
 ```
-Sets titration name
+Set titration name.
 
 Usage: set_name Ubiquitin
 ```
 
 * #### csv command <a name="csv"></a>:
 ```
-Prints each titration step experimental conditions, such as volumes and concentration of each molecule.
+Print each titration step experimental conditions, such as volumes and concentration of each molecule.
         Format is comma-separated CSV table. You may redirect its output :
-         $ csv path/to/file.csv
          $ csv > path/to/file.csv
 
-Usage: csv [<path/to/file.csv>]
+Usage: csv > [<path/to/file.csv>]
 
 Options:
-  -h, --help  show this help message and exit
+  -h, --help  Show this help message and exit
 
 ```
 Outputs titration parameters, and current status of protocole.
@@ -228,45 +228,45 @@ Outputs titration parameters, and current status of protocole.
 
 
 ## NMR analysis Commands <a name="nmr-analysis"></a> :
-Commands that will analyse tha data provided by the NMR experience and generate the graphs as described in the Introduction section.
+Commands that will analyze datas provided by the NMR experiment and generate the graphs as described in the Introduction section.
 
 ### Initiate the analysis <a name="initiate"></a> :
 
 * #### summary command <a name="summary"></a> :
 
 ```
-Prints a summary of current titration state
+Print a summary of current titration state.
 
 Usage : summary
 ```
 Output :
 ```
-* Source dir 		-> the data path
-* Steps				-> the number of steps experiments
-* Cutoff			-> cutoff selected
-* Total reisdues	-> Total residus in the study
+* Source dir 		-> The data path
+* Steps				-> The number of steps experiments
+* Cutoff			-> Cutoff selected
+* Total reisdues	-> Total residues in the study
 	- Complete residues 	-> Total residues in the study
 	- Incomplete residues	-> Number of residues with incomplete informations (not retained in the study)
-	- Filtered residues		-> Number of residus filtered (0 in the first time)
+	- Filtered residues		-> Number of residues filtered (0 at the first time)
 ```
 
 * #### add_step command <a name="add_step"></a> :
 ```
-Add a titration file as next step. Associate a volume to this step with -v option.
+Add a titration file as next step. Associates a volume to this step with -v option.
         Example : add_step titration_10.list -v 10
 
 	Usage: add_step [options] <titration_file_##.list>
 
 	Options:
-  	-h, --help            show this help message and exit
+  	-h, --help            Show this help message and exit
   	-v VOLUME, --volume=VOLUME
                         Volume of titrant solution to add titration step
 ```
 * #### load_job <a name="load_job"></a> :
-For more information about this command, see also the **[save_job](#save_job) command.
+For more information about this command, see also the [save_job](#save_job) command.
 
 ```
-Loads previously saved titration, replacing active titration
+Load previously saved titration, replacing active titration.
 
 Usage : load_job <file_saved_path>
 
@@ -275,8 +275,8 @@ Usage : load_job <file_saved_path>
 ```
 Update titration from <source>.
         If source is a directory, will add all the .list files
-        with appropriate naming regarding expected next steps.
-        If source is a list of files, add all the files,
+        with appropriate names regarding expected next steps.
+        If source is a list of files, adds all the files,
         checking they have correct name regarding expected steps.
         No argument uses directory from first invocation, looking for
         any new step .list files in it.
@@ -285,7 +285,7 @@ Update titration from <source>.
 Usage: update [ <directory> | <titration_file.list> ... ]
 
 Options:
-  -h, --help  show this help message and exit
+  -h, --help  Show this help message and exit
 
 ```
 
@@ -295,12 +295,12 @@ Options:
 
 * #### cutoff command <a name="cutoff"></a>:
 ```
-Sets cutoff value to filter residues with high chemshift intensity.
+Set cutoff value to filter residues with high chemical shift intensity.
 
 Usage: cutoff [options] <float>
 
 Options:
-  -h, --help  show this help message and exit
+  -h, --help  Show this help message and exit
   -p, --plot  Set cut-off and plot.
 ```
 
@@ -308,7 +308,7 @@ Options:
 ```
 Select a subset of residues, either from :
          - a predefined set of residues
-         - 1 or more slices of residue positions, with python-ish syntax.
+         - One or more slices of residue positions, with python-ish syntax.
         Examples :
             ':100' matches positions from start to 100
             '110:117' matches positions from 100 to 117 (excluded)
@@ -322,14 +322,14 @@ Select a subset of residues, either from :
 Usage: select [all] [filtered] [complete] [incomplete] [positions_slice]
 
 Options:
-  -h, --help  show this help message and exit
+  -h, --help  Show this help message and exit
 ```
 
 * #### deselect command <a name="deselect"></a>:
 ```
 Remove a subset of residues from current selection, specifying either :
          - a predefined set of residues
-         - 1 or more slices of residue positions, with python-ish syntax.
+         - One or more slices of residue positions, with python-ish syntax.
            e.g : ':100' matches positions from start to 100
                  '110:117' matches positions from 100 to 117 (excluded)
                  '105 112:115' matches positions 105 and 112 to 115 (excluded)
@@ -340,25 +340,25 @@ Remove a subset of residues from current selection, specifying either :
 Usage: deselect arg
 
 Options:
-  -h, --help  show this help message and exit
+  -h, --help  Show this help message and exit
 
 ```
 * #### filter command <a name="filter"></a>:
 ```
-Output residues having intensity >= cut-off
+Output residues having their intensity superior or equal to cutoff.
 Usage: filter arg
 
 Options:
-  -h, --help  show this help message and exit
+  -h, --help  Show this help message and exit
 ```
 
 * #### residues command <a name="residues"></a>:
 ```
-Output specific titration infos to standard output
+Output specific titration infos to standard output.
 Usage: residues ( filtered | selected | complete | incomplete )
 
 Options:
-  -h, --help  show this help message and exit
+  -h, --help  Show this help message and exit
 
 ```
 ### Graph generator Commands <a name="graph"></a> :
@@ -371,10 +371,10 @@ Plot chemical shifts for H and N atoms for each residue at each titration step.
 Usage: shiftmap [options] ( complete | filtered | selected )
 
 Options:
-  -h, --help            show this help message and exit
+  -h, --help            Show this help message and exit
   -s, --split           Sublot each residue individually.
   -e EXPORT, --export=EXPORT
-                        Export 2D shifts map as .png image file
+                        Export 2D shifts map as PNG image file
 ```
 
 * #### hist command <a name="hist"></a>:
@@ -388,9 +388,9 @@ Options:
 Usage: hist [options] (<titration_step> | all)
 
 Options:
-  -h, --help            show this help message and exit
+  -h, --help            Show this help message and exit
   -e EXPORT, --export=EXPORT
-                        Export hist as image
+                        Export hist as PNG image
 
 ```
 * #### curve command <a name="curve"></a>:
@@ -399,7 +399,7 @@ Show titration curve of one or several residues.
 Usage: curve residue [residue ...]
 
 Options:
-  -h, --help  show this help message and exit
+  -h, --help  Show this help message and exit
 ```
 
 ### Save Command <a name="save_"></a> :
@@ -407,7 +407,7 @@ Options:
 Command used to save the experience.
 * #### save_job command <a name="save_job"></a> :
 ```
-Saves active titration to binary file
+Save active titration to binary file
 
 Usage : save_job [file_name_optional]
 
@@ -419,15 +419,15 @@ The file name is an option. If the experience has a titration name, then the com
 These commands are generated automatically by cmd2 module. They can be used to execute shell or python commands.
 * #### py command <a name="py"></a> :
 ```
-py <command>: Executes a Python command.
-        py: Enters interactive Python mode.
+py <command>: Execute a Python command.
+        py: Enter interactive Python mode.
         End with ``Ctrl-D`` (Unix) / ``Ctrl-Z`` (Windows), ``quit()``, '`exit()``.
         Non-python commands can be issued with ``cmd("your command")``.
         Run python code from external script files with ``run("script.py")``
 ```
 * #### pyscript command <a name="pyscript"></a>:
 ```
-Runs a python script file inside the console
+Run a python script file inside the console.
 
 Console commands can be executed inside this script with cmd("your command")
 However, you cannot run nested "py" or "pyscript" commands from within this script
@@ -436,7 +436,7 @@ Paths or arguments that contain spaces must be enclosed in quotes
 Usage: pyscript <script_path> [script_arguments]
 
 Options:
-  -h, --help  show this help message and exit
+  -h, --help  Show this help message and exit
 
 ```
 
@@ -449,7 +449,7 @@ Execute a command as if at the OS prompt.
 
 * #### shortcuts command <a name="shortcuts"></a>:
 ```
-Lists shortcuts (aliases) available.
+List shortcuts (aliases) available.
 
 ```
 
@@ -466,16 +466,16 @@ For all the commands that are not documented here, please refer to the [**cmd2**
 ```
 history [arg]: lists past commands issued
 
-        | no arg:         list all
-        | arg is integer: list one history item, by index
+        | no arg:         List all
+        | arg is integer: List one history item, by index
         | a..b, a:b, a:, ..b -> list history items by a span of indices (inclusive)
-        | arg is string:  list all commands matching string search
-        | arg is /enclosed in forward-slashes/: regular expression search
+        | arg is string:  List all commands matching string search
+        | arg is /enclosed in forward-slashes/: Regular expression search
 
 Usage: history [options] (limit on which commands to include)
 
 Options:
-  -h, --help    show this help message and exit
+  -h, --help    Show this help message and exit
   -s, --script  Script format; no separation lines
 ```
 
@@ -483,7 +483,7 @@ Options:
 
 * #### quit <a name="quit"></a>:
 ```
-Exits this application.
+Exit this application.
 
 Usage : quit
 ```
@@ -497,13 +497,16 @@ Map2D graph:
 ![Shiftmap](pic/shiftmap.png)
 
 Histograms:
+- Simple histogram
 
 ![Simple histogram](pic/hist8.jpeg)
+
+- Stacked histogram
 
 ![Stacked histogram](pic/hist_all.jpeg)
 
 
-Curves:
+Titration Curve:
 
 ![Titration curve](pic/Curve218.jpeg)
 
