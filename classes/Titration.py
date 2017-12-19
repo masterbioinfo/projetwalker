@@ -328,8 +328,8 @@ class Titration(BaseTitration):
     PATH_PATTERN = re.compile(r'(.+/)?(.*[^\d]+)(?P<step>[0-9]+)\.list')
     # accepted lines pattern
     LINE_PATTERN = re.compile(r'^(?P<position>\d+)(\S*)?\s+'
-                            r'(?P<chemshiftH>\d+\.\d+)\s+'
-                            r'(?P<chemshiftN>\d+\.\d+)$')
+                            r'(?P<chemshiftN>\d+\.\d+)\s+'
+                            r'(?P<chemshiftH>\d+\.\d+)$')
     # ignored lines pattern
     IGNORE_LINE_PATTERN = re.compile(r"^\d.*")
 

@@ -11,16 +11,16 @@
     font-size: 20px;
 }
 
-.intensity-panel .widget-label{
+.intensity-panel .widget-label {
     font-weight: bold;
 }
 
-.protocole-table thead > tr{
+.protocole-table thead>tr {
     height: 50px;
     vertical-align: bottom;
 }
 
-.protocole-table tr{
+.protocole-table tr {
     height: 31px;
 }
 
@@ -29,7 +29,7 @@
 }
 
 .widget-readout {
-    font-weight:bold;
+    font-weight: bold;
 }
 
 .data-files-view .panel-body {
@@ -56,14 +56,25 @@
     font-weight: bold;
 }
 
-.p-TabBar-tabLabel{
-    font-weight:bold;
+.intensity-panel .p-TabBar-tab {
+    min-height: 39px !important;
+}
+
+.intensity-panel .p-TabBar-tab.p-mod-current {
+    min-height: 40px !important
+}
+
+.intensity-panel .p-TabBar-tabLabel {
+    font-weight: bold;
+    font-size: 15px;
+    line-height: 20px;
+    margin: auto;
 }
 
 .btn-group.file-uploader {
     text-align: center;
 }
 
-.btn-group.file-uploader .btn{
+.btn-group.file-uploader .btn {
     float: none;
 }
