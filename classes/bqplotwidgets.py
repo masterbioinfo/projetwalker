@@ -366,7 +366,6 @@ class TitrationCurve(TitrationWidget, bqplot.Figure):
         self.scatter.x = self.titration.protocole.iloc[:, [5]].values.T.tolist().pop()
         self.scatter.y = self.res.chemshiftIntensity
         self.set_tooltips()
-        print('kanar')
 
     def set_tooltips(self):
         # Adding a tooltip on hover in addition to select on click

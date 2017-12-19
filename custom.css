@@ -105,3 +105,18 @@
 .upload-directory-btn .btn {
     font-weight: bold;
 }
+
+.align-right {
+    text-align: right;
+}
+
+.align-right .form-head-label {
+    font-weight: bold;
+    float: right;
+    text-align: center;
+    margin-left: auto;
+}
+
+.bold-label .widget-label {
+    font-weight: bold;
+}
