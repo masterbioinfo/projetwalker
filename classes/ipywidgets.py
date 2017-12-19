@@ -2,6 +2,7 @@ from ipywidgets import *
 from ipyfileupload.widgets import DirectoryUploadWidget
 from traitlets import observe
 import base64, io
+import pandas as pd
 
 from classes.Titration import Titration
 
@@ -25,7 +26,7 @@ class TitrationWidget(Widget):
 class AttrControlMixin(TitrationWidget):
     """Sets an attribute of target titration
     """
-    
+
     def __init__(self, target):
         self.endpoint = target
         TitrationWidget.__init__(self)
@@ -103,6 +104,7 @@ class PanelContainer(VBox):
 
         self.add_class('panel')
         self.add_class('panel-default')
+        self.add_class('panel-shift2me')
 
         self.heading = self.HeaderBox(heading)
         self.content = self.ContentBox(content)
@@ -139,7 +141,8 @@ class NameWidget(TextControlWidget):
     "Sets study name"
 
     widget_kw = {
-        'description' : 'Experiment name:'
+        'description' : 'Experiment name:',
+        'style': {'description_width': '130px'},
     }
 
     def __init__(self, *args, **kwargs):
@@ -154,10 +157,10 @@ class NameWidget(TextControlWidget):
 
 class ConcentrationWidget(AttrControlMixin, BoundedFloatText, WidgetKwargs):
     """Sets concentration for one of the molecule
-    
+
     molecule : str 'analyte', 'titrant'
     """
-    
+
     widget_kw = {
         'min': 0,
         'max': 100000,
@@ -173,7 +176,7 @@ class ConcentrationWidget(AttrControlMixin, BoundedFloatText, WidgetKwargs):
 
         BoundedFloatText.__init__(self, *args, **kwargs)
         AttrControlMixin.__init__(self, target)
-        
+
     def set_value(self, value):
         "Set concentration for target molecule."
         getattr(self.titration, self.endpoint)['concentration'] = value
@@ -185,7 +188,7 @@ class ConcentrationWidget(AttrControlMixin, BoundedFloatText, WidgetKwargs):
 
 class MoleculeNameWidget(AttrControlMixin, Text, WidgetKwargs):
     """Sets name for one of the molecule
-    
+
     molecule : str 'analyte', 'titrant'
     """
 
@@ -193,7 +196,7 @@ class MoleculeNameWidget(AttrControlMixin, Text, WidgetKwargs):
         "layout" : Layout(width='100px'),
         #'style' : {'description_width':'100px'}
     }
-    
+
     def __init__(self, target, *args, **kwargs):
         assert target in ('analyte', 'titrant'), "Invalid argument {arg}: must be 'analyte' or 'titrant'"
 
@@ -217,11 +220,11 @@ class MoleculeNameWidget(AttrControlMixin, Text, WidgetKwargs):
 class SingleMolContainer(TitrationWidget,VBox):
     # styles = {
     #     "label": ,
-    #     "field": 
+    #     "field":
     # }
 
     desc_kwargs = {
-        'style': {'description_width': '130px'}, 
+        'style': {'description_width': '130px'},
         'layout': Layout(width="230px")
     }
 
@@ -275,36 +278,36 @@ class MoleculesContainer(TitrationWidget, HBox):
 class StartParamContainer(TitrationWidget, PanelContainer):
 
     layout_kw = {
-        'style': {'description_width': '130px'}, 
+        'style': {'description_width': '130px'},
         'layout': Layout(width="230px")
     }
 
     def __init__(self, *args, **kwargs):
-        PanelContainer.__init__(self, layout=Layout(width='400px'), *args, **kwargs)
+        PanelContainer.__init__(self, layout=Layout(min_width='350px', width='68%'), *args, **kwargs)
         TitrationWidget.__init__(self)
 
         self.observers = set()
 
-        name_kw = dict(self.layout_kw)
-        name_kw['layout'] = Layout(width="335px")
-        
-        self.titrationName = NameWidget(**name_kw)
+        # name_kw = dict(self.layout_kw)
+        # name_kw['layout'] = Layout(width="335px")
+
+        self.titrationName = NameWidget()
         self.titrationName.add_class('panel-header-title')
 
         self.analyteStartVol = FloatControlWidget(
-            'analyteStartVol', 
-            description='Analyte volume (µL):', 
+            'analyteStartVol',
+            description='Analyte volume (µL):',
             **self.layout_kw)
         self.startVol = FloatControlWidget(
-            'startVol', 
-            description='Total volume (µL):', 
+            'startVol',
+            description='Total volume (µL):',
             **self.layout_kw)
 
         self.molecules = MoleculesContainer()
         self.molecules.container_observe(self.on_change)
 
         self.titrationName.observe(self.on_change, 'value')
-        
+
         self.analyteStartVol.observe(self.on_change, 'value')
         self.startVol.observe(self.on_change, 'value')
 
@@ -473,10 +476,10 @@ class ProtocoleContainer(HBox):
     def __init__(self, *args, **kwargs):
         HBox.__init__(self, *args, **kwargs, layout=Layout(justify_content='space-around'))
 
-        self.volumes = VolumePanel(layout=Layout(width='250px', height="auto"))
+        self.volumes = VolumePanel(layout=Layout(width='30%', height="auto"))
         self.volumes.validate_button.on_click(self.on_submit)
 
-        self.protocole = ProtocolePanel()
+        self.protocole = ProtocolePanel(layout=Layout(width='68%', height="auto"))
 
         self.children = (self.volumes, self.protocole)
 
@@ -491,9 +494,10 @@ class TitrationDirUploader(TitrationWidget, DirectoryUploadWidget):
 
     def __init__(self, *args, **kwargs):
         DirectoryUploadWidget.__init__(self, *args, **kwargs)
-        self.label = "Upload titration directory..."
+        self.label = "Upload titration directory"
         self.output = Output()
         self.observers = set()
+        self._dom_classes += ('upload-directory-btn',)
 
     def dispatch(self):
         for obs in self.observers:
@@ -506,16 +510,16 @@ class TitrationDirUploader(TitrationWidget, DirectoryUploadWidget):
     @observe('files')
     def _files_changed(self, *args):
         if self.files:
-            self.extract_chemshifts()  
+            self.extract_chemshifts()
             self.extract_protocole()
             self.dispatch()
-    
+
     @observe('base64_files')
     def _base64_files_changed(self, *args):
         for name, file in self.base64_files.items():
             self.files[name] = base64.b64decode(file.split(',',1)[1])
         self._files_changed(self, *args)
-        
+
     def extract_chemshifts(self):
         filenames = set([file for file in self.files.keys() if file.endswith('.list')]) - set(self.titration.files)
         filenames = sorted(filenames, key=self.titration.validate_filepath)
@@ -532,14 +536,19 @@ class TitrationDirUploader(TitrationWidget, DirectoryUploadWidget):
 
 class TitrationFilesView(TitrationWidget, PanelContainer ):
     def __init__(self, *args, **kwargs):
-        
+
         PanelContainer.__init__(self, *args,**kwargs)
 
         self.add_class('data-files-view')
 
         self.label = Label("Data files")
         self.label.add_class('panel-header-title')
-        self.layout.width="250px"
+        self.layout.width="30%"
+        self.content.layout.max_height="200px"
+        self.content.layout.height="200px"
+        self.content.layout.overflow_x="scroll"
+        self.content.layout.overflow_y="scroll"
+        self.content.layout.display="inline-block"
         self.set_heading([self.label])
         self.uploader = TitrationDirUploader()
         self.uploader.add_class('file-uploader')
@@ -548,7 +557,13 @@ class TitrationFilesView(TitrationWidget, PanelContainer ):
         self.update()
 
     def update(self):
-        self.files = [Label(fname) for fname in self.titration.files]
-        self.set_content(self.files)
+        self.files = self.titration.files
+        if self.files:
+            content = HTML(pd.DataFrame(data=self.files).to_html(index=False, header=False))
+            content.add_class('rendered_html')
+
+        else:
+            content = Label('No files yet.')
+        self.set_content([content])
 
 

@@ -359,12 +359,11 @@ class TitrationCurve(TitrationWidget, bqplot.Figure):
         self.axes=[self.ax_x, self.ax_y]
 
     def change_res(self, change):
-
         self.res = self.titration.complete[change['new']]
         self.update()
 
     def update(self):
-
+        self.x_data = self.titration.protocole.iloc[:, [5]].values.T.tolist().pop()
         self.scatter.y = self.res.chemshiftIntensity
         self.set_tooltips()
 
@@ -548,3 +547,6 @@ class ChemshiftPanel(TitrationWidget, PanelContainer):
             self.set_content([self.tabs])
         else:
             self.set_content([self.placeholder])
+
+        if hasattr(self, 'curves'):
+            self.curves.update()
