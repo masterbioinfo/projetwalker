@@ -12,13 +12,8 @@
 
     2.4. [Initiating your protocol titration](#init)
 
-    2.5. [Filter and select residues](#filter_select)
+    2.5. [Interact with graphs](#graphs)
 
-    2.6. [2D shift map, histograms and titration curve](#graphs)
-
-    2.7. [Save and load](#save_load)
-
-    2.8. [Exit Shift2Me](#exit)
 
 3. [About](#about)
 
@@ -33,17 +28,16 @@ Shift2Me :sparkles: : 2D-NMR chemical shifts analyzer for protein protein intera
 ------------------------------------------
 Shift2me is a 2D-NMR chemical shifts analyzer for PPI. The goal of the program is to identify the residues implicated in a PPI.
 
-Given a .list file format, which contains the Residues numbers and the chemical shifts of ^15^N and ^1^H, the program will calculate the delta of the chemical shifts for each titration done during the experience.
+Given a .list file format, which contains the Residues numbers and the chemical shifts of **<sup>15</sup>N** and **<sup>1</sup>H**, the program will calculate the delta of the chemical shifts for each titration done during the experience.
 
 Different graphs will be generated at the end.
 
-- __A map2D__ : Two-dimensional graph wich shows the evolution of the chemicals shifts of ^15^N and ^1^H during each titration for all the residues.
+- __Shiftmap__ : Two-dimensional graph wich shows the evolution of the chemicals shifts of **<sup>15</sup>N** and **<sup>1</sup>H** during each titration for all the residues.
 
 - __Histogram__ : A histogram for each titration will show the delta of the chemical shifts in function of the residue number. In order to select the residues implicated in a PPI, the user can choose a cutoff.
 
 - __Curves__ : A curve can be generated for each residue implicated in a PPI. The curve shows the delta of the chemical shifts of the residue in fuction of the the ratio of the concentration of the titrant protein to the concentration of the titrated protein.
-
-- In __GUI__ mode, a representation 3D of the protein structure is added. The user can choose a PDB code, the residues numbers and change the representation mode (soon available).
+- __A representation 3D__ of the protein structure is added for the graphical mode. The user can choose a PDB code, the residues numbers and change the representation mode.
 
 
 ------------------------------------------
@@ -120,7 +114,7 @@ You should fill and submit the protocol settings to have access to all plots ava
 
 Click on **Validate** once you completed the fields.
 
-## 4-Interact with graphs
+## 4-Interact with graphs <a name="graphs"></a> :
 This is the essential part of Shift2Me. Those graphic representations will help you to define a suitable cutoff filtering residues implicated in PPI and thus determine affinnity parameters.
 1. Histograms
 
@@ -135,11 +129,9 @@ The Shiftmap shows residues filtered regarding the cutoff set with histogram. Ho
 
 The third tab displays the curve graphs. On top of the plot, the user can choose the residue number to display the curve. To display the curve of a residue not included in the filtered set, please uncheck the filtered residue option.
 
-4. protein 3D representation
-The fourth tab displays the protein 3D representation.
+4. Protein 3D representation
 
-## 8-Exit Shift2Me <a name="exit"></a>:
-This is the essential part of Shift2Me. Those graphic representations will help you to define a suitable cutoff filtering residues implicated in PPI and thus determine affinnity parameters.
+The fourth tab displays the protein 3D representation. The user can input the protein [PDB](https://www.rcsb.org/) code. 
 
 
 # About <a name="about"></a> :
