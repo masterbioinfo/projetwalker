@@ -321,7 +321,7 @@ class StartParamContainer(TitrationWidget, PanelContainer):
         for obs in self.observers:
             obs(change)
 
-    def update(self):
+    def update(self, change=None):
         self.titrationName.update()
         self.analyteStartVol.get_value()
         self.startVol.get_value()
@@ -357,7 +357,7 @@ class ProtocolePanel(TitrationWidget, PanelContainer):
 
         self.update()
 
-    def update(self):
+    def update(self, change=None):
         self.protocole = HTML(self.titration.make_protocole(index=False).to_html(index=False))
         self.protocole._dom_classes += ('rendered_html', 'protocole-table')
         self.set_content([self.protocole])
