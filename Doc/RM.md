@@ -494,17 +494,16 @@ Map2D graph:
 
 <p align="center">
 
-![Shiftmap](Shiftmap2D.jpeg)
+![Shiftmap](pic/shiftmap.png)
 
 
-Histogram:
-<img src="hist8.jpeg">
+![Simple histogram](pic/hist8.jpeg)
 
-![hist_all](hist_all.jpeg)
+![Stacked histogram](pic/hist_all.jpeg)
 
 
 Curves:
-![curve](Curve218.jpeg)
+![Titration curve](pic/Curve218.jpeg)
 
 </p>
 
