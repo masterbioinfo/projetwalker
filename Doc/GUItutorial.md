@@ -125,7 +125,7 @@ This is the essential part of Shift2Me. Those graphic representations will help 
 1. Histograms
 
 Below the protocol, a data vizualisation containing the graphs will appear. The first graph displayed is the histogram.
-On the left of the graph, are situated two sliders with which the user can interact. The first one allows the user to choose a titration step. The second one, to set a new cutoff. Intensities bigger than the cutoff are colored in orange, the rest is colored in blue. Only the intensities bigger than the cutoff are retained by the filter.
+On the left of the graph, are situated two sliders with which the user can interact. The first one allows the user to choose a titration step. The second one, to set a new cutoff. Intensities bigger than the cutoff are colored in orange, the rest is colored in blue. Only the intensities bigger than the cutoff are retained by the filter. Hover the histogram with mouse to show **residue number** and the **chemicals shifts** of **<sup>1</sup>H** and **<sup>15</sup>N**.
 
 2. Shiftmaps
 
@@ -133,7 +133,11 @@ The Shiftmap shows residues filtered regarding the cutoff set with histogram. Ho
 
 3. Titration curves
 
-The last rap
+The third tab displays the curve graphs. On top of the plot, the user can choose the residue number to display the curve. To display the curve of a residue not included in the filtered set, please uncheck the filtered residue option.
+
+4. protein 3D representation
+The fourth tab displays the protein 3D representation.
+
 ## 8-Exit Shift2Me <a name="exit"></a>:
 This is the essential part of Shift2Me. Those graphic representations will help you to define a suitable cutoff filtering residues implicated in PPI and thus determine affinnity parameters.
 

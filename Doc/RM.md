@@ -72,7 +72,10 @@ To install Shift2Me, you should clone the [**GitHub project**](https://github.co
 ```
 git clone https://github.com/masterbioinfo/projetwalker.git
 ```
-
+Then install all the dependancies of the requirements.txt file
+```
+pip3 install -r requirements.txt
+```
 
 # Command Line <a name="command-Line"></a>
 ----
