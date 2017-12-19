@@ -22,26 +22,13 @@
 
 
 3. [Commands](#commands)
+4. [About](#about)
 
 
 Shift2Me :sparkles: : 2D-NMR chemical shifts analyzer for protein protein interactions (PPI).
 ===============================
 ---
 
-This program is developped by **_Louis DUCHEMIN, Hermes PARAQINDES, Marc-Antoine GUERY and Rainier-Numa GEORGES_**, students in **Master 1 Molecular Bio-Informatic** of **Claude Bernard Lyon 1 University (UCBL)**, mandated by **_Maggy HOLOGNE and Olivier WALKER_** **PhDs** of **Institut des Sciences Analytiques (ISA, CNRS - UMR 5280)**.
-
-```
-Institut des Sciences Analytiques
-CNRS - UMR 5280
-5 Rue de la DOUA
-69100 Villeurbanne - FRANCE
-```
-```
-Université Claude Bernard Lyon 1
-43 Boulevard du 11 Novembre 1918
-69100 Villeurbanne - FRANCE
-```
-------------------------------------------
 
 # Summary <a name="summary"></a>:
 
@@ -52,12 +39,12 @@ Given a .list file format, which contains the Residues numbers and the chemical 
 
 Different graphs will be generated at the end.
 
-- __A map2D__ : Two-dimensional graph wich shows the evolution of the chemicals shifts of ^15^N and ^1^H during each titration for all the residues.
+- __Shiftmap__ : Two-dimensional graph wich shows the evolution of the chemicals shifts of ^15^N and ^1^H during each titration for all the residues.
 
 - __Histogram__ : A histogram for each titration will show the delta of the chemical shifts in function of the residue number. In order to select the residues implicated in a PPI, the user can choose a cutoff.
 
 - __Curves__ : A curve can be generated for each residue implicated in a PPI. The curve shows the delta of the chemical shifts of the residue in fuction of the the ratio of the concentration of the titrant protein to the concentration of the titrated protein.
-- In __GUI__ mode, a representation 3D of the protein structure is added. The user can choose a PDB code, the residues numbers and change the representation mode.
+- __A representation 3D__ of the protein structure is added for the graphical mode. The user can choose a PDB code, the residues numbers and change the representation mode.
 
 
 ------------------------------------------
@@ -72,8 +59,6 @@ Shift2Me use a shell terminal like Linux. You can use autocompletion with TAB to
 
 	* ! *: shell
 	* ? *: help
-	* @ *: load
-	* @@ *: relative load
 
 ## 2	-Launch Shift2Me <a name="launch"></a>:
 At the first place, you must provide to Shift2Me a list of files including NMR experiment datas.
@@ -143,7 +128,7 @@ dump_protocole <file_name>
 ```
 Or you can create the templete file .yml when launching the Shif2Me program.
 ```
-shift2me.py [-t <file.yml>] ( <dir> | <saved_job> )
+python3 shift2me.py [-t <file.yml>] ( <dir> | <saved_job> )
 ```
 After creating the .yml file, open the file using a text editor inside the shell terminal of Shift2Me. Example :
 ```
@@ -236,6 +221,8 @@ For example, if your current set of volumes is  _3 3.5 4_, then replace it enter
 ```
 set_volumes 3 4 5
 ```
+The **set_volumes**, can be used directly to add volumes after Initiating the protocole file.
+
 ## 5-Filter and select residues <a name="filter_select"></a> :
 You can select relevant residues in order to show them on the different graphic representations available (see next section).
 1. To set or modify the cutoff value of your job, use the command :
@@ -248,7 +235,7 @@ cutoff 0.2
 ```
 An intensity threshold can be also applied when launching Shift2Me.
 ```
-shift2me.py [-c <cutoff>]( <dir> | <saved_job> )
+python3 shift2me.py [-c <cutoff>]( <dir> | <saved_job> )
 ```
 2. You can filter all the residues that have an equal or higher cutoff than the one indicated :
 ```
@@ -328,6 +315,7 @@ If you want to show the titration curve of residue 218, enter :
 curve 218
 ```
 An error may occur when typing this command. If such an issue happen, check your .yml titration protocol file. In fact _add_volumes_ field must contain as many volumes as the number of titration steps based on the number of .list files you provided. Use commands **status** and **summary** to compare number of volumes and number of steps.
+
 ## 7-Save and load <a name="save_load"></a>:
 Before leaving Shift2Me, you should save the state of your job or you history commands.
 1. At any time you can save your current job with **save_job** command.
@@ -347,11 +335,6 @@ load_job data/listes/listPP/save.pkl
 ```
 
 
-2. You can load a list of history commands written in _history0911.txt_ with **load** command.
-```
-load history0911.txt
-```
-
 ## 8-Exit Shift2Me <a name="exit"></a>:
 
 1. To quit Shift2Me, enter "quit" command. You will go back to the bash shell of Linux.
@@ -364,3 +347,27 @@ quit
 
 ------------------------------------------
 To see the full list of commands with their description, please refer to the documentation file.
+
+# About <a name="about"></a> :
+----
+This program is developped by :
+
+- **_Louis DUCHEMIN_**
+- **_Marc-Antoine GUERY_**
+- **_Hermes PARAQINDES_**
+- **_Rainer-Numa GEORGES_**
+
+	students in [**Master 1 Molecular Bio-Informatic**](https://www.bioinfo-lyon.fr/) of [**Claude Bernard Lyon 1 University (UCBL)**](https://www.univ-lyon1.fr/), mandated by **_Maggy HOLOGNE and Olivier WALKER_** **PhDs** of [**Institut des Sciences Analytiques (ISA, CNRS - UMR 5280)**](https://isa-lyon.fr/).
+
+```
+Institut des Sciences Analytiques
+CNRS - UMR 5280
+5 Rue de la DOUA
+69100 Villeurbanne - FRANCE
+```
+```
+Université Claude Bernard Lyon 1
+43 Boulevard du 11 Novembre 1918
+69100 Villeurbanne - FRANCE
+```
+------------------------------------------

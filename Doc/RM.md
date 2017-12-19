@@ -36,7 +36,6 @@
     	* [py](#py)
     	* [pyscrypt](#pyscrypt)
     	* [shell](#shell)
-			* [show ](#show)
     	* [shortcuts](#shortcuts)
     + [History and Exit the program](#history_exit)
     	* [history](#history)
@@ -209,8 +208,8 @@ Usage : status
 
 ```
 output :
-Step |Added titrant (µL) | Total titrant (µL) | Total volume (µL) | [titrant] (µM) | [analyte] (µM) | [titrant]/[analyte] |
-- | - | - | - | - | - | - |
+| Step | Added titrant (µL) | Total titrant (µL) | Total volume (µL) | [titrant] (µM) | [analyte] (µM) | [titrant]/[analyte] |
+| ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
 ## NMR analysis Commands <a name="nmr-analysis"></a> :
 Commands that will analyse tha data provided by the NMR experience and generate the graphs as described in the Introduction section.
 
@@ -459,32 +458,11 @@ Execute a command as if at the OS prompt.
 Lists shortcuts (aliases) available.
 
 ```
-* #### show command <a name="show"></a> :
-
-```
-Shows value of a parameter.
-Usage: show [options] arg
-
-Options:
-  -h, --help  show this help message and exit
-  -l, --long  describe function of parameter
-```
 
 Shortcuts for other commands:
 
 1. !: shell
 2. ?: help
-3. @: load
-4. @@: _relative_load
-
-* #### set command :
-```
-Sets a settable parameter.
-
-        Accepts abbreviated parameter names so long as there is no ambiguity.
-        Call without arguments for a list of settable parameters with their values.
-
-```
 
 
 ### History and Exit commands <a name="history_exit"></a> :
