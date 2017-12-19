@@ -36,3 +36,26 @@
     font-family: Courier New, Courier, monospace;
 }
 
+.panel-footer .file-uploader .btn {
+    width: 100%;
+}
+
+.widget-tab-contents .plot-placeholder.well .widget-html-content > div {
+    text-align: center;
+    font-size: 16px;
+    font-weight: initial;
+    vertical-align: middle;
+    margin: auto;
+}
+
+.widget-tab-contents .plot-placeholder.well h2 {
+    font-weight: bold;
+}
+
+.widget-tab-contents .plot-placeholder.well code {
+    font-weight: bold;
+}
+
+.p-TabBar-tabLabel{
+    font-weight:bold;
+}

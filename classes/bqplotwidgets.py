@@ -5,6 +5,9 @@ from ipywidgets import *
 import numpy as np
 from classes.ipywidgets import TitrationWidget, PanelContainer
 
+
+
+
 class IntensityBarPlot(TitrationWidget, bqplot.Figure):
     
     def __init__(self, step, stacked=False, *args, **kwargs):
@@ -197,15 +200,42 @@ class ShiftMap(bqplot.Figure, TitrationWidget):
     
     def __init__(self, *args, **kwargs):
         
-        residues = self.titration.filtered.values()
+        bqplot.Figure.__init__(
+            self, 
+            #marks=[self.scatter], 
+            #axes=[self.ax_x, self.ax_y, self.ax_c],
+            title="Chemical shifts",
+            *args, **kwargs)
+
+        self.update()
+        
+        self.layout=Layout(width='100%', height='700px')
+        
+    def set_tooltips(self):
+        # Adding a tooltip on hover in addition to select on click
+        def_tt = bqplot.Tooltip(
+            fields=['name', 'x', 'y', 'color'], 
+            formats=['', '.2f', '.2f', ''],
+            labels=['Residue', 'H', 'N', 'Step'])
+        self.scatter.tooltip=def_tt
+        self.scatter.interactions = {
+            'legend_hover': 'highlight_axes',
+            'hover': 'tooltip', 
+            'click': 'select',
+        }
+
+    def update(self):
+        self.residues = self.titration.filtered.values()
+        if not self.residues:
+            return
         
         self.x_scale = bqplot.LinearScale(
-            min = min(chain.from_iterable([res.chemshiftH for res in residues])) * 0.99,
-            max = max(chain.from_iterable([res.chemshiftH for res in residues])) * 1.01
+            min = min(chain.from_iterable([res.chemshiftH for res in self.residues])) * 0.99,
+            max = max(chain.from_iterable([res.chemshiftH for res in self.residues])) * 1.01
         )
         self.y_scale = bqplot.LinearScale(
-            min = min(chain.from_iterable([res.chemshiftN for res in residues])) * 0.98,
-            max = max(chain.from_iterable([res.chemshiftN for res in residues])) * 1.02
+            min = min(chain.from_iterable([res.chemshiftN for res in self.residues])) * 0.98,
+            max = max(chain.from_iterable([res.chemshiftN for res in self.residues])) * 1.02
         )
         self.c_scale = bqplot.ColorScale(scheme='Purples')
         
@@ -243,30 +273,14 @@ class ShiftMap(bqplot.Figure, TitrationWidget):
         self.x_data = []
         self.y_data = []
         self.c_data = []
-        x_label = []
-        y_label = []
         labels = []
         names = []
         
-        for res in residues:
+        for res in self.residues:
             self.x_data += res.chemshiftH
             self.y_data += res.chemshiftN
             self.c_data += list(range(self.titration.dataSteps))
             names += [str(res.position)]*len(res.chemshiftH)
-            x_label.append(res.chemshiftH[-1])
-            y_label.append(res.chemshiftN[-1])
-            labels.append(str(res.position))
-            
-        self.labels = bqplot.Label(
-            x = x_label,
-            y = y_label,
-            text = labels,
-            x_offset=5,
-            y_offset=5,
-            scales= {'x': self.x_scale, 'y': self.y_scale},
-            font_weight='normal',
-            colors=['orange']
-        )
         
         self.scatter = bqplot.Scatter(
             x=self.x_data, 
@@ -289,25 +303,49 @@ class ShiftMap(bqplot.Figure, TitrationWidget):
         )
 
         self.set_tooltips()
+        self.marks = [self.scatter]
+        self.axes=[self.ax_x, self.ax_y, self.ax_c]
         
-        bqplot.Figure.__init__(
-            self, 
-            marks=[self.scatter], 
-            axes=[self.ax_x, self.ax_y, self.ax_c],
-            title="Chemical shifts",
-            *args, **kwargs)
+
+class ChemshiftPanel(TitrationWidget, PanelContainer):
+    def __init__(self, *args, **kwargs):
+        PanelContainer.__init__(self, *args, **kwargs)
+
         
-        self.layout=Layout(width='100%', height='width')
         
-    def set_tooltips(self):
-        # Adding a tooltip on hover in addition to select on click
-        def_tt = bqplot.Tooltip(
-            fields=['name', 'x', 'y', 'color'], 
-            formats=['', '.2f', '.2f', ''],
-            labels=['Residue', 'H', 'N', 'Step'])
-        self.scatter.tooltip=def_tt
-        self.scatter.interactions = {
-            'legend_hover': 'highlight_axes',
-            'hover': 'tooltip', 
-            'click': 'select',
-        }
+        self.add_class('intensity-panel')
+
+        self.label = Label("Chemical shifts")
+        self.label.add_class('panel-header-title')
+
+        self.plot_widgets = IntensityPlot()
+        self.shiftmap = ShiftMap()
+        
+        tab_titles = ['Intensities', "Shiftmap"]
+        self.tabs = Tab()
+        self.tabs.children = [self.plot_widgets, self.shiftmap]
+        for num, title in enumerate(tab_titles):
+            self.tabs.set_title(num, title)
+
+        #self.toolbar = bqplot.Toolbar(figure= self.plot_widgets.plot)
+
+        self.set_heading([self.label])
+
+        self.set_content([self.tabs])
+        self.tabs.disabled=True
+        
+        self.tabs.observe(self.tab_switch, 'selected_index')
+        
+    def tab_switch(self, change):
+        if change['new'] == 1:
+            if self.titration.filtered:
+                self.shiftmap.update()
+                self.tabs.children = [self.plot_widgets, self.shiftmap]
+            else:
+                placeholder = HTML(
+                    "<div><h2>No residues to show in shiftmap.</h2>"
+                    "<p>Select residues to show using the cutoff slider in <code>Intensity</code> tab.</p>"
+                    "<p>You may also select specific residues by clicking on bars (<code>Ctrl+click</code> to add)</p></div>")
+                placeholder.add_class('well')
+                placeholder.add_class('plot-placeholder')
+                self.tabs.children = [self.plot_widgets, placeholder]

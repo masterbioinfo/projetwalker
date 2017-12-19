@@ -487,7 +487,7 @@ class ProtocoleContainer(HBox):
         self.volumes.update()
         self.protocole.update()
 
-class TitrationDirUploader(TitrationWidget, DirectoryUploadWidget, Button):
+class TitrationDirUploader(TitrationWidget, DirectoryUploadWidget):
 
     def __init__(self, *args, **kwargs):
         DirectoryUploadWidget.__init__(self, *args, **kwargs)
@@ -541,6 +541,10 @@ class TitrationFilesView(TitrationWidget, PanelContainer ):
         self.label.add_class('panel-header-title')
         self.layout.width="250px"
         self.set_heading([self.label])
+        self.uploader = TitrationDirUploader()
+        self.uploader.add_class('file-uploader')
+        self.uploader.add_observer(self)
+        self.add_footer([self.uploader])
         self.update()
 
     def update(self):
