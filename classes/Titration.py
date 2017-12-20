@@ -223,8 +223,9 @@ class BaseTitration(object):
             valError.args = ("Error : {error}".format(error=valError), )
             raise
 
-    def load_init_dict(self, initDict):
-        initDict = self.validate_init_dict(initDict)
+    def load_init_dict(self, initDict, validate=True):
+        if validate:
+            initDict = self.validate_init_dict(initDict)
         if initDict is None:
             return
 

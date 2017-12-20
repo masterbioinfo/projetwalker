@@ -34,7 +34,6 @@ Different graphs will be generated at the end.
 
 - __Shiftmap__ : Two-dimensional graph wich shows the evolution of the **chemicals shifts** of **<sup>15</sup>N** and **<sup>1</sup>H** during each titration for all the residues.
 
-<<<<<<< HEAD
 - __Histogram__ : A histogram for each titration will show the **delta of the chemical shifts** in function of the **residue number**. In order to select the residues implicated in a PPI, the user can choose a cutoff.
 
 - __Curves__ : A curve can be generated for each residue implicated in a PPI. The curve shows the **delta of the chemical shifts** of the residue in function of the the **ratio of the concentration of the titrant protein to the concentration of the titrated protein**.
@@ -50,7 +49,7 @@ First of all, ensure you have a python 3 (or more) version. To check your versio
 ```
 pip show python
 ```
-You need to install jupyter notebook and specific widgets to use graphical mode of ShiftoMe.
+You need to install jupyter notebook and specific widgets to use graphical mode of Shift2Me.
 
 1. To install jupyter notebook, run the command :
 ```
@@ -74,13 +73,19 @@ jupyter nbextension enable --py --sys-prefix ipyfileupload
 jupyter nbextension enable --py --sys-prefix bqplot
 ```
 
+4. Shift2Me runs in jupyter with custom CSS styles for the app layout. To activate it, you may either : 
+- Copy `custom.css` to `~/.jupyter/custom/custom.css`
+- Update `~/.jupyter/custom/custom.css` with `custom.css` content if you have already defined custom styles.
+
+    **This step is important if you want the app to display nicely.**
+
 ## 2-Launch Shift2Me <a name="launch"></a>:
-Reach the directory in which the file _GUI.ipynb_ is located and run the command :
+Reach the directory in which the file _GUI.ipynb_ is located and run this command at the base directory of the cloned repository :
 ```
 jupyter notebook
 ```
 
-Access to the file _GUI.ipynb_. Your are now in the __GUI__ interface of ShiftoMe.
+Access to the notebook `GUI.ipynb`. Your are now in the __GUI__ interface of Shift2Me.
 
 See [jupyter documentation](http://jupyter-notebook.readthedocs.io/en/stable/examples/Notebook/Notebook%20Basics.html) for notebook usage.
 

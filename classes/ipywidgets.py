@@ -513,7 +513,7 @@ class TitrationDirUploader(TitrationWidget, DirectoryUploadWidget):
         self.label = "Upload titration directory"
         self.output = Output()
         self.observers = set()
-        self._dom_classes += ('upload-directory-btn',)
+        self.add_class('upload-directory-btn')
 
     def dispatch(self):
         for obs in self.observers:
@@ -526,15 +526,20 @@ class TitrationDirUploader(TitrationWidget, DirectoryUploadWidget):
     @observe('files')
     def _files_changed(self, *args):
         if self.files:
+            current_protocole = self.titration.as_init_dict
+            self.titration.__init__()
+            self.titration.load_init_dict(current_protocole, validate=False)
             self.extract_chemshifts()
             self.extract_protocole()
             self.dispatch()
 
     @observe('base64_files')
     def _base64_files_changed(self, *args):
+        self.files = {}
         for name, file in self.base64_files.items():
             self.files[name] = base64.b64decode(file.split(',',1)[1])
         self._files_changed(self, *args)
+        self.base_64_files = {}
 
     def extract_chemshifts(self):
         filenames = set([file for file in self.files.keys() if file.endswith('.list')]) - set(self.titration.files)
