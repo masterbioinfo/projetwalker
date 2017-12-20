@@ -419,7 +419,7 @@ class Titration(BaseTitration):
                 self.incomplete.update({pos:res})
 
         print("\t\t{incomplete} incomplete residue out of {total}".format(
-             incomplete=len(self.incomplete), total=len(self.complete)),
+             incomplete=len(self.incomplete), total=len(self.residues)),
              file=sys.stderr)
 
         # Recalculate (position, chem shift intensity) coordinates for histogram plot

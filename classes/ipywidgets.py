@@ -546,7 +546,7 @@ class TitrationDirUploader(TitrationWidget, DirectoryUploadWidget):
         filenames = sorted(filenames, key=self.titration.validate_filepath)
         with self.output:
             for fname in filenames:
-                Titration.add_step(self.titration, fname, io.StringIO(self.files[fname].decode('utf-8')))
+                self.titration.add_step(fname, io.StringIO(self.files[fname].decode('utf-8')))
 
     def extract_protocole(self):
         filenames = set([file for file in self.files.keys() if file.endswith('.yml')])
