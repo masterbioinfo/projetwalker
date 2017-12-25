@@ -4,7 +4,7 @@ from itertools import chain
 from ipywidgets import *
 import numpy as np
 from classes.ipywidgets import TitrationWidget, PanelContainer
-
+from classes.widgets_base import *
 
 
 
