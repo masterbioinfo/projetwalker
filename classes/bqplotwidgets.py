@@ -1,11 +1,13 @@
-import bqplot
 import math
 from itertools import chain
-from ipywidgets import *
-import numpy as np
-from classes.ipywidgets import TitrationWidget, PanelContainer
-from classes.widgets_base import *
 
+import bqplot
+import numpy as np
+from ipywidgets import *
+from scipy.optimize import curve_fit
+
+from classes.ipywidgets import PanelContainer, TitrationWidget
+from classes.widgets_base import *
 
 
 class IntensityBarPlot(TitrationWidget, bqplot.Figure):
@@ -27,9 +29,6 @@ class IntensityBarPlot(TitrationWidget, bqplot.Figure):
             num_ticks=math.ceil(len(self.x_data)/10),
             #visible = not stacked
         )
-
-        #
-
         self.ax_y = bqplot.Axis(
             #label="Intensity",
             scale=self.y_scale,
@@ -46,6 +45,7 @@ class IntensityBarPlot(TitrationWidget, bqplot.Figure):
             y=self.y_data,
             colors=['#38ACEC'],
             stroke='#FFFFFF',
+            labels = sorted(map(str,self.titration.complete.keys())),
             scales= {'x': self.x_scale, 'y': self.y_scale},
             selected_style={'stroke': 'white', 'fill': 'orange'},
             interactions = {
@@ -85,6 +85,7 @@ class IntensityBarPlot(TitrationWidget, bqplot.Figure):
             marks=[self.bar_chart, self.cutoff],
             axes=[self.ax_x, self.ax_y],
             title="Chemical shift intensity per residue",
+            animation_duration=100,
             *args, **kwargs)
 
     def set_tooltips(self):
@@ -171,27 +172,8 @@ class IntensityPlot(TitrationWidget, HBox):
         self.children = (self.stepSlider, self.slider, self.plot)
 
 
-class IntensityPanel(TitrationWidget, PanelContainer):
-    def __init__(self, *args, **kwargs):
-        PanelContainer.__init__(self, *args, **kwargs)
-
-        self.add_class('intensity-panel')
-
-        self.label = Label("Chemical shift intensities")
-        self.label.add_class('panel-header-title')
-
-        self.plot_widgets = IntensityPlot()
-
-        #self.toolbar = bqplot.Toolbar(figure= self.plot_widgets.plot)
-
-        self.set_heading([self.label])
-
-        self.set_content([self.plot_widgets])
-
-
-
 class ShiftMap(bqplot.Figure, TitrationWidget):
-
+    "Wrapper for bqplot Figure, displaying chemical shift 2D map of filtered residues"
     def __init__(self, *args, **kwargs):
 
         bqplot.Figure.__init__(
@@ -203,26 +185,17 @@ class ShiftMap(bqplot.Figure, TitrationWidget):
 
         self.update()
 
-        self.layout=Layout(width='100%', height='600px')
-
-    def set_tooltips(self):
-        # Adding a tooltip on hover in addition to select on click
-        def_tt = bqplot.Tooltip(
-            fields=['name', 'x', 'y', 'color'],
-            formats=['', '.2f', '.2f', ''],
-            labels=['Residue', 'H', 'N', 'Step'])
-        self.scatter.tooltip=def_tt
-        self.scatter.interactions = {
-            'legend_hover': 'highlight_axes',
-            'hover': 'tooltip',
-            'click': 'select',
-        }
+        self.layout=Layout(width='100%', min_aspect_ratio=1., max_aspect_ratio=1.)
 
     def update(self):
+        "Redraws content based on current filtered residues set"
+
+        # Get residues set
         self.residues = self.titration.filtered.values()
         if not self.residues:
             return
 
+        # Scales
         self.x_scale = bqplot.LinearScale(
             min = min(chain.from_iterable([res.chemshiftH for res in self.residues])) * 0.99,
             max = max(chain.from_iterable([res.chemshiftH for res in self.residues])) * 1.01
@@ -233,6 +206,7 @@ class ShiftMap(bqplot.Figure, TitrationWidget):
         )
         self.c_scale = bqplot.ColorScale(scheme='Purples')
 
+        # Axes
         self.ax_x = bqplot.Axis(
             label="Proton chemical shifts",
             scale=self.x_scale,
@@ -242,18 +216,17 @@ class ShiftMap(bqplot.Figure, TitrationWidget):
             num_ticks=10
             #visible = not stacked
         )
-
         self.ax_y = bqplot.Axis(
             label="Azote chemical shifts",
             scale=self.y_scale,
             orientation='vertical',
-            tick_format='0.2f',
+            tick_format='0.1f',
             grid_lines='dashed',
             grid_color='#D1D0CE',
-            num_ticks=10
+            num_ticks=10,
+            label_offset='3em'
             #visible = not stacked
         )
-
         self.ax_c = bqplot.ColorAxis(
             label_location='middle',
             scale=self.c_scale,
@@ -264,21 +237,22 @@ class ShiftMap(bqplot.Figure, TitrationWidget):
             offset = {'scale':self.x_scale,'value':0}
         )
 
-        self.x_data = []
-        self.y_data = []
-        self.c_data = []
-        names = []
-
+        # Data
+        x_data = [] # chem shift H
+        y_data = [] # chem shift N
+        c_data = [] # steps color map
+        names = [] # residue position
         for res in self.residues:
-            self.x_data += res.chemshiftH
-            self.y_data += res.chemshiftN
-            self.c_data += list(range(self.titration.dataSteps))
+            x_data += res.chemshiftH
+            y_data += res.chemshiftN
+            c_data += list(range(self.titration.dataSteps))
             names += [str(res.position)]*len(res.chemshiftH)
 
+        # Marks
         self.scatter = bqplot.Scatter(
-            x=self.x_data,
-            y=self.y_data,
-            color=self.c_data,
+            x=x_data,
+            y=y_data,
+            color=c_data,
             marker='circle',
             stroke='#FFFFFF',
             names=names,
@@ -290,55 +264,63 @@ class ShiftMap(bqplot.Figure, TitrationWidget):
             selected_style={'stroke': 'white', 'fill': 'orange'},
             interactions = {
                 'legend_hover': 'highlight_axes',
-                'hover': 'tooltip',
-                #'click': 'select',
+                'hover': 'tooltip'
             }
         )
 
+        # Figure settings
         self.set_tooltips()
         self.marks = [self.scatter]
         self.axes=[self.ax_x, self.ax_y, self.ax_c]
 
+    def set_tooltips(self):
+        def_tt = bqplot.Tooltip(
+            fields=['name', 'x', 'y', 'color'],
+            formats=['', '.2f', '.2f', ''],
+            labels=['Residue', 'H', 'N', 'Step'])
+        self.scatter.tooltip=def_tt
+        self.scatter.interactions = {
+            'legend_hover': 'highlight_axes',
+            'hover': 'tooltip',
+            'click': 'select',
+        }
+
 
 class TitrationCurve(TitrationWidget, bqplot.Figure):
-
-    def __init__(self, residue = None, *args, **kwargs):
+    "bqplot Figure wrapper for titration curves"
+    def __init__(self, residue, *args, **kwargs):
         bqplot.Figure.__init__(self, *args, **kwargs)
-        self.x_scale = bqplot.LinearScale(
-            min = 0
-        )
-        self.y_scale = bqplot.LinearScale(
-            min = 0
-        )
+
+        # scales
+        self.x_scale = bqplot.LinearScale(min=0)
+        self.y_scale = bqplot.LinearScale(min=0)
         # self.c_scale = bqplot.ColorScale(scheme='Purples')
 
+        # axes
         self.ax_x = bqplot.Axis(
             label="[ratio]",
             scale=self.x_scale,
             tick_format='0.2f',
             grid_lines='dashed',
             grid_color='#D1D0CE'
-            #visible = not stacked
         )
-
         self.ax_y = bqplot.Axis(
             label="Chemical shift intensity",
             scale=self.y_scale,
             orientation='vertical',
-            tick_format='0.2f',
+            tick_format='0.3f',
             grid_lines='dashed',
-            grid_color='#D1D0CE'
-            #visible = not stacked
+            grid_color='#D1D0CE',
+            label_offset='3em'
         )
 
+        # data
         self.res = self.titration.complete[residue]
 
-        self.x_data = self.titration.protocole.iloc[:, [5]].values.T.tolist().pop() # concentration ratios
-        self.y_data = self.res.chemshiftIntensity
-
+        # marks
         self.scatter = bqplot.Scatter(
-            x=self.x_data,
-            y=self.y_data,
+            x=self.titration.protocole['ratio'].tolist(), # concentration ratios
+            y=self.res.chemshiftIntensity,
             marker='circle',
             stroke='#FFFFFF',
             #names=names,
@@ -355,20 +337,67 @@ class TitrationCurve(TitrationWidget, bqplot.Figure):
             }
         )
 
-        self.marks = [self.scatter]
+        # fitted curve
+        self.line_fit = bqplot.Lines(
+            x = self.titration.protocole['ratio'].tolist(), # concentration ratios
+            y = self.res.chemshiftIntensity,
+            scales= {'x': self.x_scale, 'y': self.y_scale},
+            interpolation='basis',
+            colors=['orange'],
+            labels=['model'],
+            display_legend=True
+        )
+
+        self.plateau = bqplot.Lines(
+            x = [0, 100],
+            y = [0,0],
+            scales= {'x': self.x_scale, 'y': self.y_scale},
+            colors=['green'],
+            line_style='solid',
+            stroke_width=1,
+            visible=False,
+            labels=['plateau'],
+            display_legend=True
+        )
+
+        # init figure
+        self.marks = [self.scatter, self.line_fit, self.plateau]
         self.axes=[self.ax_x, self.ax_y]
+        self.legend_location='bottom-right'
+        self.layout = Layout(width='100%', min_aspect_ratio=1, max_aspect_ratio=1)
+
+        self.update()
 
     def change_res(self, change):
+        "Change residue to display"
         self.res = self.titration.complete[change['new']]
         self.update()
 
     def update(self):
-        self.scatter.x = self.titration.protocole.iloc[:, [5]].values.T.tolist().pop()
+        "Update marks to match current residue data"
+        self.scatter.x = self.titration.protocole["ratio"].tolist()
         self.scatter.y = self.res.chemshiftIntensity
+
+        self.model_xdata = np.array([
+            self.titration.protocole['conc_titrant'],
+            self.titration.protocole['conc_analyte']
+        ])
+        popt, pcov = curve_fit(
+            self.model,
+            xdata=self.model_xdata,
+            ydata = self.res.chemshiftIntensity,
+            p0=[0.2, 100])
+        self.line_fit.x = self.titration.protocole['ratio'].tolist()
+        self.line_fit.y = self.model(self.model_xdata,*popt)
+
+        self.plateau.x = [0, max(self.scatter.x)]
+        self.plateau.y = [popt[0]]*2
+        self.plateau.visible=True
+
         self.set_tooltips()
 
     def set_tooltips(self):
-        # Adding a tooltip on hover in addition to select on click
+        "Set tooltips for scatter on hover"
         def_tt = bqplot.Tooltip(
             fields=['x', 'y'],
             formats=['.2f', '.2f'],
@@ -380,20 +409,46 @@ class TitrationCurve(TitrationWidget, bqplot.Figure):
             'click': 'select',
         }
 
+    def model(self, x, delta = 0.3, k = 100):
+        """Model to fit curve to :
+        k : affinity const
+        delta: asymptotic chemshift intensity
+        """
+        l,p = x
+        l = np.array(l)
+        p = np.array(p)
+        root_term = np.square(l+p+k) - 4*l*p
+        return delta * (l+p+k - np.sqrt(root_term))/(2*p)
+
+
 
 class TitrationCurveOperator(TitrationWidget, VBox):
-
+    "Container for curve figure, with widget controls"
     def __init__(self, *args, **kwargs):
         VBox.__init__(self, *args, **kwargs)
 
+        # Widgets
+        # Select residue from filtered list
         self.dropdown = Dropdown(
             options = sorted(self.filtered),
             description='Residue:',
             disabled=False,
             value= min(self.filtered)if self.filtered else None,
-            tooltip='Pick a residue to plot'
+            tooltip='Pick a residue to plot',
+            layout=Layout(width='50%')
+        )
+        # Select residue from complete list
+        self.textinput = BoundedIntText(
+            description='Residue:',
+            disabled=False,
+            value=min(self.titration.complete.keys()),
+            min=min(self.titration.complete.keys()),
+            max=max(self.titration.complete.keys()),
+            tooltip='Pick a residue to plot',
+            layout=Layout(width='50%')
         )
 
+        # Toggle filtered selection mode
         self.filter= ToggleButton(
             value=True,
             description='Filtered',
@@ -404,26 +459,18 @@ class TitrationCurveOperator(TitrationWidget, VBox):
         )
         self.filter.observe(self.switch_filter, 'value')
 
-        self.textinput = BoundedIntText(
-            description='Residue:',
-            disabled=False,
-            value=min(self.titration.complete.keys()),
-            min=min(self.titration.complete.keys()),
-            max=max(self.titration.complete.keys()),
-            tooltip='Pick a residue to plot'
-        )
-
-        #self.layout = Layout(width='50%')
-
+        # Select default residue
         residue = self.dropdown.value if self.filter.value and self.filtered else self.textinput.value
 
+        # Create inner curve figure
         self.curve = TitrationCurve(residue)
 
+        # Connect widget events
         self.dropdown.observe(self.curve.change_res, 'value')
         self.textinput.observe(self.validate_res_text, 'value')
 
+        # Set content
         self.toolbar = HBox([self.dropdown,self.filter])
-
         self.children = [self.toolbar, self.curve]
 
         self.update()
@@ -433,18 +480,24 @@ class TitrationCurveOperator(TitrationWidget, VBox):
         return sorted(self.titration.filtered.keys())
 
     def update(self):
-        if not self.filtered:
+        "Update widgets state and target residue"
+        if not self.filtered: # disable dropdown when no residues filtered
             self.filter.value=False
             self.filter.disabled=True
         else:
             self.filter.disabled=False
-        if self.filter.value:
-            self.curve.change_res({'new': self.dropdown.value})
+        if self.filter.value: # Using dropdown
+            old_value = int(self.dropdown.value)
             self.dropdown.options = self.filtered
-        else:
+            self.dropdown.value = min(self.dropdown.options)
+            if old_value in self.filtered:
+                self.dropdown.value = old_value
+            self.curve.change_res({'new': self.dropdown.value})
+        else:   # using text input
             self.curve.change_res({'new': self.textinput.value})
 
     def validate_res_text(self, change):
+        "Disabled incomplete residues"
         if change['new'] not in self.titration.complete:
             if change['old'] <= change['new']:
                 change['new'] += 1
@@ -455,17 +508,19 @@ class TitrationCurveOperator(TitrationWidget, VBox):
             self.curve.change_res(change)
 
     def switch_filter(self, change):
+        "Switch between dropdown selector and text input"
         if change['new']:
             self.filter.icon='dot-circle-o'
             self.toolbar.children = [self.dropdown, self.filter]
         else:
             self.filter.icon='circle-o'
             self.toolbar.children = [self.textinput, self.filter]
+            self.textinput.value = self.dropdown.value
         self.update()
 
 
 class CurveContainer(TitrationWidget, HBox):
-
+    "A simple container for multiple titration curves"
     def __init__(self, *args, **kwargs):
         HBox.__init__(self, *args, **kwargs)
 
@@ -483,41 +538,43 @@ class CurveContainer(TitrationWidget, HBox):
 
 
 class ChemshiftPanel(TitrationWidget, PanelContainer):
+    "Main container for graphics visualizations"
     def __init__(self, uploader=None, *args, **kwargs):
+        # Create bootstrap panel
         PanelContainer.__init__(self, *args, **kwargs)
-
-        self.uploader= uploader
-
         self.add_class('intensity-panel')
 
+
+
+        # HEADING
         self.label = Label("Data visualization")
         self.label.add_class('panel-header-title')
-
-        tab_titles = ['Intensities', "Shiftmap", 'Titration curves']
-        self.tabs = Tab()
-
-        for num, title in enumerate(tab_titles):
-            self.tabs.set_title(num, title)
-
-        #self.toolbar = bqplot.Toolbar(figure= self.plot_widgets.plot)
-
         self.set_heading([self.label])
 
-        self.tabs.observe(self.tab_switch, 'selected_index')
-
+        # BODY : either a tab navigator or a placeholder (no data yet)
+        # placeholder
         self.placeholder = VBox([
             HTML(
                 "<h2>Titration files are not loaded.</h2>"
                 "<p>No data to display.</p>"
                 ""
             )])
+        self.placeholder.add_class('well')
+        self.placeholder.add_class('plot-placeholder')
+        self.uploader=uploader
         if self.uploader:
             self.placeholder.children += (self.uploader,)
             self.uploader.add_observer(self.update)
 
-        self.placeholder.add_class('well')
-        self.placeholder.add_class('plot-placeholder')
+        # tabs
+        tab_titles = ['Intensities', "Shiftmap", 'Titration curves']
+        self.tabs = Tab()
+        for num, title in enumerate(tab_titles):
+            self.tabs.set_title(num, title)
+        self.tabs.observe(self.tab_switch, 'selected_index')
+        #self.toolbar = bqplot.Toolbar(figure= self.plot_widgets.plot)
 
+        # Shiftmap placeholder to display when no residues are filtered
         self.shiftmap_placeholder = HTML(
             "<h2>No residues to show in shiftmap.</h2>"
             "<p>Select residues to show using the cutoff slider in <code>Intensity</code> tab.</p>"
@@ -529,26 +586,29 @@ class ChemshiftPanel(TitrationWidget, PanelContainer):
         self.update()
 
     def tab_switch(self, change):
-        if change['new'] == 1:
+        "On tab switch : update target tab content"
+        if change['new'] == 1: # target : shiftmap
             if self.titration.filtered:
                 self.shiftmap.update()
                 self.tabs.children = [self.plot_widgets, self.shiftmap, self.curves]
-            else:
+            else: # use placeholder if no residues filtered
                 self.tabs.children = [self.plot_widgets, self.shiftmap_placeholder, self.curves]
-        elif change['new'] == 2:
+        elif change['new'] == 2: # target : curves
             self.curves.update()
 
     def update(self):
+        "Listener for RMN data change. Creates tabs or placeholder"
         if self.titration.files:
             self.plot_widgets = IntensityPlot()
             self.shiftmap = ShiftMap()
             self.curves = CurveContainer()
             self.tabs.children = [self.plot_widgets, self.shiftmap, self.curves]
             self.set_content([self.tabs])
-        else:
+        else: # no data : display placeholder
             self.set_content([self.placeholder])
         self.update_curves()
 
     def update_curves(self, change=None):
+        "Listener for updating curves"
         if hasattr(self, 'curves'):
             self.curves.update()

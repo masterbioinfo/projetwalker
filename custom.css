@@ -34,8 +34,14 @@
     height: 31px;
 }
 
-.volumes-container.panel {
-    display: inline-table;
+.protocole-table .dataframe {
+    width: 100%;
+}
+
+.protocole-table tr *:first-child {
+    max-width: 4em;
+    width: 4em;
+    text-align: center;
 }
 
 .widget-readout {

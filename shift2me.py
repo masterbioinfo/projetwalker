@@ -15,9 +15,9 @@ Options:
   -h --help                                             Print help and usage
 
 ShiftoMe enables you to determine which residues are significantly implicated in a protein-protein interaction.
-The program is based on calculation of intensities from 15N and 1H chemical shifts measured during a protein-protein 
+The program is based on calculation of intensities from 15N and 1H chemical shifts measured during a protein-protein
 interaction in a NMR titration experiment.
-It helps you to identify relevant residues to study thanks to splittable 2D shiftmaps and interactive step-by-step 
+It helps you to identify relevant residues to study thanks to splittable 2D shiftmaps and interactive step-by-step
 intensity per residue histograms.
 
 Example :  ./shift2me.py data/listes/listPP
@@ -27,7 +27,7 @@ Authors : Hermes PARAQINDES, Louis Duchemin, Marc-Antoine GUERY and Rainier-Numa
 
 from docopt import docopt
 from matplotlib import pyplot as plt
-from classes.Titration import BaseTitration, TitrationCLI
+from classes.Titration import  TitrationCLI
 from classes.command import ShiftShell
 
 

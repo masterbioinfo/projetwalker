@@ -5,50 +5,10 @@ class TitrationWidget(Widget):
     "Root class for titration GUI elements"
     titration=None
 
-    def __init__(self, titration = None, *args, **kwargs):
-        self.titration = titration or TitrationWidget.titration
-        self.observe(self.on_change, names='value')
-
-    def on_change(self, change):
-        "Callback method when the widget value changes"
-        pass
-
     @classmethod
     def settitration(cls, titration):
         cls.titration=titration
 
-class AttrControlMixin(TitrationWidget):
-    """Sets an attribute of target titration
-    """
-
-    def __init__(self, target):
-        self.endpoint = target
-        TitrationWidget.__init__(self)
-
-    def on_change(self, change):
-        "Set concentration for target molecule."
-        if self.validate(change['new']):
-            self.set_value(change['new'])
-        else:
-            self.invalid_callback(change)
-        self.change_callback()
-
-    def invalid_callback(self, change):
-        pass
-
-    def set_value(self, value):
-        setattr(self.titration, self.endpoint, value)
-
-    def get_value(self):
-        self.value = getattr(self.titration, self.endpoint)
-        return self.value
-
-    @staticmethod
-    def validate(value):
-        return True
-
-    def change_callback(self):
-        pass
 
 class WidgetKwargs(object):
     widget_kw = {}
@@ -61,30 +21,60 @@ class WidgetKwargs(object):
         return kwargs
 
 
+class AttrControlMixin(TitrationWidget):
+    """Sets an attribute of target titration
+    """
+
+    def __init__(self, target):
+        self.endpoint = target
+
+    @observe('value')
+    def on_change(self, change):
+        "Set concentration for target molecule."
+        if self.validate(change['new']):
+            self.set_value(change['new'])
+        else:
+            self.on_reject(change)
+
+    def on_reject(self, change):
+        pass
+
+    def set_value(self, value):
+        setattr(self.titration.protocole, self.endpoint, value)
+
+    def update(self):
+        self.value = getattr(self.titration.protocole, self.endpoint)
+        return self.value
+
+    @staticmethod
+    def validate(value):
+        return True
+
+
 class TextControlWidget(AttrControlMixin, Text, WidgetKwargs):
 
     def __init__(self, target, *args, **kwargs):
-
+        # set target endpoint
         AttrControlMixin.__init__(self, target)
+        # update ipywidgets kwargs
         type(self).update_kwargs(kwargs)
+        # init widget
         Text.__init__(self, *args,**kwargs)
-        self.value = self.get_value()
+        # set initial value
+        self.update()
 
 
 class FloatControlWidget(AttrControlMixin, BoundedFloatText, WidgetKwargs):
-    widget_kw = {
-        'min': 0,
-        'max': 100000,
-        "layout" : Layout(width='160px'),
-        #'style' : {'description_width':'100px'}
-    }
 
     def __init__(self, target, *args, **kwargs):
+        # set target endpoint
         AttrControlMixin.__init__(self, target)
-
+        # update ipywidgets kwargs
         type(self).update_kwargs(kwargs)
+        # init widget
         BoundedFloatText.__init__(self, *args,**kwargs)
-        self.value = self.get_value()
+        # set initial value
+        self.update()
 
 
 class PanelContainer(VBox):

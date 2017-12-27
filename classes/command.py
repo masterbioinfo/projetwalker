@@ -60,18 +60,16 @@ class ShiftShell(Cmd):
             self.do_help('set_volumes')
         else:
             volumes = list(map(float, arg))
-            if not volumes[0] == 0:
-                volumes.insert(0, 0)
-            self.titration.set_volumes(volumes)
-            self.pfeedback("Volumes are now : {volumes} (µM).".format(volumes = self.titration.volumes))
+            self.titration.protocole.set_volumes(volumes)
+            self.pfeedback(self.titration.protocole['vol_add'])
 
     @options([], arg_desc="<vol(µL)> [<vol(µL)> ...]")
     def do_add_volumes(self, arg, opts=None):
         "Add volumes to currently existing volumes in titration."
         if arg:
             volumes = list(map(float, arg))
-            self.titration.add_volumes(volumes)
-            self.pfeedback("Volumes are now : {volumes} (µM).".format(volumes = self.titration.volumes))
+            self.titration.protocole.add_volumes(volumes)
+            self.pfeedback("Volumes are now : {volumes} (µM).".format(volumes = self.titration.protocole.volumes))
         else:
             self.do_help("add_volumes")
 
@@ -81,7 +79,7 @@ class ShiftShell(Cmd):
         Format is comma-separated CSV table. You may redirect its output :
          $ csv > path/to/file.csv
         """
-        if self.titration.isInit:
+        if self.titration.protocole.isInit:
             self.titration.protocole.to_csv(self.stdout, index=True)
         else:
             self.pfeedback("Titration parameters are not set. Please load a protocole file.")
@@ -89,28 +87,29 @@ class ShiftShell(Cmd):
 
     def do_status(self, arg):
         "Output titration parameters, and current status of protocole."
-        if self.titration.isInit:
+        protocole = self.titration.protocole
+        if protocole.isInit:
             self.poutput("\n".join(["------- Titration --------------------------",
-                                    " >\t{name}".format(name=self.titration.name),
+                                    " >\t{name}".format(name=protocole.name),
                                     "------- Initial parameters -----------------",
                                     "[{name}] :\t{concentration} µM".format(
-                                        **self.titration.titrant),
+                                        **protocole.titrant),
                                     "[{name}] :\t{concentration} µM".format(
-                                        **self.titration.analyte),
+                                        **protocole.analyte),
                                     "{name} volume  :\t{volume} µL".format(
-                                        **self.titration.analyte,
-                                        volume=self.titration.analyteStartVol),
+                                        **protocole.analyte,
+                                        volume=protocole.analyteStartVol),
                                     "Initial volume :\t{volume} µL\n".format(
-                                        volume=self.titration.startVol),
+                                        volume=protocole.startVol),
                                     "------- Current status ---------------------\n\n"]))
-            self.poutput(tabulate(self.titration.protocole, headers='keys', tablefmt='psql'))
+            self.poutput(tabulate(protocole.df, headers='keys', tablefmt='psql'))
         else:
             self.pfeedback("Titration parameters are not set. Please load a protocole file.")
             self.pfeedback("See `help init`")
 
     def do_dump_protocole(self, arg):
-        """Output titration parameters in a YAML formatted file. 
-        Argument may be a file path to write into. 
+        """Output titration parameters in a YAML formatted file.
+        Argument may be a file path to write into.
         Defaults to a YAML file named as your titration is.
         """
         if not arg or os.path.isdir(arg):
@@ -119,7 +118,7 @@ class ShiftShell(Cmd):
             path = arg + ".yml"
         else:
             path = arg
-        self.titration.dump_init_file(path)
+        self.titration.protocole.dump_init_file(path)
         self.pfeedback("Dumped titration protocole at : {path}".format(path=path))
 
     @options([], arg_desc='<protocole>.yml')
@@ -177,7 +176,7 @@ class ShiftShell(Cmd):
 
     def do_save_job(self, arg):
         """Save active titration to binary pickle formatted file.
-         Argument may be a file path to write into. 
+         Argument may be a file path to write into.
          Invocation with no argument saves to a pickle formatted file named as your titration is.
          """
         if not arg or os.path.isdir(arg):
@@ -308,7 +307,7 @@ class ShiftShell(Cmd):
         "Show titration curve of one or several residues."
         if not arg:
             self.do_help('curve')
-        elif not self.titration.isInit:
+        elif not self.titration.protocole.isInit:
             self.pfeedback("Cannot plot titration curve : titration parameters are not set.")
             self.pfeedback("See : `help init` to load a protocole file.")
         else:
