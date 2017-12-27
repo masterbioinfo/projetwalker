@@ -156,7 +156,7 @@ class StartVolumeForm(TitrationWidget, VBox):
         self.startVol.observe(self.on_change, 'value')
 
         self.children = [
-            self.label,
+            HBox([self.label],layout=Layout(width="200px", justify_content="flex-end")),
             self.analyteStartVol,
             self.startVol
         ]
@@ -178,7 +178,7 @@ class StartParamContainer(TitrationWidget, PanelContainer):
 
     def __init__(self, *args, **kwargs):
         PanelContainer.__init__(self, layout=Layout(min_width='350px', width='68%'), *args, **kwargs)
-
+        self.add_class('start-param-container')
         self.observers = set()
 
         # name_kw = dict(self.layout_kw)
@@ -192,23 +192,31 @@ class StartParamContainer(TitrationWidget, PanelContainer):
 
         # BODY
         # Name
-        self.titrationName = NameWidget(layout=Layout(margin='auto'))
-        self.titrationName.add_class('bold-label')
-        self.titrationName.observe(self.on_change, 'value')
+        # self.titrationName = NameWidget(layout=Layout(margin='auto'))
+        # self.titrationName.add_class('bold-label')
+        # self.titrationName.observe(self.on_change, 'value')
 
         # Titrant and analyte
         self.molecules = MoleculesContainer()
+        self.molecules.add_class('well')
+        self.molecules.add_class('molecules-param')
+        self.molecules.layout = Layout(align_items='center', justify_content='center')
         self.molecules.children_observe(self.on_change)
 
         # Initial volumes
         self.volumeForm = StartVolumeForm()
+        self.volumeForm.add_class('well')
+        self.volumeForm.add_class('volumes-param')
+        self.volumeForm.layout = Layout(align_items='center')
         self.volumeForm.children_observe(self.on_change)
 
         form = HBox(
             [self.molecules, self.volumeForm],
             layout=Layout(justify_content='space-around'))
 
-        self.set_content([self.titrationName, form ])
+        self.set_content([
+            #self.titrationName,
+            form ])
 
     def add_observer(self, func):
         self.observers.add(func)
@@ -218,7 +226,7 @@ class StartParamContainer(TitrationWidget, PanelContainer):
             obs(change)
 
     def update(self, change=None):
-        self.titrationName.update()
+        # self.titrationName.update()
         self.volumeForm.update()
         self.molecules.update()
 

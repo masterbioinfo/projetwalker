@@ -21,6 +21,15 @@
     margin-right: 0px;
 }
 
+.start-param-container .well {
+    width: 45%;
+    text-align: center;
+}
+
+.start-param-container .well label.widget-label {
+    font-weight: bold;
+}
+
 .volume-input-widget {
     padding-right: 10%;
 }
@@ -116,7 +125,12 @@
     text-align: right;
 }
 
-.align-right .form-head-label {
+.panel .form-head-label {
+    font-weight: bold;
+    text-align: center;
+}
+
+.molecules-param .form-head-label {
     font-weight: bold;
     float: right;
     text-align: center;
