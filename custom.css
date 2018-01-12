@@ -62,6 +62,21 @@
     padding: 0px;
 }
 
+.data-files-view .badge {
+    font-size: 100%;
+    font-family: Courier New, Courier, monospace;
+    padding: 0px;
+}
+
+.list-group .widget-label.list-group-item {
+    height: 40px;
+    margin: 0px;
+    margin-bottom: -1px;
+    box-sizing: border-box;
+}
+
+
+/*
 .data-files-view .dataframe {
     width: 100%;
 }
@@ -72,7 +87,7 @@
 
 .data-files-view .dataframe tr {
     height: 35px;
-}
+} */
 
 .panel-footer .file-uploader .btn {
     width: 100%;

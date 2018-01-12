@@ -62,6 +62,9 @@ class TitrationDirUploader(TitrationWidget, DirectoryUploadWidget):
 
 
 class TitrationFilesView(TitrationWidget, PanelContainer ):
+
+    HeaderBox = HBox
+
     def __init__(self, *args, **kwargs):
 
         PanelContainer.__init__(self, *args,**kwargs)
@@ -70,13 +73,17 @@ class TitrationFilesView(TitrationWidget, PanelContainer ):
 
         self.label = Label("Data files")
         self.label.add_class('panel-header-title')
+        self.files_count = Label('0', layout=Layout(width="26px", height="26px"))
+        self.files_count.add_class("badge")
         self.layout.width="30%"
         self.content.layout.max_height="200px"
         self.content.layout.height="200px"
         self.content.layout.overflow_x="scroll"
         self.content.layout.overflow_y="scroll"
         self.content.layout.display="inline-block"
-        self.set_heading([self.label])
+        self.content.add_class('list-group')
+
+        self.set_heading([self.label, self.files_count])
         self.uploader = TitrationDirUploader()
         self.uploader.add_class('file-uploader')
         self.uploader.add_observer(self.update)
@@ -85,13 +92,17 @@ class TitrationFilesView(TitrationWidget, PanelContainer ):
 
     def update(self):
         self.files = self.titration.files
+        content = []
         if self.files:
-            content = HTML(pd.DataFrame(data=self.files).to_html(index=False, header=False))
-            content.add_class('rendered_html')
-
+            for file in self.files:
+                flabel = Label(file)
+                flabel.add_class('list-group-item')
+                content.append(flabel)
+            # content = HTML(pd.DataFrame(data=self.files).to_html(index=False, header=False))
         else:
-            content = Label('No files yet.')
-        self.set_content([content])
+            content = [Label('No files yet.')]
+        self.set_content(content)
+        self.files_count.value = str(len(self.files))
 
 class Shift2Me(TitrationWidget, VBox):
 
