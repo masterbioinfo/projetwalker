@@ -435,7 +435,10 @@ class TitrationCurveOperator(TitrationWidget, VBox):
             disabled=False,
             value= min(self.filtered)if self.filtered else None,
             tooltip='Pick a residue to plot',
-            layout=Layout(width='50%')
+            layout=Layout(width='35%', min_width='130px'),
+            style={
+                'description_width': '70px'
+            }
         )
         # Select residue from complete list
         self.textinput = BoundedIntText(
@@ -445,7 +448,10 @@ class TitrationCurveOperator(TitrationWidget, VBox):
             min=min(self.titration.complete.keys()),
             max=max(self.titration.complete.keys()),
             tooltip='Pick a residue to plot',
-            layout=Layout(width='50%')
+            layout=Layout(width='35%', min_width='130px'),
+            style={
+                'description_width': '70px'
+            }
         )
 
         # Toggle filtered selection mode
@@ -455,7 +461,8 @@ class TitrationCurveOperator(TitrationWidget, VBox):
             disabled=False,
             button_style='primary',
             icon='dot-circle-o',
-            tooltip='Restrict options to filtered residues'
+            tooltip='Restrict options to filtered residues',
+            layout=Layout(width='25%', min_width='100px')
         )
         self.filter.observe(self.switch_filter, 'value')
 
@@ -470,7 +477,7 @@ class TitrationCurveOperator(TitrationWidget, VBox):
         self.textinput.observe(self.validate_res_text, 'value')
 
         # Set content
-        self.toolbar = HBox([self.dropdown,self.filter])
+        self.toolbar = HBox([self.dropdown,self.filter], layout=Layout(justify_content='space-around'))
         self.children = [self.toolbar, self.curve]
 
         self.update()
